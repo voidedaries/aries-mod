@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "aries",
+  "version": "${version}",
+  "name": "Aries",
+  "description": "A 1.21.11 Skyblock Mod",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/aries/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "dev.voidedaries.aries.client.client.AriesDataGenerator"
+    ],
+    "client": [
+      "dev.voidedaries.aries.client.client.AriesClient"
+    ],
+    "main": [
+      "dev.voidedaries.aries.Aries"
+    ]
+  },
+  "mixins": [
+    "aries.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
