@@ -11,10 +11,10 @@
   "environment": "client",
   "entrypoints": {
     "fabric-datagen": [
-      "dev.voidedaries.aries.client.client.AriesDataGenerator"
+      "dev.voidedaries.aries.client.AriesDataGenerator"
     ],
     "client": [
-      "dev.voidedaries.aries.client.client.AriesClient"
+      "dev.voidedaries.aries.client.AriesClient"
     ],
     "main": [
       "dev.voidedaries.aries.Aries"

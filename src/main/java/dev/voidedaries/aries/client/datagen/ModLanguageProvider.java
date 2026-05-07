@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.client.datagen;
+package dev.voidedaries.aries.client.datagen;
 
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.ModConstants;

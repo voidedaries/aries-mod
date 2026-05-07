@@ -1,12 +1,11 @@
-package dev.voidedaries.aries.client.client.commands;
+package dev.voidedaries.aries.client.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import dev.voidedaries.aries.client.client.gui.AriesScreen;
+import dev.voidedaries.aries.client.gui.AriesScreen;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 
 public class AriesCommands {
 
@@ -21,10 +20,6 @@ public class AriesCommands {
         if (Minecraft.getInstance().player == null) {
             return 0;
         }
-
-        Minecraft.getInstance().player.displayClientMessage(
-                Component.literal("§aAries Menu opened!"), false
-        );
 
         return Command.SINGLE_SUCCESS;
     }

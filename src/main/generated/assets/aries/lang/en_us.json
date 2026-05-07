@@ -1,3 +1,12 @@
 {
-  "gui.aries.menu": "Aries"
+  "gui.menu.categories": "Categories",
+  "gui.menu.category.about": "About",
+  "gui.menu.category.achievements": "Achievements",
+  "gui.menu.category.chat": "Chat",
+  "gui.menu.category.controls": "Controls",
+  "gui.menu.category.dev": "Dev",
+  "gui.menu.category.fishing": "Fishing",
+  "gui.menu.category.performance": "Performance",
+  "gui.menu.category.settings": "Settings",
+  "gui.menu.category.visuals": "Visuals"
 }

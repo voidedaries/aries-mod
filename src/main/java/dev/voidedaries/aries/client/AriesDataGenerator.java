@@ -1,6 +1,6 @@
-package dev.voidedaries.aries.client.client;
+package dev.voidedaries.aries.client;
 
-import dev.voidedaries.aries.client.client.datagen.ModLanguageProvider;
+import dev.voidedaries.aries.client.datagen.ModLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
