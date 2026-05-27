@@ -36,4 +36,4 @@ Author & Dev [VoidedAries](https://github.com/VoidedAries)
 
 Big thanks to [Ricciow](https://github.com/Ricciow) for their help, feedback, and inspiration throughout development.
 
-: Thanks to everyone for their feedback and support during development. Inspired by the incredible Hypixel SkyBlock community.
+Thanks to everyone for their feedback and support during development. Inspired by the incredible Hypixel SkyBlock community.
