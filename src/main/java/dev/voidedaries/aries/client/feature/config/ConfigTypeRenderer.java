@@ -1,0 +1,55 @@
+package dev.voidedaries.aries.client.feature.config;
+
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+
+public class ConfigTypeRenderer {
+    private static final int PADDING = 10;
+
+    private static final int TOGGLE_WIDTH = 25;
+    private static final int TOGGLE_PADDING = 1;
+
+    public static ConfigInteraction drawToggle(
+        GuiGraphics graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int entryX,
+        int entryY
+    ) {
+        int toggleHeight = TOGGLE_WIDTH / 2;
+        int toggleWidth = TOGGLE_WIDTH;
+        int toggleX = (int) (entryX - TOGGLE_WIDTH * 1.5);
+
+        int entryHeight = font.lineHeight * 2 + PADDING;
+        int toggleY = entryY + (entryHeight - toggleHeight) / 2;
+
+        boolean value = (Boolean) config.get();
+
+        // background
+        graphics.fill(
+            toggleX, toggleY, toggleX + toggleWidth, toggleY + toggleHeight,
+            value ? 0xFF0058E1 : 0xFF2D3642
+        );
+
+        // knob
+        int knobSize = toggleHeight - TOGGLE_PADDING * 2;
+        int knobX = value
+            ? toggleX + toggleWidth - knobSize - TOGGLE_PADDING
+            : toggleX + TOGGLE_PADDING;
+
+        graphics.fill(
+            knobX,
+            toggleY + TOGGLE_PADDING,
+            knobX + knobSize,
+            toggleY + toggleHeight - TOGGLE_PADDING,
+            0xFF222933
+        );
+
+        return new ConfigInteraction(config, toggleX, toggleY, toggleWidth, toggleHeight);
+    }
+
+    public static ConfigInteraction drawSlider(GuiGraphics graphics, Font font, AriesConfigType<?> config, int entryX, int entryY) {
+        return new ConfigInteraction(config, 0, 0, 0, 0);
+    }
+
+}

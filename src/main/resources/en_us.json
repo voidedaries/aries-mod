@@ -1,4 +1,5 @@
 {
+  "authors.dev.voidedaries": "VoidedAries",
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
   "gui.menu.category.settings": "Settings",
@@ -8,6 +9,8 @@
   "gui.menu.category.visuals": "Visuals",
   "gui.menu.category.performance": "Performance",
   "gui.menu.category.controls": "Controls",
-  "gui.menu.category.dev": "Dev"
+  "gui.menu.category.dev": "Dev",
 
+  "gui.category.chat.compact_chat.name": "Compact Chat",
+  "gui.category.chat.compact_chat.description": "combines identical messages sent recently"
 }

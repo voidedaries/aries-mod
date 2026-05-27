@@ -1,4 +1,7 @@
 {
+  "authors.dev.voidedaries": "VoidedAries",
+  "gui.category.chat.compact_chat.description": "combines identical messages sent recently",
+  "gui.category.chat.compact_chat.name": "Compact Chat",
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
   "gui.menu.category.achievements": "Achievements",
