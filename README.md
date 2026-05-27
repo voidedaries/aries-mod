@@ -32,6 +32,8 @@ Open the Aries menu with:
 ---
 ## Credits
 
-Author & Dev VoidedAries
+Author & Dev [VoidedAries](https://github.com/VoidedAries)
 
-Inspired by the incredible Hypixel SkyBlock modding community.
+Big thanks to [Ricciow](https://github.com/Ricciow) for their help, feedback, and inspiration throughout development.
+
+: Thanks to everyone for their feedback and support during development. Inspired by the incredible Hypixel SkyBlock community.
