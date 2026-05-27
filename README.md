@@ -1,6 +1,6 @@
 # Aries
 
-Aries is a modern Quality of Life mod focused on improving the Hypixel SkyBlock experience.
+Aries is a lightweight modern Quality of Life mod focused on improving the Hypixel SkyBlock experience.
 
 ---
 ## What is Aries?
@@ -8,6 +8,14 @@ Aries is a modern Quality of Life mod focused on improving the Hypixel SkyBlock 
 Built for modern Minecraft versions and designed with clean UI/UX in mind, Aries aims to provide useful tools, polished interfaces, and configurable features that are intuitive and easy to use.
 
 Whether you're grinding skills, managing chat, or just trying to make SkyBlock less painful, Aries is designed to stay fast, simple, and helpful.
+
+---
+## Features
+
+- Custom in-game configuration menu
+- SkyBlock-focused QoL utilities
+- Lightweight and performance friendly
+- Fully configurable features
 
 ---
 ## Installation
