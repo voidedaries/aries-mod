@@ -12,5 +12,7 @@
   "gui.menu.category.dev": "Dev",
 
   "gui.category.chat.compact_chat.name": "Compact Chat",
-  "gui.category.chat.compact_chat.description": "combines identical messages sent recently"
+  "gui.category.chat.compact_chat.description": "combines identical messages sent recently",
+  "gui.category.chat.compact_chat_time.name": "Compact Chat Duration",
+  "gui.category.chat.compact_chat_time.description": "time in seconds during which duplicate messages are merged."
 }

@@ -51,7 +51,7 @@ public abstract class ChatComponentMixin {
 
         Minecraft minecraft = Minecraft.getInstance();
         int currentTick = minecraft.gui.getGuiTicks();
-        int compactTime = AriesFeatures.COMPACT_CHAT.getCompactTimeSeconds() * SharedConstants.TICKS_PER_SECOND;
+        int compactTime = AriesFeatures.COMPACT_CHAT_TIME.getCompactTimeSeconds() * SharedConstants.TICKS_PER_SECOND;
 
         // delete compactedByMod of entries no longer in allMessages
         Set<Component> activeMessages = Collections.newSetFromMap(new IdentityHashMap<>());

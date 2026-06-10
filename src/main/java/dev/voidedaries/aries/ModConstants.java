@@ -14,7 +14,7 @@ public class ModConstants {
      * - PATCH = bug fixes / tweaks
      * - STAGE = optional (alpha, beta, release)
      */
-    public static final String VERSION = FabricLoader.getInstance().getModContainer("aries").orElseThrow()
+    public static final String VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow()
             .getMetadata()
             .getVersion()
             .getFriendlyString();

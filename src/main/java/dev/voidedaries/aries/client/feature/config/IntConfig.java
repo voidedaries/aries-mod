@@ -11,6 +11,13 @@ public class IntConfig extends AriesConfigType<Integer> {
         this.max = max;
     }
 
+    public int getMin() {
+        return min;
+    }
+    public int getMax() {
+        return max;
+    }
+
     @Override
     protected Integer validate(Integer value) {
         return Math.clamp(value, min, max);

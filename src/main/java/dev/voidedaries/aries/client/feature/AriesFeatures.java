@@ -10,6 +10,7 @@ public class AriesFeatures {
     private static final List<AriesFeature> FEATURES = new ArrayList<>();
 
     public static final CompactChatFeature COMPACT_CHAT = register(new CompactChatFeature());
+    public static final CompactChatTimeFeature COMPACT_CHAT_TIME = register(new CompactChatTimeFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);

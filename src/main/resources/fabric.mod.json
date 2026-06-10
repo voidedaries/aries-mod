@@ -7,7 +7,7 @@
   "authors": [],
   "contact": {},
   "license": "GPL-3.0",
-  "icon": "assets/aries/icon.png",
+  "icon": "assets/aries/logo.png",
   "environment": "client",
   "entrypoints": {
     "fabric-datagen": [

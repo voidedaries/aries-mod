@@ -1,9 +1,7 @@
 package dev.voidedaries.aries.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
@@ -49,8 +47,7 @@ public class AriesConfig {
 
         try {
             Files.createDirectories(ARIES_FILE.getParent());
-
-            syncRuntimeToConfig();
+            setOptionToConfig();
 
             try (Writer writer = Files.newBufferedWriter(ARIES_FILE)) {
                 GSON.toJson(INSTANCE.values, writer);
@@ -61,39 +58,43 @@ public class AriesConfig {
         }
     }
 
-    private static AriesConfig load() {
+    public static AriesConfig load() {
         try (Reader reader = Files.newBufferedReader(ARIES_FILE)) {
-            AriesConfig config = GSON.fromJson(reader, AriesConfig.class);
+            Map<String, JsonElement> values = GSON.fromJson(
+                reader, new TypeToken<Map<String, JsonElement>>(){}.getType()
+            );
 
-            if (config == null) {
-                config = new AriesConfig();
+            AriesConfig config = new AriesConfig();
+
+            if (values != null) {
+                config.values.putAll(values);
             }
 
             fillMissingDefaults(config);
-            applyToRuntimeConfig(config);
+            applyOptionToConfig(config);
 
             return config;
         } catch (NoSuchFileException e) {
-            //creates and applies defaults
+
             return createDefaultConfig();
-        } catch (IOException e) {
-            LOGGER.error("Failed to load aries config file", e);
+        } catch (IOException | JsonParseException e) {
+            LOGGER.error("Failed to load config file or is malformed", e);
 
             AriesConfig fallback = new AriesConfig();
             fillMissingDefaults(fallback);
-            applyToRuntimeConfig(fallback);
-
+            applyOptionToConfig(fallback);
             return fallback;
         }
 
     }
 
-    private static void applyToRuntimeConfig(AriesConfig config) {
+    static void applyOptionToConfig(AriesConfig config) {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
             JsonElement element = config.values.get(option.getKey());
 
             // if missing in file, insert default immediately
             if (element == null) {
+                LOGGER.debug("Missing option key: {}", option.getKey());
                 continue;
             }
 
@@ -107,7 +108,7 @@ public class AriesConfig {
         }
     }
 
-    private static void syncRuntimeToConfig() {
+    private static void setOptionToConfig() {
         if (INSTANCE == null) {
             return;
         }
@@ -134,26 +135,13 @@ public class AriesConfig {
         AriesConfig config = new AriesConfig();
 
         fillMissingDefaults(config);
-        saveToFile(config);
-        applyToRuntimeConfig(config);
+        INSTANCE = config;
+
+        applyOptionToConfig(config);
+        save();
 
         Aries.log("Created default aries config");
         return config;
-    }
-
-    private static void saveToFile(AriesConfig config) {
-        try {
-            Files.createDirectories(ARIES_FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(ARIES_FILE)) {
-                GSON.toJson(config.values, writer);
-            }
-
-            Aries.log("Created default Aries config!");
-
-        } catch (IOException e) {
-            LOGGER.error("Failed to create default config file", e);
-        }
     }
 
     private static JsonPrimitive toJson(AriesConfigType<?> option) {

@@ -2,6 +2,7 @@ package dev.voidedaries.aries.client.gui;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.voidedaries.aries.ModConstants;
+import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.category.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
@@ -21,11 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AriesScreen extends Screen {
-    private static final int MENU_WIDTH = 360;
-    private static final int MENU_HEIGHT = 220;
-
-    private static final int PADDING = 10;
-
     private static final String version = FabricLoader.getInstance()
         .getModContainer(ModConstants.MOD_ID)
         .map(
@@ -36,7 +32,14 @@ public class AriesScreen extends Screen {
         ? version.substring(0, version.indexOf("-"))
         : version;
 
+    private static final int MENU_WIDTH = 360;
+    private static final int MENU_HEIGHT = 220;
+
+    private static final int PADDING = 10;
+
     private boolean authorHovered = false;
+
+    private ConfigInteraction activeSlider = null;
 
     private static AriesCategory selectedCategory = AriesCategory.ABOUT;
 
@@ -79,63 +82,6 @@ public class AriesScreen extends Screen {
                 graphics.requestCursor(CursorTypes.POINTING_HAND);
                 break;
             }
-        }
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
-        int mouseX = (int) event.x();
-        int mouseY = (int) event.y();
-
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            return false;
-        }
-
-        if (authorHovered) {
-            Util.getPlatform().openUri("https://github.com/voidedaries/aries-mod");
-        }
-
-        int x = (this.width - getMenuWidth()) / 2;
-        int y = (this.height - getMenuHeight()) / 2;
-
-        int startY = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
-
-        int i = 0;
-
-        for (AriesCategory category : AriesCategory.values()) {
-
-            int entryY = startY + i * (this.font.lineHeight + PADDING);
-
-            boolean hovered =
-                mouseX >= x && mouseX <= x + getCategoryWidth() &&
-                    mouseY >= entryY && mouseY <= entryY + this.font.lineHeight;
-
-            if (hovered) {
-                selectedCategory = category;
-                return true;
-            }
-
-            i++;
-        }
-
-        for (ConfigInteraction interaction : configTypeInteractions) {
-            if (mouseX >= interaction.x() && mouseX <= interaction.x() + interaction.width() &&
-                mouseY >= interaction.y() && mouseY <= interaction.y() + interaction.height()) {
-                handleInteraction(interaction);
-                return true;
-            }
-        }
-
-        return super.mouseClicked(event, handled);
-    }
-
-    private void handleInteraction(ConfigInteraction interaction) {
-        if (interaction.config() instanceof BooleanConfig bool) {
-            bool.set(!bool.get());
-        }
-
-        else if (interaction.config() instanceof IntConfig integer) {
-            integer.set(integer.get());
         }
     }
 
@@ -183,14 +129,13 @@ public class AriesScreen extends Screen {
             0xFF2D3642
         );
 
+        int entryY = contentY;
+
         // drawing features
         for (AriesFeature feature : AriesFeatures.getFeatures()) {
             if (feature.getCategory() != currentCategory) {
                 continue;
             }
-
-            int entryX = x + getMenuWidth() - PADDING;
-            int entryY = contentY + index * (this.font.lineHeight * 2 + PADDING);
 
             // name
             graphics.drawString(
@@ -202,7 +147,7 @@ public class AriesScreen extends Screen {
             );
 
             // description max width
-            int descMaxWidth = (int) ((getMenuWidth() - getCategoryWidth()) / 1.75);
+            int descMaxWidth = (int) ((getMenuWidth() - getCategoryWidth()) / 1.5);
 
             List<FormattedCharSequence> descLines = this.font.split(
                 Component.literal(feature.getDescription().getString()), descMaxWidth
@@ -221,20 +166,103 @@ public class AriesScreen extends Screen {
                 graphics.pose().popMatrix();
             }
 
+            int controlRightX = x + getMenuWidth() - PADDING * 2;
+
             // config type rendering
             for (AriesConfigType<?> config : feature.getConfigs()) {
                 switch (config.getType()) {
                     case TOGGLE -> configTypeInteractions.add(
-                        ConfigTypeRenderer.drawToggle(graphics, this.font, config, entryX, entryY)
+                        ConfigTypeRenderer.drawToggle(graphics, this.font, config, controlRightX, entryY)
                     );
                     case SLIDER -> configTypeInteractions.add(
-                        ConfigTypeRenderer.drawSlider(graphics, this.font, config, entryX, entryY)
+                        ConfigTypeRenderer.drawSlider(graphics, this.font, config, controlRightX, entryY)
                     );
                 }
             }
 
             index++;
+
+            int featureHeight =
+                this.font.lineHeight + (int)(descLines.size() * this.font.lineHeight * 0.8f) + PADDING * 2;
+
+            entryY += featureHeight;
         }
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        int mouseX = (int) event.x();
+        int mouseY = (int) event.y();
+
+        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            return false;
+        }
+
+        if (authorHovered) {
+            Util.getPlatform().openUri("https://github.com/voidedaries/aries-mod");
+        }
+
+        int x = (this.width - getMenuWidth()) / 2;
+        int y = (this.height - getMenuHeight()) / 2;
+
+        int startY = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
+
+        int i = 0;
+
+        for (AriesCategory category : AriesCategory.values()) {
+
+            int entryY = startY + i * (this.font.lineHeight + PADDING);
+
+            boolean hovered =
+                mouseX >= x && mouseX <= x + getCategoryWidth() &&
+                    mouseY >= entryY && mouseY <= entryY + this.font.lineHeight;
+
+            if (hovered) {
+                selectedCategory = category;
+                return true;
+            }
+
+            i++;
+        }
+
+        for (ConfigInteraction interaction : configTypeInteractions) {
+            boolean hovered = mouseX >= interaction.x() && mouseX <= interaction.x() + interaction.width()
+                && mouseY >= interaction.y() && mouseY <= interaction.y() + interaction.height();
+
+            if (!hovered) {
+                continue;
+            }
+
+            if (interaction.config() instanceof BooleanConfig bool) {
+                bool.set(!bool.get());
+                AriesConfig.save();
+                return true;
+            }
+
+            if (interaction.config() instanceof IntConfig) {
+                activeSlider = interaction;
+                updateSlider(mouseX, interaction);
+                AriesConfig.save();
+                return true;
+            }
+        }
+
+        return super.mouseClicked(event, handled);
+    }
+
+    @Override
+    public boolean mouseDragged(@NonNull MouseButtonEvent event, double mouseX, double mouseY) {
+        if (activeSlider != null) {
+            updateSlider((int) mouseX, activeSlider);
+            return true;
+        }
+        return super.mouseDragged(event, mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseReleased(@NonNull MouseButtonEvent event) {
+        activeSlider = null;
+        return super.mouseReleased(event);
     }
 
     private void drawCategories(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float ignoredDelta) {
@@ -291,6 +319,22 @@ public class AriesScreen extends Screen {
 
     private float getScale() {
         return Mth.clamp(Math.min(this.width / 1920f, this.height / 1080f), 1.0f, 2.0f);
+    }
+
+    private void updateSlider(int mouseX, ConfigInteraction interaction) {
+        if (!(interaction.config() instanceof IntConfig slider)) {
+            return;
+        }
+
+        int x = interaction.x();
+        int width = interaction.width();
+
+        float percent = (mouseX - x) / (float) width;
+        percent = Mth.clamp(percent, 0f, 1f);
+
+        int value = slider.getMin() + Math.round(percent * (slider.getMax() - slider.getMin()));
+
+        slider.set(value);
     }
 
     private int getCategoryWidth() {

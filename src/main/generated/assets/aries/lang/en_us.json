@@ -2,6 +2,8 @@
   "authors.dev.voidedaries": "VoidedAries",
   "gui.category.chat.compact_chat.description": "combines identical messages sent recently",
   "gui.category.chat.compact_chat.name": "Compact Chat",
+  "gui.category.chat.compact_chat_time.description": "time in seconds during which duplicate messages are merged.",
+  "gui.category.chat.compact_chat_time.name": "Compact Chat Duration",
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
   "gui.menu.category.achievements": "Achievements",

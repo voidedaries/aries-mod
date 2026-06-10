@@ -1,13 +1,19 @@
-# Aries
+<h1 align="center">Aries</h1>
 
-Aries is a lightweight modern Quality of Life mod focused on improving the Hypixel SkyBlock experience.
+<p align="center">
+    <img src="src/main/resources/assets/aries/logo.png" width="140" alt="Aries Logo">
+</p>
 
 ---
+
 ## What is Aries?
 
-Built for modern Minecraft versions and designed with clean UI/UX in mind, Aries aims to provide useful tools, polished interfaces, and configurable features that are intuitive and easy to use.
+Aries is a lightweight, modern **Quality of Life** mod built to improve the Hypixel SkyBlock experience, designed for
+newer Minecraft versions with a clean UI/UX, offering **intuitive**, **configurable** tools, polished interfaces, and
+useful features that are easy to use.
 
-Whether you're grinding skills, managing chat, or just trying to make SkyBlock less painful, Aries is designed to stay fast, simple, and helpful.
+Whether you're grinding skills, managing chat, or just trying to make SkyBlock less painful, Aries is designed to stay
+**fast**, **simple**, and **helpful**.
 
 ---
 ## Features
@@ -20,28 +26,34 @@ Whether you're grinding skills, managing chat, or just trying to make SkyBlock l
 ---
 ## Installation
 ### Requirements
-- Minecraft `1.21.11`
+- Minecraft `1.21.11+`
 - Fabric Loader
 - Fabric API
 ### Steps
-- Install Fabric Loader
-- Download the latest Aries release
-- Place the `.jar` inside your `mods` folder
-- Launch Minecraft
+1. Install Fabric Loader for your Minecraft version
+2. Install Fabric API
+3. Download the latest Aries release
+4. Place the `.jar` file into your `mods` folder
+5. Launch Minecraft
 
 ---
 ## Usage
 
-Open the Aries menu with:
+Open the Aries menu using:
 `/aries`
+
 ## Config Location
 `.minecraft/config/aries/aries_config.json`
 
 ---
 ## Credits
 
-Author & Dev [VoidedAries](https://github.com/VoidedAries)
+Author & Developer [VoidedAries](https://github.com/VoidedAries)
 
 Big thanks to [Ricciow](https://github.com/Ricciow) for their help, feedback, and inspiration throughout development.
 
-Thanks to everyone for their feedback and support during development. Inspired by the incredible Hypixel SkyBlock community.
+Also, a huge thank you to [Earthcomputer](https://github.com/Earthcomputer) for their patience and support in helping me solve technical issues and
+overcome development challenges along the way.
+
+Thanks to **everyone** for their feedback and support during development. Inspired by the incredible Hypixel SkyBlock
+community.
