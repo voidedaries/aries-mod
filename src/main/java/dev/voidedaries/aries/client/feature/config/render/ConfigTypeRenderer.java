@@ -125,7 +125,7 @@ public class ConfigTypeRenderer {
 
         graphics.fill(x, y, x + colorPickerWidth, y + colorPickerHeight, value);
 
-        return new ConfigInteraction(config, x, y, colorPickerWidth, Math.max(colorPickerHeight, font.lineHeight));
+        return new ConfigInteraction(config, x, y, colorPickerWidth, colorPickerHeight);
     }
 
 }

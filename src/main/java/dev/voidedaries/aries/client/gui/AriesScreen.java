@@ -42,6 +42,8 @@ public class AriesScreen extends Screen {
     @Override
     protected void init() {
         configTypeInteractions.clear();
+
+        selectedCategory = AriesUIState.lastCategory;
     }
 
     @Override
@@ -110,7 +112,7 @@ public class AriesScreen extends Screen {
 
         // drawing features
         for (AriesFeature feature : AriesFeatures.getFeatures()) {
-            if (feature.getCategory() != currentCategory) {
+            if (feature.getCategory() != currentCategory || !feature.isVisible()) {
                 continue;
             }
 
@@ -294,6 +296,7 @@ public class AriesScreen extends Screen {
 
             if (hovered) {
                 selectedCategory = category;
+                AriesUIState.lastCategory = category;
                 return true;
             }
 

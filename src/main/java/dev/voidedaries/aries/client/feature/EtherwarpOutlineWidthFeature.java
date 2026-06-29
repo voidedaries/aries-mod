@@ -13,5 +13,6 @@ public class EtherwarpOutlineWidthFeature extends AriesFeature {
             Component.translatable("gui.category.visuals.etherwarp_outline.width.description"),
             AriesCategory.VISUALS
         );
+        this.visibleWhen(AriesFeatures.ETHERWARP_OUTLINE.enabled::get);
     }
 }

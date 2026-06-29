@@ -13,5 +13,6 @@ public class EtherwarpOutlineInvalidFeature extends AriesFeature {
             Component.translatable("gui.category.visuals.etherwarp_outline.invalid_color.description"),
             AriesCategory.VISUALS
         );
+        this.visibleWhen(AriesFeatures.ETHERWARP_OUTLINE.enabled::get);
     }
 }

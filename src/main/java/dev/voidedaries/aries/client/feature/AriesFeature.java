@@ -6,12 +6,14 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class AriesFeature {
     private final Component name;
     private final Component description;
     private final AriesCategory category;
     private final List<AriesConfigType<?>> configs = new ArrayList<>();
+    private Supplier<Boolean> visibleCondition = () -> true;
 
     public AriesFeature(Component name, Component description, AriesCategory category) {
         this.name = name;
@@ -39,5 +41,14 @@ public abstract class AriesFeature {
 
     public AriesCategory getCategory() {
         return category;
+    }
+
+    public boolean isVisible() {
+        return visibleCondition.get();
+    }
+
+    public AriesFeature visibleWhen(Supplier<Boolean> condition) {
+        this.visibleCondition = condition;
+        return this;
     }
 }
