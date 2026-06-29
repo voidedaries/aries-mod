@@ -1,5 +1,8 @@
-package dev.voidedaries.aries.client.feature.config;
+package dev.voidedaries.aries.client.feature.config.render;
 
+import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.config.types.ColorConfig;
+import dev.voidedaries.aries.client.feature.config.types.IntConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -7,10 +10,14 @@ public class ConfigTypeRenderer {
     private static final int PADDING = 10;
 
     private static final int TOGGLE_WIDTH = 25;
+    public static final int TOGGLE_HEIGHT = TOGGLE_WIDTH / 2;
     private static final int TOGGLE_PADDING = 1;
 
+    public static final int COLOR_PICKER_WIDTH = 25;
+    public static final int COLOR_PICKER_HEIGHT = (int) (COLOR_PICKER_WIDTH / 1.5);
+
     private static final int SLIDER_WIDTH = 60;
-    private static final int SLIDER_HEIGHT = 8;
+    public static final int SLIDER_HEIGHT = 8;
     private static final int SLIDER_KNOB_SIZE = 10;
 
     public static ConfigInteraction drawToggle(
@@ -20,7 +27,7 @@ public class ConfigTypeRenderer {
         int controlRightX,
         int entryY
     ) {
-        int toggleHeight = TOGGLE_WIDTH / 2;
+        int toggleHeight = TOGGLE_HEIGHT;
         int toggleWidth = TOGGLE_WIDTH;
         int toggleX = controlRightX - TOGGLE_WIDTH;
 
@@ -52,7 +59,13 @@ public class ConfigTypeRenderer {
         return new ConfigInteraction(config, toggleX, toggleY, toggleWidth, toggleHeight);
     }
 
-    public static ConfigInteraction drawSlider(GuiGraphics graphics, Font font, AriesConfigType<?> config, int controlRightX, int entryY) {
+    public static ConfigInteraction drawSlider(
+        GuiGraphics graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int entryY
+    ) {
         IntConfig slider = (IntConfig) config;
 
         int width = SLIDER_WIDTH;
@@ -91,6 +104,28 @@ public class ConfigTypeRenderer {
         );
 
         return new ConfigInteraction(config, x, y, width, knobSize);
+    }
+
+    public static ConfigInteraction drawColorPicker(
+        GuiGraphics graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int entryY
+    ) {
+        ColorConfig color = (ColorConfig) config;
+
+        int colorPickerWidth = COLOR_PICKER_WIDTH;
+        int colorPickerHeight = COLOR_PICKER_HEIGHT;
+
+        int value = color.get();
+
+        int x = controlRightX - colorPickerWidth;
+        int y = entryY + font.lineHeight;
+
+        graphics.fill(x, y, x + colorPickerWidth, y + colorPickerHeight, value);
+
+        return new ConfigInteraction(config, x, y, colorPickerWidth, Math.max(colorPickerHeight, font.lineHeight));
     }
 
 }

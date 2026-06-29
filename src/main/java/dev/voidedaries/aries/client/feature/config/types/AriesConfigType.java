@@ -1,11 +1,15 @@
-package dev.voidedaries.aries.client.feature.config;
+package dev.voidedaries.aries.client.feature.config.types;
 
 import dev.voidedaries.aries.client.AriesConfig;
+import dev.voidedaries.aries.client.feature.AriesFeature;
+import dev.voidedaries.aries.client.feature.config.ConfigTypes;
 
 public abstract class AriesConfigType<T> {
 
     private final String key;
     protected final T defaultValue;
+
+    private AriesFeature feature;
 
     private T value;
 
@@ -33,6 +37,18 @@ public abstract class AriesConfigType<T> {
         return key;
     }
 
+    public T getDefaultValue() {
+        return defaultValue;
+    }
+
     public abstract ConfigTypes getType();
+
+    public void setFeature(AriesFeature feature) {
+        this.feature = feature;
+    }
+
+    public AriesFeature getFeature() {
+        return feature;
+    }
 
 }

@@ -4,6 +4,19 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public class ModConstants {
     public static final String MOD_ID = "aries";
+
+    private static final String version = FabricLoader.getInstance()
+        .getModContainer(ModConstants.MOD_ID)
+        .map(
+            mod -> mod.getMetadata().getVersion().getFriendlyString()
+        ).orElse("unknown");
+
+    public static final String displayVersion = version.contains("-")
+        ? version.substring(0, version.indexOf("-"))
+        : version;
+
+    public static final String GITHUB_URL = "https://github.com/voidedaries/aries-mod";
+
     /**
      * Version format:
      * MAJOR.MINOR.PATCH[-STAGE]
@@ -18,5 +31,4 @@ public class ModConstants {
             .getMetadata()
             .getVersion()
             .getFriendlyString();
-
 }

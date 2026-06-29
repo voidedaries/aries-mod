@@ -1,7 +1,7 @@
 package dev.voidedaries.aries.client.feature;
 
 import dev.voidedaries.aries.client.category.AriesCategory;
-import dev.voidedaries.aries.client.feature.config.AriesConfigType;
+import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ public abstract class AriesFeature {
     }
 
     protected <T extends AriesConfigType<?>> T addConfig(T config) {
+        config.setFeature(this);
         configs.add(config);
         return config;
     }

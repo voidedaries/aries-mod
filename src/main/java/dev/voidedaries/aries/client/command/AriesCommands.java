@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.commands;
+package dev.voidedaries.aries.client.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -22,7 +22,16 @@ public class AriesCommands {
             .then(ClientCommandManager.literal("save")
                 .executes(_ -> {
                     AriesConfig.save();
-                    Aries.log("Saved Aries config!");
+                    Aries.log("Saved Aries config");
+                    return Command.SINGLE_SUCCESS;
+                })
+            ));
+
+        root.then(ClientCommandManager.literal("config")
+            .then(ClientCommandManager.literal("reset")
+                .executes(_ -> {
+                    AriesConfig.resetToDefaults();
+                    Aries.log("Reset Aries config");
                     return Command.SINGLE_SUCCESS;
                 })
             ));

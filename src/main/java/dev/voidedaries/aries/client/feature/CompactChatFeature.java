@@ -1,7 +1,7 @@
 package dev.voidedaries.aries.client.feature;
 
 import dev.voidedaries.aries.client.category.AriesCategory;
-import dev.voidedaries.aries.client.feature.config.BooleanConfig;
+import dev.voidedaries.aries.client.feature.config.types.BooleanConfig;
 import net.minecraft.network.chat.Component;
 
 public class CompactChatFeature extends AriesFeature {

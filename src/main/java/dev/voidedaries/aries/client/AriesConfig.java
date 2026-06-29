@@ -5,9 +5,10 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.config.AriesConfigType;
-import dev.voidedaries.aries.client.feature.config.BooleanConfig;
-import dev.voidedaries.aries.client.feature.config.IntConfig;
+import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.config.types.BooleanConfig;
+import dev.voidedaries.aries.client.feature.config.types.ColorConfig;
+import dev.voidedaries.aries.client.feature.config.types.IntConfig;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 
@@ -18,64 +19,84 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class AriesConfig {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Path ARIES_FILE = FabricLoader.getInstance().getConfigDir()
-            .resolve("aries").resolve("aries_config.json");
+            .resolve("aries").resolve("config.json");
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public static AriesConfig INSTANCE;
 
-    public Map<String, JsonElement> values = new HashMap<>();
+    public Map<String, JsonObject> categories = new HashMap<>();
 
     public static void init() {
         Aries.log("Loading Aries config...");
-
         INSTANCE = load();
         save();
     }
 
     public static void save() {
         if (INSTANCE == null) {
-            LOGGER.warn("Tried to save config before init");
             return;
         }
 
         try {
+            ConfigWatcher.setIgnore(true);
             Files.createDirectories(ARIES_FILE.getParent());
-            setOptionToConfig();
+            writeFromRuntime();
 
             try (Writer writer = Files.newBufferedWriter(ARIES_FILE)) {
-                GSON.toJson(INSTANCE.values, writer);
+                GSON.toJson(INSTANCE.categories, writer);
             }
 
         } catch (IOException e) {
             LOGGER.error("Failed to save aries config file", e);
+        } finally {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {}
+
+                ConfigWatcher.setIgnore(false);
+            }).start();
+        }
+    }
+
+    private static void writeFromRuntime() {
+        INSTANCE.categories.clear();
+
+        for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
+            if (option.getFeature() == null) {
+                continue;
+            }
+
+            String category = categoryOf(option);
+            JsonObject obj = INSTANCE.categories.computeIfAbsent(category, _ -> new JsonObject());
+            obj.add(option.getKey(), write(option));
         }
     }
 
     public static AriesConfig load() {
         try (Reader reader = Files.newBufferedReader(ARIES_FILE)) {
-            Map<String, JsonElement> values = GSON.fromJson(
-                reader, new TypeToken<Map<String, JsonElement>>(){}.getType()
+            Map<String, JsonObject> data = GSON.fromJson(
+                reader, new TypeToken<Map<String, JsonObject>>(){}.getType()
             );
 
             AriesConfig config = new AriesConfig();
 
-            if (values != null) {
-                config.values.putAll(values);
+            if (data != null) {
+                config.categories.putAll(data);
             }
 
-            fillMissingDefaults(config);
             applyOptionToConfig(config);
 
             return config;
         } catch (NoSuchFileException e) {
-
             return createDefaultConfig();
         } catch (IOException | JsonParseException e) {
             LOGGER.error("Failed to load config file or is malformed", e);
@@ -90,44 +111,50 @@ public class AriesConfig {
 
     static void applyOptionToConfig(AriesConfig config) {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-            JsonElement element = config.values.get(option.getKey());
-
-            // if missing in file, insert default immediately
-            if (element == null) {
-                LOGGER.debug("Missing option key: {}", option.getKey());
+            if (option.getFeature() == null) {
                 continue;
             }
 
-            if (option instanceof BooleanConfig bool) {
-                bool.set(element.getAsBoolean());
+            JsonObject obj =
+                config.categories.computeIfAbsent(categoryOf(option), _ -> new JsonObject());
+
+            JsonElement element = obj.get(option.getKey());
+
+            if (element == null) {
+                continue;
             }
 
-            else if (option instanceof IntConfig integer) {
-                integer.set(element.getAsInt());
+            //noinspection IfCanBeSwitch
+            if (option instanceof BooleanConfig b) {
+                b.set(element.getAsBoolean());
             }
-        }
-    }
-
-    private static void setOptionToConfig() {
-        if (INSTANCE == null) {
-            return;
-        }
-
-        for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-            String key = option.getKey();
-
-            if (option instanceof BooleanConfig bool) {
-                INSTANCE.values.put(key, new JsonPrimitive(bool.get()));
+            else if (option instanceof IntConfig i) {
+                i.set(element.getAsInt());
             }
-            else if (option instanceof IntConfig integer) {
-                INSTANCE.values.put(key, new JsonPrimitive(integer.get()));
+            else if (option instanceof ColorConfig c) {
+                try {
+                    String raw = element.getAsString().trim();
+                    c.set(ColorConfig.parse(raw));
+                } catch (Exception e) {
+                    LOGGER.warn("Invalid color in config for {}: {}", option.getKey(), element);
+                }
             }
         }
     }
 
     private static void fillMissingDefaults(AriesConfig config) {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-            config.values.putIfAbsent(option.getKey(), toJson(option));
+
+            if (option.getFeature() == null) {
+                continue;
+            }
+
+            String category = categoryOf(option);
+            JsonObject obj = config.categories.computeIfAbsent(category, _ -> new JsonObject());
+
+            if (!obj.has(option.getKey())) {
+                obj.add(option.getKey(), defaultJson(option));
+            }
         }
     }
 
@@ -138,13 +165,28 @@ public class AriesConfig {
         INSTANCE = config;
 
         applyOptionToConfig(config);
-        save();
 
         Aries.log("Created default aries config");
         return config;
     }
 
-    private static JsonPrimitive toJson(AriesConfigType<?> option) {
+    private static JsonElement write(AriesConfigType<?> option) {
+        if (option instanceof BooleanConfig b) {
+            return new JsonPrimitive(b.get());
+        }
+
+        if (option instanceof IntConfig i) {
+            return new JsonPrimitive(i.get());
+        }
+
+        if (option instanceof ColorConfig c) {
+            return new JsonPrimitive(String.format("0x%08X", c.get()));
+        }
+
+        throw new IllegalStateException("Unsupported config type: " + option.getClass());
+    }
+
+    private static JsonElement defaultJson(AriesConfigType<?> option) {
         if (option instanceof BooleanConfig b) {
             return new JsonPrimitive(b.getDefaultValue());
         }
@@ -153,6 +195,37 @@ public class AriesConfig {
             return new JsonPrimitive(i.getDefaultValue());
         }
 
-        throw new IllegalStateException("Unsupported config type: " + option.getClass());
+        if (option instanceof ColorConfig c) {
+            return new JsonPrimitive(String.format("0x%08X", c.getDefaultValue()));
+        }
+
+        throw new IllegalStateException("Unsupported type: " + option.getClass());
+    }
+
+    private static String categoryOf(AriesConfigType<?> option) {
+        return option.getFeature().getCategory().name().toLowerCase(Locale.ROOT);
+    }
+
+    public static void resetToDefaults() {
+        for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
+
+            if (option instanceof BooleanConfig b) {
+                b.set(b.getDefaultValue());
+            } else if (option instanceof IntConfig i) {
+                i.set(i.getDefaultValue());
+            } else if (option instanceof ColorConfig c) {
+                c.set(c.getDefaultValue());
+            }
+        }
+
+        save();
+    }
+
+    public static Path getConfigFile() {
+        return ARIES_FILE;
+    }
+
+    public static void reload() {
+        INSTANCE = load();
     }
 }

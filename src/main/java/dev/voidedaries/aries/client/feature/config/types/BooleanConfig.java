@@ -1,13 +1,11 @@
-package dev.voidedaries.aries.client.feature.config;
+package dev.voidedaries.aries.client.feature.config.types;
+
+import dev.voidedaries.aries.client.feature.config.ConfigTypes;
 
 public class BooleanConfig extends AriesConfigType<Boolean> {
 
     public BooleanConfig(String key, Boolean defaultValue) {
         super(key, defaultValue);
-    }
-
-    public boolean getDefaultValue() {
-        return defaultValue;
     }
 
     @Override

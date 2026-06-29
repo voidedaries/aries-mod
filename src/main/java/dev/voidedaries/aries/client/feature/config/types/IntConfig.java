@@ -1,4 +1,6 @@
-package dev.voidedaries.aries.client.feature.config;
+package dev.voidedaries.aries.client.feature.config.types;
+
+import dev.voidedaries.aries.client.feature.config.ConfigTypes;
 
 public class IntConfig extends AriesConfigType<Integer> {
 
@@ -21,10 +23,6 @@ public class IntConfig extends AriesConfigType<Integer> {
     @Override
     protected Integer validate(Integer value) {
         return Math.clamp(value, min, max);
-    }
-
-    public int getDefaultValue() {
-        return defaultValue;
     }
 
     @Override
