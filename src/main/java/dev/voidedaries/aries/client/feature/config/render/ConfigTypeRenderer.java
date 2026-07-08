@@ -2,9 +2,9 @@ package dev.voidedaries.aries.client.feature.config.render;
 
 import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
 import dev.voidedaries.aries.client.feature.config.types.ColorConfig;
-import dev.voidedaries.aries.client.feature.config.types.IntConfig;
+import dev.voidedaries.aries.client.feature.config.types.SliderConfig;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class ConfigTypeRenderer {
     private static final int PADDING = 10;
@@ -20,8 +20,26 @@ public class ConfigTypeRenderer {
     public static final int SLIDER_HEIGHT = 8;
     private static final int SLIDER_KNOB_SIZE = 10;
 
+    public static int getWidth(AriesConfigType<?> config) {
+        return switch (config.getType()) {
+            case TOGGLE -> TOGGLE_WIDTH;
+            case SLIDER -> SLIDER_WIDTH;
+            case COLOR -> COLOR_PICKER_WIDTH;
+            default -> 0;
+        };
+    }
+
+    public static int getHeight(AriesConfigType<?> config) {
+        return switch (config.getType()) {
+            case TOGGLE -> TOGGLE_HEIGHT;
+            case SLIDER -> SLIDER_HEIGHT;
+            case COLOR -> COLOR_PICKER_HEIGHT;
+            default -> 0;
+        };
+    }
+
     public static ConfigInteraction drawToggle(
-        GuiGraphics graphics,
+        GuiGraphicsExtractor graphics,
         Font font,
         AriesConfigType<?> config,
         int controlRightX,
@@ -60,13 +78,13 @@ public class ConfigTypeRenderer {
     }
 
     public static ConfigInteraction drawSlider(
-        GuiGraphics graphics,
+        GuiGraphicsExtractor graphics,
         Font font,
         AriesConfigType<?> config,
         int controlRightX,
         int entryY
     ) {
-        IntConfig slider = (IntConfig) config;
+        SliderConfig slider = (SliderConfig) config;
 
         int width = SLIDER_WIDTH;
         int height = SLIDER_HEIGHT;
@@ -74,11 +92,11 @@ public class ConfigTypeRenderer {
         int x = controlRightX - width;
         int y = entryY + font.lineHeight;
 
-        int min = slider.getMin();
-        int max = slider.getMax();
-        int value = slider.get();
+        float min = slider.getMin();
+        float max = slider.getMax();
+        float value = slider.getAsFloat();
 
-        float percent = (value - min) / (float)(max - min);
+        float percent = (value - min) / (max - min);
         percent = Math.clamp(percent, 0f, 1f);
 
         int fillWidth = (int)(width * percent);
@@ -107,7 +125,7 @@ public class ConfigTypeRenderer {
     }
 
     public static ConfigInteraction drawColorPicker(
-        GuiGraphics graphics,
+        GuiGraphicsExtractor graphics,
         Font font,
         AriesConfigType<?> config,
         int controlRightX,

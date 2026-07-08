@@ -3,10 +3,11 @@ package dev.voidedaries.aries.mixin;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.GuiMessage;
-import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Final;
@@ -36,21 +37,18 @@ public abstract class ChatComponentMixin {
     @Unique
     private final Map<Component, CompactEntry> compactedMessages = new IdentityHashMap<>();
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     private void compactChat(
-        Component message,
-        MessageSignature signature,
-        GuiMessageTag tag,
-        CallbackInfo ci
+        Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci
     ) {
         if (!AriesFeatures.COMPACT_CHAT.isEnabled() || this.allMessages.isEmpty()) {
             return;
         }
 
-        String incomingText = message.getString();
+        String incomingText = contents.getString();
 
         Minecraft minecraft = Minecraft.getInstance();
-        int currentTick = minecraft.gui.getGuiTicks();
+        int currentTick = minecraft.gui.hud.getGuiTicks();
         int compactTime = AriesFeatures.COMPACT_CHAT_TIME.getCompactTimeSeconds() * SharedConstants.TICKS_PER_SECOND;
 
         // delete compactedByMod of entries no longer in allMessages
@@ -82,7 +80,7 @@ public abstract class ChatComponentMixin {
             int newCount = messageEntry != null ? messageEntry.count() + 1 : 2;
 
             Component compacted = Component.empty()
-                .append(message.copy())
+                .append(contents.copy())
                 .append(
                     Component.literal(" (" + newCount + ")")
                         .withStyle(s -> s
@@ -97,9 +95,10 @@ public abstract class ChatComponentMixin {
             this.allMessages.remove(time);
             this.allMessages.addFirst(
                 new GuiMessage(
-                    minecraft.gui.getGuiTicks(),
+                    minecraft.gui.hud.getGuiTicks(),
                     compacted,
                     existingMessage.signature(),
+                    existingMessage.source(),
                     existingMessage.tag()
                 )
             );

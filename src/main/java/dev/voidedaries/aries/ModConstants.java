@@ -17,6 +17,8 @@ public class ModConstants {
 
     public static final String GITHUB_URL = "https://github.com/voidedaries/aries-mod";
 
+    public static final String ABOUT_DESCRIPTION = "Aries is a lightweight, modern QoL mod built to improve the Hypixel SkyBlock experience, designed for newer Minecraft versions, offering intuitive, configurable tools, polished interfaces, and useful features that are easy to use.";
+
     /**
      * Version format:
      * MAJOR.MINOR.PATCH[-STAGE]

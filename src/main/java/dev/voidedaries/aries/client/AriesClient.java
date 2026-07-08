@@ -6,22 +6,16 @@ import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.render.RenderManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 
 public class AriesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        try {
-            SuppressAuthlibSpam.init();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
         AriesFeatures.init();
         AriesConfig.init();
 
-        WorldRenderEvents.AFTER_ENTITIES.register(RenderManager::render);
+        LevelRenderEvents.AFTER_SOLID_FEATURES.register(RenderManager::render);
 
         (new Thread(new ConfigWatcher(), "Aries-ConfigWatcher")).start();
 

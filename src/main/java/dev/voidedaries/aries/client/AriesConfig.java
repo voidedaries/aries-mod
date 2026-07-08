@@ -5,10 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
-import dev.voidedaries.aries.client.feature.config.types.BooleanConfig;
-import dev.voidedaries.aries.client.feature.config.types.ColorConfig;
-import dev.voidedaries.aries.client.feature.config.types.IntConfig;
+import dev.voidedaries.aries.client.feature.config.types.*;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 
@@ -131,6 +128,9 @@ public class AriesConfig {
             else if (option instanceof IntConfig i) {
                 i.set(element.getAsInt());
             }
+            else if (option instanceof FloatConfig f) {
+                f.set(element.getAsFloat());
+            }
             else if (option instanceof ColorConfig c) {
                 try {
                     String raw = element.getAsString().trim();
@@ -179,6 +179,10 @@ public class AriesConfig {
             return new JsonPrimitive(i.get());
         }
 
+        if (option instanceof FloatConfig f) {
+            return new JsonPrimitive(f.get());
+        }
+
         if (option instanceof ColorConfig c) {
             return new JsonPrimitive(String.format("0x%08X", c.get()));
         }
@@ -193,6 +197,10 @@ public class AriesConfig {
 
         if (option instanceof IntConfig i) {
             return new JsonPrimitive(i.getDefaultValue());
+        }
+
+        if (option instanceof FloatConfig f) {
+            return new JsonPrimitive(f.getDefaultValue());
         }
 
         if (option instanceof ColorConfig c) {
@@ -213,6 +221,8 @@ public class AriesConfig {
                 b.set(b.getDefaultValue());
             } else if (option instanceof IntConfig i) {
                 i.set(i.getDefaultValue());
+            } else if (option instanceof FloatConfig f) {
+                f.set(f.getDefaultValue());
             } else if (option instanceof ColorConfig c) {
                 c.set(c.getDefaultValue());
             }

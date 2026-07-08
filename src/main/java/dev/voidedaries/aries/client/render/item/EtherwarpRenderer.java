@@ -2,11 +2,13 @@ package dev.voidedaries.aries.client.render.item;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.render.BlockRenderer;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -22,34 +24,50 @@ public class EtherwarpRenderer {
         OUT_OF_RANGE
     }
 
-    public static void render(WorldRenderContext context) {
+    public static void render(LevelRenderContext context) {
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
 
-        if (player == null) return;
-        if (!AriesFeatures.ETHERWARP_OUTLINE.enabled.get()) return;
-        if (!player.isShiftKeyDown()) return;
+        if (player == null) {
+            return;
+        }
+
+        if (!AriesFeatures.ETHERWARP_OUTLINE.enabled.get()) {
+            return;
+        }
+
+        if (!player.isShiftKeyDown()) {
+            return;
+        }
+        float partialTick = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
 
         BlockHitResult hit = raycast(player);
 
-        if (hit.getType() != HitResult.Type.BLOCK) return;
+        if (hit == null) {
+            return;
+        }
+
+        if (hit.getType() != HitResult.Type.BLOCK) {
+            return;
+        }
 
         BlockPos pos = hit.getBlockPos();
+        AABB box = new AABB(pos);
 
         double distance = hit.getLocation()
-            .distanceTo(player.getEyePosition(1.0F));
+            .distanceTo(player.getEyePosition(partialTick));
 
         TargetState state = getTargetState(player, pos, distance);
 
         switch (state) {
             case VALID -> BlockRenderer.renderBlockOutline(
-                context, pos,
+                context, box,
                 AriesFeatures.ETHERWARP_OUTLINE_VALID.etherwarpValidColor.get(),
                 AriesFeatures.ETHERWARP_OUTLINE_WIDTH.etherwarpWidth.get()
             );
 
             case BLOCKED, INVALID_BLOCK -> BlockRenderer.renderBlockOutline(
-                context, pos,
+                context, box,
                 AriesFeatures.ETHERWARP_OUTLINE_INVALID.etherwarpInvalidColor.get(),
                 AriesFeatures.ETHERWARP_OUTLINE_WIDTH.etherwarpWidth.get()
             );
@@ -82,11 +100,19 @@ public class EtherwarpRenderer {
     }
 
     private static BlockHitResult raycast(Player player) {
-        Vec3 start = player.getEyePosition(1.0F);
-        Vec3 look = player.getLookAngle();
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft.level == null) {
+            return null;
+        }
+
+        Camera camera = minecraft.gameRenderer.mainCamera();
+
+        Vec3 start = camera.position();
+        Vec3 look = new Vec3(camera.forwardVector());
+
         Vec3 end = start.add(look.scale(ETHERWARP_RANGE));
 
-        //noinspection resource
         return player.level().clip(new ClipContext(
             start,
             end,

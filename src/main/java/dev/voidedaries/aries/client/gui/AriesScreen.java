@@ -11,7 +11,8 @@ import dev.voidedaries.aries.client.feature.config.render.ConfigTypeRenderer;
 import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
 import dev.voidedaries.aries.client.feature.config.types.BooleanConfig;
 import dev.voidedaries.aries.client.feature.config.types.IntConfig;
-import net.minecraft.client.gui.GuiGraphics;
+import dev.voidedaries.aries.client.feature.config.types.SliderConfig;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -47,8 +48,8 @@ public class AriesScreen extends Screen {
     }
 
     @Override
-    public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
 
         configTypeInteractions.clear();
 
@@ -58,8 +59,8 @@ public class AriesScreen extends Screen {
         graphics.fill(x, y, x + getMenuWidth(), y + getMenuHeight(), 0xFF222933);
         graphics.fill(x, y, x + getCategoryWidth(), y + getMenuHeight(), 0xFF151A21);
 
-        drawMenu(graphics, mouseX, mouseY, delta);
         drawCategories(graphics, mouseX, mouseY, delta);
+        drawMenu(graphics, mouseX, mouseY, delta);
 
         for (ConfigInteraction interaction : configTypeInteractions) {
             if (ScreenHelper.isHovered(
@@ -73,7 +74,7 @@ public class AriesScreen extends Screen {
         }
     }
 
-    private void drawMenu(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float ignoredDelta) {
+    private void drawMenu(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float ignoredDelta) {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
@@ -88,7 +89,7 @@ public class AriesScreen extends Screen {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
 
-        graphics.drawString(
+        graphics.centeredText(
             this.font,
             Component.literal("Aries")
                 .append(Component.literal(" • ").withColor(0xFFADB5C9))
@@ -101,7 +102,7 @@ public class AriesScreen extends Screen {
             0xFF0058E1
         );
 
-        graphics.hLine(
+        graphics.horizontalLine(
             x + getCategoryWidth() + PADDING,
             x + getMenuWidth() - PADDING,
             y + PADDING + this.font.lineHeight + PADDING / 2,
@@ -116,7 +117,7 @@ public class AriesScreen extends Screen {
                 continue;
             }
 
-            graphics.drawString(
+            graphics.text(
                 this.font,
                 feature.getName(),
                 contentX,
@@ -139,7 +140,7 @@ public class AriesScreen extends Screen {
                     entryY + this.font.lineHeight + (float) PADDING / 2 + line * this.font.lineHeight
                 );
                 graphics.pose().scale(descScale, descScale);
-                graphics.drawString(this.font, descLines.get(line), 0, 0, 0xFFADB5C9);
+                graphics.text(this.font, descLines.get(line), 0, 0, 0xFFADB5C9);
                 graphics.pose().popMatrix();
             }
 
@@ -167,13 +168,13 @@ public class AriesScreen extends Screen {
         }
     }
 
-    private void drawCategories(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float ignoredDelta) {
+    private void drawCategories(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float ignoredDelta) {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
         int startCategoryHeight = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
 
-        graphics.drawCenteredString(
+        graphics.centeredText(
             this.font,
             Component.translatable("gui.menu.categories"),
             x + (getCategoryWidth() / 2),
@@ -181,7 +182,7 @@ public class AriesScreen extends Screen {
             0xFF0058E1
         );
 
-        graphics.hLine(
+        graphics.horizontalLine(
             x + PADDING,
             x + getCategoryWidth() - PADDING,
             y + PADDING + this.font.lineHeight + PADDING / 2,
@@ -205,7 +206,7 @@ public class AriesScreen extends Screen {
                 ? 0xFFFFFFFF
                 : (categoryHovered ? 0xFFFFFFFF : 0xFFADB5C9);
 
-            graphics.drawCenteredString(
+            graphics.centeredText(
                 this.font,
                 category.getName(),
                 x + (getCategoryWidth() / 2),
@@ -234,7 +235,7 @@ public class AriesScreen extends Screen {
     }
 
     private void updateSlider(int mouseX, ConfigInteraction interaction) {
-        if (!(interaction.config() instanceof IntConfig slider)) {
+        if (!(interaction.config() instanceof SliderConfig slider)) {
             return;
         }
 
@@ -244,9 +245,7 @@ public class AriesScreen extends Screen {
         float percent = (mouseX - x) / (float) width;
         percent = Mth.clamp(percent, 0f, 1f);
 
-        int value = slider.getMin() + Math.round(percent * (slider.getMax() - slider.getMin()));
-
-        slider.set(value);
+        slider.setFromPercent(percent);
     }
 
     private int getCategoryWidth() {

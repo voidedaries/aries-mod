@@ -2,12 +2,12 @@ package dev.voidedaries.aries.client.feature.config.types;
 
 import dev.voidedaries.aries.client.feature.config.ConfigTypes;
 
-public class IntConfig extends AriesConfigType<Integer> implements SliderConfig {
+public class FloatConfig extends AriesConfigType<Float> implements SliderConfig {
 
-    private final int min;
-    private final int max;
+    private final float min;
+    private final float max;
 
-    public IntConfig(String key, Integer defaultValue,  int min, int max) {
+    public FloatConfig(String key, Float defaultValue, float min, float max) {
         super(key, defaultValue);
         this.min = min;
         this.max = max;
@@ -30,12 +30,12 @@ public class IntConfig extends AriesConfigType<Integer> implements SliderConfig 
 
     @Override
     public void setFromPercent(float percent) {
-        int value = min + Math.round(percent * (max - min));
+        float value = min + percent * (max - min);
         set(value);
     }
 
     @Override
-    protected Integer validate(Integer value) {
+    protected Float validate(Float value) {
         return Math.clamp(value, min, max);
     }
 
