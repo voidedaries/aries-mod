@@ -26,8 +26,36 @@ if (-not $previousVersion) {
 
 
 $newVersion = [Microsoft.VisualBasic.Interaction]::InputBox(
-    "Previous version: $previousVersion`nCurrent version:  $currentVersion`n`nEnter new version:",
-    "Aries Version",
+@"
+Aries Version Update
+
+Use:
+MAJOR.MINOR.PATCH[-STAGE]
+
+Examples:
+  0.1.0-alpha
+  0.1.0-alpha.1
+  0.2.0
+  1.0.0
+
+Version guidelines:
+  MAJOR  → Breaking changes, rewrites, major redesigns
+  MINOR  → New features or large additions
+  PATCH  → Bug fixes, improvements, tweaks
+  STAGE  → Optional release stage (alpha, beta, release)
+
+Before committing:
+✓ Increase the version if needed
+✓ Keep unchanged only for small commits
+✓ Never downgrade versions
+
+
+Previous version:
+$previousVersion
+
+New version:
+"@,
+    "Aries Version Check",
     $currentVersion
 )
 
@@ -73,7 +101,7 @@ if ($newVersion -eq $previousVersion) {
 
     $result = [System.Windows.MessageBox]::Show(
         "Version unchanged ($newVersion)`n`nCommit with same version?",
-        "Aries",
+        "Aries Version Check",
         "YesNo",
         "Question"
     )
@@ -88,7 +116,7 @@ else {
 
     $result = [System.Windows.MessageBox]::Show(
         "Version changed:`n`n$previousVersion -> $newVersion`n`nCommit with this version?",
-        "Aries",
+        "Aries Version Check",
         "YesNo",
         "Question"
     )
