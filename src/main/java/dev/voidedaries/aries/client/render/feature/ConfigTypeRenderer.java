@@ -1,10 +1,7 @@
 package dev.voidedaries.aries.client.render.feature;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.voidedaries.aries.client.feature.types.AriesConfigType;
-import dev.voidedaries.aries.client.feature.types.KeybindConfig;
-import dev.voidedaries.aries.client.feature.types.SliderValue;
-import dev.voidedaries.aries.client.feature.types.ColorConfig;
+import dev.voidedaries.aries.client.feature.types.*;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -25,7 +22,7 @@ public class ConfigTypeRenderer {
     private static final int SLIDER_WIDTH = 50;
     public static final int SLIDER_HEIGHT = 8;
     private static final int SLIDER_KNOB_HEIGHT = 12;
-    private static final int SLIDER_KNOB_PADDING = 6;
+    private static final int SLIDER_KNOB_PADDING = 2;
 
 
     public static int getConfigHeight(AriesConfigType<?> config) {
@@ -39,16 +36,30 @@ public class ConfigTypeRenderer {
         };
     }
 
-    private static int getSliderKnobWidth(Font font, SliderValue slider) {
-        int minWidth = font.width(formatSliderValue(slider.getMin()));
-        int maxWidth = font.width(formatSliderValue(slider.getMax()));
+    private static int getSliderMaxTextWidth(Font font, SliderValue slider, SliderEditState editingSlider) {
+        float min = slider.getMin();
+        float max = slider.getMax();
 
-        int textWidth = Math.max(minWidth, maxWidth);
+        int width = 0;
 
-        return Math.max(
-            textWidth + (SLIDER_KNOB_PADDING * 2),
-            SLIDER_KNOB_HEIGHT
-        );
+        width = Math.max(width, font.width(formatSliderValue(min)));
+        width = Math.max(width, font.width(formatSliderValue(max)));
+
+        if (min < 0) {
+            width = Math.max(width, font.width(formatSliderValue(Math.abs(min))));
+        }
+
+        if (max < 0) {
+            width = Math.max(width, font.width(formatSliderValue(Math.abs(max))));
+        }
+
+        width = Math.max(width, font.width(formatSliderValue(max + 0.5f)));
+
+        if (editingSlider != null && editingSlider.getSlider() == slider) {
+            width = Math.max(width, font.width(formatSliderValue(max) + "|"));
+        }
+
+        return width;
     }
 
     private static String formatSliderValue(float value) {
@@ -56,7 +67,9 @@ public class ConfigTypeRenderer {
             return String.valueOf((int) value);
         }
 
-        return String.format("%.1f", value);
+        return String.format("%.2f", value)
+            .replaceAll("0+$", "")
+            .replaceAll("\\.$", "");
     }
 
     public static ConfigInteraction drawToggle(
@@ -100,7 +113,8 @@ public class ConfigTypeRenderer {
         Font font,
         AriesConfigType<?> config,
         int controlRightX,
-        int entryY
+        int entryY,
+        SliderEditState editingSlider
     ) {
         SliderValue slider = (SliderValue) config;
 
@@ -124,14 +138,31 @@ public class ConfigTypeRenderer {
         // filled track
         graphics.fill(x, entryY, x + fillWidth, entryY + height, 0xFF0058E1);
 
-        String valueText = formatSliderValue(value);
-        int textWidth = font.width(valueText);
+        String valueText;
+        String displayText;
 
-        int knobWidth = getSliderKnobWidth(font, slider);
+        if (editingSlider != null && editingSlider.getSlider() == slider) {
+            valueText = editingSlider.getInput();
+
+            displayText = valueText;
+
+            if (editingSlider.showCaret()) {
+                displayText += "|";
+            }
+        } else {
+            valueText = formatSliderValue(value);
+            displayText = valueText;
+        }
+
+        int maxTextWidth = getSliderMaxTextWidth(font, slider, editingSlider);
+
+        int knobWidth = maxTextWidth + (SLIDER_KNOB_PADDING * 2);
         int knobHeight = SLIDER_KNOB_HEIGHT;
 
         int knobX = (int) (x + percent * (width - knobWidth));
         int knobY = entryY + (height / 2) - (knobHeight / 2);
+
+        int textWidth = font.width(displayText);
 
         int textX = knobX + (knobWidth - textWidth) / 2;
         int textY = knobY + (knobHeight - font.lineHeight) / 2;
@@ -156,7 +187,7 @@ public class ConfigTypeRenderer {
         );
 
         //text
-        graphics.text(font, Component.literal(valueText), textX, textY, 0xFFADB5C9);
+        graphics.text(font, Component.literal(displayText), textX, textY, 0xFFADB5C9);
 
         return new ConfigInteraction(config, x, entryY, width, height);
     }

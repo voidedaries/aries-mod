@@ -112,7 +112,6 @@ public class EtherwarpRenderer {
         Vec3 look = new Vec3(camera.forwardVector());
 
         Vec3 end = start.add(look.scale(ETHERWARP_RANGE));
-
         return minecraft.level.clip(new ClipContext(
             start,
             end,

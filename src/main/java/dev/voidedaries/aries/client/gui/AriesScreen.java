@@ -12,6 +12,7 @@ import dev.voidedaries.aries.client.render.feature.ConfigInteraction;
 import dev.voidedaries.aries.client.render.feature.ConfigTypeRenderer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -27,15 +28,29 @@ import java.util.List;
 public class AriesScreen extends Screen {
     private AriesCategory selectedCategory = AriesCategory.ABOUT; // first category on first opening
 
-    private static final int MENU_WIDTH = 360;
-    private static final int MENU_HEIGHT = 220;
-    private static final int PADDING = 10;
+    //menu
+    static final int MENU_WIDTH = 360;
+    static final int MENU_HEIGHT = 220;
+    static final int PADDING = 10;
 
     private static final int FEATURE_SPACING = PADDING / 2;
     private static final int ENTRY_SPACING = PADDING / 2;
 
+    //content
+    private int contentHeight;
+
+    //scrollbar
+    private static final int SCROLLBAR_WIDTH = 4;
+    private int scrollOffset = 0;
+    private boolean draggingScrollbar = false;
+    private int scrollbarOffset = 0;
+
+    //interaction
     private ConfigInteraction activeSlider = null;
     public KeybindConfig listeningKeybind;
+
+    //config states
+    private SliderEditState editingSlider;
 
     private final List<ConfigInteraction> configTypeInteractions = new ArrayList<>();
 
@@ -47,7 +62,8 @@ public class AriesScreen extends Screen {
     protected void init() {
         configTypeInteractions.clear();
 
-        selectedCategory = AriesUIState.lastCategory;
+        selectedCategory = AriesScreenHelper.lastCategory;
+        scrollOffset = AriesScreenHelper.savedScrollPosition;
     }
 
     @Override
@@ -74,6 +90,40 @@ public class AriesScreen extends Screen {
                 graphics.requestCursor(CursorTypes.POINTING_HAND);
                 break;
             }
+        }
+
+        //Scrollbar thumb hover
+        int scrollbarX = x + getMenuWidth() - PADDING - SCROLLBAR_WIDTH;
+
+        int visibleHeight =
+            AriesScreenHelper.getContentVisibleHeight(this.height, getMenuHeight(), PADDING, this.font.lineHeight);
+
+        int scrollbarHeight = AriesScreenHelper.calculateScrollbarHeight(visibleHeight, PADDING);
+        int thumbHeight = AriesScreenHelper.calculateThumbHeight(scrollbarHeight, contentHeight, visibleHeight);
+
+        int thumbY = AriesScreenHelper.calculateThumbY(
+            AriesScreenHelper.getScrollbarTop(
+                this.height,
+                getMenuHeight(),
+                PADDING,
+                this.font.lineHeight
+            ),
+            scrollbarHeight,
+            thumbHeight,
+            scrollOffset,
+            contentHeight,
+            visibleHeight
+        );
+
+        if (ScreenHelper.isHovered(
+            mouseX,
+            mouseY,
+            scrollbarX,
+            thumbY,
+            SCROLLBAR_WIDTH,
+            thumbHeight
+        )) {
+            graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
     }
 
@@ -119,6 +169,8 @@ public class AriesScreen extends Screen {
         int contentRight = x + getMenuWidth() - PADDING;
         int contentBottom = y + getMenuHeight();
 
+        int visibleHeight = contentBottom - contentTop;
+
         ScreenHelper.enableScissor(
             graphics,
             contentLeft,
@@ -134,14 +186,15 @@ public class AriesScreen extends Screen {
             }
 
             // Padding from the right of the menu
-            int controlRightX = x + getMenuWidth() - PADDING * 2;
+            int controlRightX = (int) (x + getMenuWidth() - PADDING * 2.5);
+            int drawY = entryY - scrollOffset;
 
             // Main feature title
             graphics.text(
                 this.font,
                 feature.getName(),
                 contentX,
-                entryY,
+                drawY,
                 0xFFFFFFFF
             );
 
@@ -150,7 +203,7 @@ public class AriesScreen extends Screen {
             );
 
             int featureDescriptionHeight =
-                drawDescription(graphics, featureDescription, contentX, entryY + this.font.lineHeight + PADDING / 2);
+                drawDescription(graphics, featureDescription, contentX, drawY + this.font.lineHeight + PADDING / 2);
 
             int currentY = entryY;
 
@@ -161,9 +214,9 @@ public class AriesScreen extends Screen {
             int featureConfigY;
 
             if (featureConfigHeight <= featureTextHeight) {
-                featureConfigY = entryY + (featureTextHeight - featureConfigHeight) / 2;
+                featureConfigY = drawY + (featureTextHeight - featureConfigHeight) / 2;
             } else {
-                featureConfigY = entryY;
+                featureConfigY = drawY;
             }
 
             for (AriesConfigType<?> config : feature.getConfigs()) {
@@ -188,11 +241,13 @@ public class AriesScreen extends Screen {
                     continue;
                 }
 
+                int entryDrawY = currentY - scrollOffset;
+
                 graphics.text(
                     this.font,
                     entry.name(),
                     contentX,
-                    currentY,
+                    entryDrawY,
                     0xFFFFFFFF
                 );
 
@@ -205,7 +260,7 @@ public class AriesScreen extends Screen {
                     graphics,
                     description,
                     contentX,
-                    currentY + this.font.lineHeight + PADDING / 2
+                    entryDrawY + this.font.lineHeight + PADDING / 2
                 );
 
                 int textHeight = this.font.lineHeight + descriptionHeight;
@@ -215,9 +270,9 @@ public class AriesScreen extends Screen {
                 int configY;
 
                 if (configHeight <= textHeight) {
-                    configY = currentY + (textHeight - configHeight) / 2;
+                    configY = entryDrawY + (textHeight - configHeight) / 2;
                 } else {
-                    configY = currentY;
+                    configY = entryDrawY;
                 }
 
                 // Config rendering
@@ -241,7 +296,34 @@ public class AriesScreen extends Screen {
             entryY = currentY + FEATURE_SPACING;
         }
 
+        contentHeight = entryY - contentY;
+        scrollOffset = AriesScreenHelper.clampScroll(scrollOffset, contentHeight, visibleHeight);
+        boolean needsScrollbar = contentHeight > visibleHeight;
+
         ScreenHelper.disableScissor(graphics);
+
+        if (needsScrollbar) {
+            drawScrollbar(
+                graphics,
+                contentRight - SCROLLBAR_WIDTH,
+                contentTop + PADDING,
+                (contentBottom - contentTop) - (PADDING * 2),
+                visibleHeight
+            );
+        }
+    }
+
+    private void drawScrollbar(GuiGraphicsExtractor graphics, int x, int y, int height, int visibleHeight) {
+        // track
+        graphics.fill(x, y, x + SCROLLBAR_WIDTH, y + height, 0xFF151A21);
+
+        int thumbHeight = AriesScreenHelper.calculateThumbHeight(height, contentHeight, visibleHeight);
+
+        int thumbY =
+            AriesScreenHelper.calculateThumbY(y, height, thumbHeight, scrollOffset, contentHeight, visibleHeight);
+
+        // thumb
+        graphics.fill(x, thumbY, x + SCROLLBAR_WIDTH, thumbY + thumbHeight, 0xFF0058E1);
     }
 
     private int getConfigHeight(List<AriesConfigType<?>> configs) {
@@ -272,7 +354,7 @@ public class AriesScreen extends Screen {
                 ConfigTypeRenderer.drawToggle(graphics, this.font, config, controlRightX, configY);
 
             case SLIDER ->
-                ConfigTypeRenderer.drawSlider(graphics, this.font, config, controlRightX, configY);
+                ConfigTypeRenderer.drawSlider(graphics, this.font, config, controlRightX, configY, editingSlider);
 
             case COLOR ->
                 ConfigTypeRenderer.drawColorPicker(graphics, this.font, config, controlRightX, configY);
@@ -402,6 +484,32 @@ public class AriesScreen extends Screen {
     }
 
     @Override
+    public void removed() {
+        AriesScreenHelper.savedScrollPosition = scrollOffset;
+        AriesScreenHelper.lastCategory = selectedCategory;
+
+        super.removed();
+    }
+
+    @Override
+    public boolean charTyped(@NonNull CharacterEvent event) {
+
+        if (editingSlider != null) {
+            int codePoint = event.codepoint();
+
+            if (Character.isDigit(codePoint)
+                || codePoint == '.'
+                || codePoint == '-') {
+                editingSlider.addChar((char) codePoint);
+            }
+
+            return true;
+        }
+
+        return super.charTyped(event);
+    }
+
+    @Override
     public boolean keyPressed(@NonNull KeyEvent event) {
         if (listeningKeybind != null) {
 
@@ -420,6 +528,49 @@ public class AriesScreen extends Screen {
             return true;
         }
 
+        if (editingSlider != null) {
+            switch (event.key()) {
+                case GLFW.GLFW_KEY_ESCAPE -> {
+                    editingSlider = null;
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_ENTER -> {
+                    if (editingSlider.apply()) {
+                        AriesConfig.save();
+                    }
+
+                    editingSlider = null;
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_BACKSPACE -> {
+                    editingSlider.backspace();
+                    return true;
+                }
+            }
+
+            return true;
+        }
+
+        if (activeSlider != null && activeSlider.config() instanceof SliderValue slider) {
+            int amount = ((event.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0) ? 10 : 1;
+
+            switch (event.key()) {
+                case GLFW.GLFW_KEY_LEFT -> {
+                    slider.step(-amount);
+                    AriesConfig.save();
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_RIGHT -> {
+                    slider.step(amount);
+                    AriesConfig.save();
+                    return true;
+                }
+            }
+        }
+
         return super.keyPressed(event);
     }
 
@@ -429,7 +580,7 @@ public class AriesScreen extends Screen {
         int mouseY = (int) event.y();
         boolean authorHovered = isAuthorHovered(mouseX, mouseY);
 
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT && event.button() != GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             return false;
         }
 
@@ -437,8 +588,51 @@ public class AriesScreen extends Screen {
             Util.getPlatform().openUri(ModConstants.GITHUB_URL);
         }
 
+        if (editingSlider != null) {
+            editingSlider = null;
+        }
+
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
+
+        int scrollbarX = x + getMenuWidth() - PADDING - SCROLLBAR_WIDTH;
+
+        int visibleHeight =
+            AriesScreenHelper.getContentVisibleHeight(this.height, getMenuHeight(), PADDING, this.font.lineHeight);
+
+        int scrollbarHeight = AriesScreenHelper.calculateScrollbarHeight(visibleHeight, PADDING);
+
+        int thumbHeight = AriesScreenHelper.calculateThumbHeight(
+            scrollbarHeight,
+            contentHeight,
+            visibleHeight
+        );
+
+        int thumbY = AriesScreenHelper.calculateThumbY(
+            AriesScreenHelper.getScrollbarTop(
+                this.height,
+                getMenuHeight(),
+                PADDING,
+                this.font.lineHeight
+            ),
+            scrollbarHeight,
+            thumbHeight,
+            scrollOffset,
+            contentHeight,
+            visibleHeight
+        );
+
+        int scrollbarHitboxWidth = 12;
+
+        if (ScreenHelper.isHovered(mouseX, mouseY,
+            scrollbarX - (scrollbarHitboxWidth - SCROLLBAR_WIDTH) / 2, thumbY,
+            scrollbarHitboxWidth,
+            thumbHeight)) {
+            draggingScrollbar = true;
+            scrollbarOffset = mouseY - thumbY;
+
+            return true;
+        }
 
         int startY = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
 
@@ -453,8 +647,14 @@ public class AriesScreen extends Screen {
                     mouseY >= entryY && mouseY <= entryY + this.font.lineHeight;
 
             if (hovered) {
-                selectedCategory = category;
-                AriesUIState.lastCategory = category;
+                if (selectedCategory != category) {
+                    selectedCategory = category;
+                    AriesScreenHelper.lastCategory = category;
+
+                    scrollOffset = 0;
+                    AriesScreenHelper.savedScrollPosition = 0;
+                }
+
                 return true;
             }
 
@@ -475,10 +675,17 @@ public class AriesScreen extends Screen {
                 return true;
             }
 
-            if (interaction.config() instanceof SliderValue) {
-                activeSlider = interaction;
-                updateSlider(mouseX, interaction);
-                return true;
+            if (interaction.config() instanceof SliderValue slider) {
+                if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+                    editingSlider = new SliderEditState(slider);
+                    return true;
+                }
+
+                if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+                    activeSlider = interaction;
+                    updateSlider(mouseX, interaction);
+                    return true;
+                }
             }
 
             if (interaction.config() instanceof KeybindConfig keybind) {
@@ -492,19 +699,97 @@ public class AriesScreen extends Screen {
 
     @Override
     public boolean mouseDragged(@NonNull MouseButtonEvent event, double mouseX, double mouseY) {
+        if (draggingScrollbar) {
+            int visibleHeight =
+                AriesScreenHelper.getContentVisibleHeight(this.height, getMenuHeight(), PADDING, this.font.lineHeight);
+
+            int scrollbarHeight = AriesScreenHelper.calculateScrollbarHeight(
+                visibleHeight,
+                PADDING
+            );
+
+            int thumbHeight = AriesScreenHelper.calculateThumbHeight(
+                scrollbarHeight,
+                contentHeight,
+                visibleHeight
+            );
+
+            scrollOffset = AriesScreenHelper.calculateScrollOffsetFromDrag(
+                event.y(),
+                scrollbarOffset,
+                AriesScreenHelper.getScrollbarTop(this.height, getMenuHeight(), PADDING, this.font.lineHeight),
+                scrollbarHeight,
+                thumbHeight,
+                contentHeight,
+                visibleHeight
+            );
+
+            scrollOffset = AriesScreenHelper.clampScroll(
+                scrollOffset,
+                contentHeight,
+                visibleHeight
+            );
+
+            AriesScreenHelper.savedScrollPosition = scrollOffset;
+
+            return true;
+        }
+
         if (activeSlider != null) {
             updateSlider((int) event.x(), activeSlider);
             return true;
         }
+
         return super.mouseDragged(event, mouseX, mouseY);
     }
 
     @Override
     public boolean mouseReleased(@NonNull MouseButtonEvent event) {
         activeSlider = null;
+        draggingScrollbar = false;
 
         AriesConfig.save();
         return super.mouseReleased(event);
     }
 
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        int x = ScreenHelper.centreX(this.width, getMenuWidth());
+        int y = ScreenHelper.centreY(this.height, getMenuHeight());
+
+        int visibleHeight =
+            AriesScreenHelper.getContentVisibleHeight(this.height, getMenuHeight(), PADDING, this.font.lineHeight);
+
+        boolean menuBounds = ScreenHelper.isHovered(
+            (int) mouseX,
+            (int) mouseY,
+            x + getCategoryWidth(),
+            AriesScreenHelper.getScrollbarTop(
+                this.height,
+                getMenuHeight(),
+                PADDING,
+                this.font.lineHeight
+            ),
+            getMenuWidth() - getCategoryWidth() - PADDING,
+            getMenuHeight() - (
+                AriesScreenHelper.getScrollbarTop(
+                    this.height,
+                    getMenuHeight(),
+                    PADDING,
+                    this.font.lineHeight
+                ) - y
+            )
+        );
+
+        if (!menuBounds) {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+
+        scrollOffset -= (int) (scrollY * 15);
+
+        scrollOffset = AriesScreenHelper.clampScroll(scrollOffset, contentHeight, visibleHeight);
+        AriesScreenHelper.savedScrollPosition = scrollOffset;
+
+        return true;
+    }
 }

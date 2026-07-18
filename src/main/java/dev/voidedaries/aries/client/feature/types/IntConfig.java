@@ -27,6 +27,11 @@ public class IntConfig extends AriesConfigType<Integer> implements SliderValue {
     }
 
     @Override
+    public float getStep() {
+        return 1;
+    }
+
+    @Override
     public void setFromPercent(float percent) {
         int value = min + Math.round(percent * (max - min));
         setSilently(value);
