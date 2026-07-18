@@ -24,12 +24,6 @@ public class AriesFeatures {
     //visuals
     public static final EtherwarpOutlineFeature ETHERWARP_OUTLINE =
         register(new EtherwarpOutlineFeature());
-    public static final EtherwarpOutlineWidthFeature ETHERWARP_OUTLINE_WIDTH =
-        register(new EtherwarpOutlineWidthFeature());
-    public static final EtherwarpOutlineValidFeature ETHERWARP_OUTLINE_VALID =
-        register(new EtherwarpOutlineValidFeature());
-    public static final EtherwarpOutlineInvalidFeature ETHERWARP_OUTLINE_INVALID =
-        register(new EtherwarpOutlineInvalidFeature());
 
     public static final ItemRarityScalingFeature ITEM_RARITY_SCALING = register(new ItemRarityScalingFeature());
 

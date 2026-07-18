@@ -62,14 +62,14 @@ public class EtherwarpRenderer {
         switch (state) {
             case VALID -> BlockRenderer.renderBlockOutline(
                 context, box,
-                AriesFeatures.ETHERWARP_OUTLINE_VALID.etherwarpValidColor.get(),
-                AriesFeatures.ETHERWARP_OUTLINE_WIDTH.etherwarpWidth.get()
+                AriesFeatures.ETHERWARP_OUTLINE.valid.get(),
+                AriesFeatures.ETHERWARP_OUTLINE.width.get()
             );
 
             case BLOCKED, INVALID_BLOCK -> BlockRenderer.renderBlockOutline(
                 context, box,
-                AriesFeatures.ETHERWARP_OUTLINE_INVALID.etherwarpInvalidColor.get(),
-                AriesFeatures.ETHERWARP_OUTLINE_WIDTH.etherwarpWidth.get()
+                AriesFeatures.ETHERWARP_OUTLINE.invalid.get(),
+                AriesFeatures.ETHERWARP_OUTLINE.width.get()
             );
 
             case OUT_OF_RANGE -> {}
@@ -113,7 +113,7 @@ public class EtherwarpRenderer {
 
         Vec3 end = start.add(look.scale(ETHERWARP_RANGE));
 
-        return player.level().clip(new ClipContext(
+        return minecraft.level.clip(new ClipContext(
             start,
             end,
             ClipContext.Block.COLLIDER,
