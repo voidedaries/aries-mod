@@ -39,15 +39,15 @@ Examples:
   1.0.0
 
 Version guidelines:
-  MAJOR  → Breaking changes, rewrites, major redesigns
-  MINOR  → New features or large additions
-  PATCH  → Bug fixes, improvements, tweaks
-  STAGE  → Optional release stage (alpha, beta, release)
+  MAJOR - Breaking changes, rewrites, major redesigns
+  MINOR - New features or large additions
+  PATCH - Bug fixes, improvements, tweaks
+  STAGE - Optional release stage (alpha, beta, release)
 
 Before committing:
-✓ Increase the version if needed
-✓ Keep unchanged only for small commits
-✓ Never downgrade versions
+- Increase the version if needed
+- Keep unchanged only for small commits
+- Never downgrade versions
 
 
 Previous version:
