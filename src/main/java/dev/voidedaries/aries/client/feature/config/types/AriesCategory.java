@@ -4,25 +4,29 @@ import net.minecraft.network.chat.Component;
 
 public enum AriesCategory {
 
-    ABOUT("gui.menu.category.about"),
-    SETTINGS("gui.menu.category.settings"),
-    ACHIEVEMENTS("gui.menu.category.achievements"),
-    CHAT("gui.menu.category.chat"),
-    COMMANDS("gui.menu.category.commands"),
-    FISHING("gui.menu.category.fishing"),
-    VISUALS("gui.menu.category.visuals"),
-    PERFORMANCE("gui.menu.category.performance"),
-    CONTROLS("gui.menu.category.controls"),
-    DEV("gui.menu.category.dev");
+    ABOUT("about"),
+    SETTINGS("settings"),
+    ACHIEVEMENTS("achievements"),
+    CHAT("chat"),
+    COMMANDS("commands"),
+    FISHING("fishing"),
+    VISUALS("visuals"),
+    PERFORMANCE("performance"),
+    CONTROLS("controls"),
+    DEV("dev");
 
-    private final String translationKey;
+    private final String id;
 
-    AriesCategory(String translationKey) {
-        this.translationKey = translationKey;
+    AriesCategory(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public Component getName() {
-        return Component.translatable(translationKey);
+        return Component.translatable("gui.menu.category." + id);
     }
 
 }

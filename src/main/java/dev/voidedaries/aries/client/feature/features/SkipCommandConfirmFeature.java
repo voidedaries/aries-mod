@@ -12,8 +12,8 @@ public class SkipCommandConfirmFeature extends AriesFeature {
 
     public SkipCommandConfirmFeature() {
         super(
-            Component.translatable("gui.category.chat.skip_command_confirmation.name"),
-            Component.translatable("gui.category.chat.skip_command_confirmation.description"),
+            Component.translatable("gui.category.commands.skip_command_confirmation.name"),
+            Component.translatable("gui.category.commands.skip_command_confirmation.description"),
             AriesCategory.COMMANDS
         );
     }
