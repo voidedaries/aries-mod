@@ -2,11 +2,14 @@ package dev.voidedaries.aries.client;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.logging.LogUtils;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.config.types.*;
+import dev.voidedaries.aries.client.feature.config.*;
+import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
 import net.fabricmc.loader.api.FabricLoader;
+import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -131,6 +134,17 @@ public class AriesConfig {
             else if (option instanceof FloatConfig f) {
                 f.set(element.getAsFloat());
             }
+            else if (option instanceof KeybindConfig k) {
+                if (element.isJsonPrimitive()) {
+                    JsonPrimitive primitive = element.getAsJsonPrimitive();
+
+                    if (primitive.isString()) {
+                        k.set(parseKeybind(primitive.getAsString()));
+                    } else if (primitive.isNumber()) {
+                        k.set(primitive.getAsInt());
+                    }
+                }
+            }
             else if (option instanceof ColorConfig c) {
                 try {
                     String raw = element.getAsString().trim();
@@ -183,6 +197,10 @@ public class AriesConfig {
             return new JsonPrimitive(f.get());
         }
 
+        if (option instanceof KeybindConfig k) {
+            return new JsonPrimitive(k.getCurrentKey().getName());
+        }
+
         if (option instanceof ColorConfig c) {
             return new JsonPrimitive(String.format("0x%08X", c.get()));
         }
@@ -201,6 +219,10 @@ public class AriesConfig {
 
         if (option instanceof FloatConfig f) {
             return new JsonPrimitive(f.getDefaultValue());
+        }
+
+        if (option instanceof KeybindConfig k) {
+            return new JsonPrimitive(InputConstants.Type.KEYSYM.getOrCreate(k.getDefaultValue()).getName());
         }
 
         if (option instanceof ColorConfig c) {
@@ -223,12 +245,33 @@ public class AriesConfig {
                 i.set(i.getDefaultValue());
             } else if (option instanceof FloatConfig f) {
                 f.set(f.getDefaultValue());
+            } else if (option instanceof KeybindConfig k) {
+                k.set(k.getDefaultValue());
             } else if (option instanceof ColorConfig c) {
                 c.set(c.getDefaultValue());
             }
         }
 
         save();
+    }
+
+    private static int parseKeybind(String key) {
+        try {
+            return InputConstants.getKey(key).getValue();
+        } catch (Exception e) {
+            try {
+                if (key.startsWith("key.keyboard.")) {
+                    String stripped = key.substring("key.keyboard.".length());
+
+                    int glfw = GLFW.glfwGetKeyScancode(stripped.toUpperCase(Locale.ROOT).charAt(0));
+
+                    return InputConstants.Type.KEYSYM.getOrCreate(glfw).getValue();
+                }
+            } catch (Exception ignored) {}
+
+            Aries.log("Failed to parse keybind: " + key, e);
+            return InputConstants.UNKNOWN.getValue();
+        }
     }
 
     public static Path getConfigFile() {

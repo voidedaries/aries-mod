@@ -7,7 +7,15 @@
   ],
   "client": [
     "ChatComponentMixin",
-    "LevelRendererMixin"
+    "ClientPacketListenerMixin",
+    "EntityRenderDispatcherMixin",
+    "ItemEntityRendererMixin",
+    "ItemEntityRenderStateMixin",
+    "ItemStackMixin",
+    "KeyMappingMixin",
+    "LevelRendererMixin",
+    "MouseHandlerMixin",
+    "OptionsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

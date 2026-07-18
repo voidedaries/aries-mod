@@ -1,5 +1,7 @@
 package dev.voidedaries.aries.client.gui;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 public class ScreenHelper {
 
     private ScreenHelper() {}
@@ -10,6 +12,14 @@ public class ScreenHelper {
 
     public static int centreY(int screenHeight, int elementHeight) {
         return (screenHeight - elementHeight) / 2;
+    }
+
+    public static void enableScissor(GuiGraphicsExtractor graphics, int x1, int y1, int x2, int y2) {
+        graphics.enableScissor(x1, y1, x2, y2);
+    }
+
+    public static void disableScissor(GuiGraphicsExtractor graphics) {
+        graphics.disableScissor();
     }
 
     public static boolean isHovered(

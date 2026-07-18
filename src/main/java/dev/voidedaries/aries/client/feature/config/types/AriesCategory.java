@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.category;
+package dev.voidedaries.aries.client.feature.config.types;
 
 import net.minecraft.network.chat.Component;
 
@@ -8,6 +8,7 @@ public enum AriesCategory {
     SETTINGS("gui.menu.category.settings"),
     ACHIEVEMENTS("gui.menu.category.achievements"),
     CHAT("gui.menu.category.chat"),
+    COMMANDS("gui.menu.category.commands"),
     FISHING("gui.menu.category.fishing"),
     VISUALS("gui.menu.category.visuals"),
     PERFORMANCE("gui.menu.category.performance"),
@@ -22,10 +23,6 @@ public enum AriesCategory {
 
     public Component getName() {
         return Component.translatable(translationKey);
-    }
-
-    public String getTranslationKey() {
-        return translationKey;
     }
 
 }

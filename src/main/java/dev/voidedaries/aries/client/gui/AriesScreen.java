@@ -1,19 +1,20 @@
 package dev.voidedaries.aries.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.AriesConfig;
-import dev.voidedaries.aries.client.category.AriesCategory;
+import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.config.render.ConfigInteraction;
-import dev.voidedaries.aries.client.feature.config.render.ConfigTypeRenderer;
 import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
-import dev.voidedaries.aries.client.feature.config.types.BooleanConfig;
-import dev.voidedaries.aries.client.feature.config.types.IntConfig;
-import dev.voidedaries.aries.client.feature.config.types.SliderConfig;
+import dev.voidedaries.aries.client.feature.entry.FeatureEntry;
+import dev.voidedaries.aries.client.render.feature.ConfigInteraction;
+import dev.voidedaries.aries.client.render.feature.ConfigTypeRenderer;
+import dev.voidedaries.aries.client.feature.config.*;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -32,7 +33,11 @@ public class AriesScreen extends Screen {
     private static final int MENU_HEIGHT = 220;
     private static final int PADDING = 10;
 
+    private static final int FEATURE_SPACING = PADDING / 2;
+    private static final int ENTRY_SPACING = PADDING / 2;
+
     private ConfigInteraction activeSlider = null;
+    public KeybindConfig listeningKeybind;
 
     private final List<ConfigInteraction> configTypeInteractions = new ArrayList<>();
 
@@ -89,7 +94,7 @@ public class AriesScreen extends Screen {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
 
-        graphics.centeredText(
+        graphics.text(
             this.font,
             Component.literal("Aries")
                 .append(Component.literal(" • ").withColor(0xFFADB5C9))
@@ -111,12 +116,29 @@ public class AriesScreen extends Screen {
 
         int entryY = contentY;
 
+        int contentLeft = x + getCategoryWidth() + PADDING;
+        int contentTop = contentY - PADDING;
+        int contentRight = x + getMenuWidth() - PADDING;
+        int contentBottom = y + getMenuHeight();
+
+        ScreenHelper.enableScissor(
+            graphics,
+            contentLeft,
+            contentTop,
+            contentRight,
+            contentBottom
+        );
+
         // drawing features
         for (AriesFeature feature : AriesFeatures.getFeatures()) {
             if (feature.getCategory() != currentCategory || !feature.isVisible()) {
                 continue;
             }
 
+            // Padding from the right of the menu
+            int controlRightX = x + getMenuWidth() - PADDING * 2;
+
+            // Main feature title
             graphics.text(
                 this.font,
                 feature.getName(),
@@ -125,47 +147,164 @@ public class AriesScreen extends Screen {
                 0xFFFFFFFF
             );
 
-            int descMaxWidth = (int) ((getMenuWidth() - getCategoryWidth()) / 1.5);
-
-            List<FormattedCharSequence> descLines = this.font.split(
-                Component.literal(feature.getDescription().getString()), descMaxWidth
+            List<FormattedCharSequence> featureDescription = this.font.split(
+                feature.getDescription(), (int) ((getMenuWidth() - getCategoryWidth()) / 1.5)
             );
 
-            // description text
-            for (int line = 0; line < descLines.size(); line++) {
-                float descScale = 0.8f;
-                graphics.pose().pushMatrix();
-                graphics.pose().translate(
-                    contentX,
-                    entryY + this.font.lineHeight + (float) PADDING / 2 + line * this.font.lineHeight
-                );
-                graphics.pose().scale(descScale, descScale);
-                graphics.text(this.font, descLines.get(line), 0, 0, 0xFFADB5C9);
-                graphics.pose().popMatrix();
+            int featureDescriptionHeight =
+                drawDescription(graphics, featureDescription, contentX, entryY + this.font.lineHeight + PADDING / 2);
+
+            int currentY = entryY;
+
+            int featureTextHeight = this.font.lineHeight + featureDescriptionHeight;
+
+            int featureConfigHeight = getConfigHeight(feature.getConfigs());
+
+            int featureConfigY;
+
+            if (featureConfigHeight <= featureTextHeight) {
+                featureConfigY = entryY + (featureTextHeight - featureConfigHeight) / 2;
+            } else {
+                featureConfigY = entryY;
             }
 
-            int controlRightX = x + getMenuWidth() - PADDING * 2;
-
-            // config type rendering
             for (AriesConfigType<?> config : feature.getConfigs()) {
-                switch (config.getType()) {
-                    case TOGGLE -> configTypeInteractions.add(
-                        ConfigTypeRenderer.drawToggle(graphics, this.font, config, controlRightX, entryY)
-                    );
-                    case SLIDER -> configTypeInteractions.add(
-                        ConfigTypeRenderer.drawSlider(graphics, this.font, config, controlRightX, entryY)
-                    );
-                    case COLOR -> configTypeInteractions.add(
-                        ConfigTypeRenderer.drawColorPicker(graphics, this.font, config, controlRightX, entryY)
-                    );
+                if (!config.isVisible()) {
+                    continue;
+                }
+
+                ConfigInteraction interaction = drawConfigs(graphics, config, controlRightX, featureConfigY);
+
+                if (interaction != null) {
+                    configTypeInteractions.add(interaction);
+
+                    featureConfigY += interaction.height() + PADDING * 2;
                 }
             }
 
-            int featureHeight =
-                this.font.lineHeight + (int)(descLines.size() * this.font.lineHeight * 0.8f) + PADDING * 2;
+            currentY += Math.max(featureTextHeight, featureConfigHeight) + FEATURE_SPACING * 4;
 
-            entryY += featureHeight;
+            // Sub entries/features
+            for (FeatureEntry entry : feature.getEntries()) {
+                if (!entry.isVisible()) {
+                    continue;
+                }
+
+                graphics.text(
+                    this.font,
+                    entry.name(),
+                    contentX,
+                    currentY,
+                    0xFFFFFFFF
+                );
+
+                List<FormattedCharSequence> description = this.font.split(
+                    entry.description(),
+                    (int)((getMenuWidth() - getCategoryWidth()) / 1.5)
+                );
+
+                int descriptionHeight = drawDescription(
+                    graphics,
+                    description,
+                    contentX,
+                    currentY + this.font.lineHeight + PADDING / 2
+                );
+
+                int textHeight = this.font.lineHeight + descriptionHeight;
+
+                int configHeight = getConfigHeight(entry.configs());
+
+                int configY;
+
+                if (configHeight <= textHeight) {
+                    configY = currentY + (textHeight - configHeight) / 2;
+                } else {
+                    configY = currentY;
+                }
+
+                // Config rendering
+                for (AriesConfigType<?> config : entry.configs()) {
+                    if (!config.isVisible()) {
+                        continue;
+                    }
+
+                    ConfigInteraction interaction = drawConfigs(graphics, config, controlRightX, configY);
+
+                    if (interaction != null) {
+                        configTypeInteractions.add(interaction);
+
+                        configY += interaction.height() + PADDING * 2;
+                    }
+                }
+
+                currentY += Math.max(textHeight, configHeight) + ENTRY_SPACING * 4;
+            }
+
+            entryY = currentY + FEATURE_SPACING;
         }
+
+        ScreenHelper.disableScissor(graphics);
+    }
+
+    private int getConfigHeight(List<AriesConfigType<?>> configs) {
+        int height = 0;
+
+        for (AriesConfigType<?> config : configs) {
+            height += ConfigTypeRenderer.getConfigHeight(config) + PADDING * 2;
+        }
+
+        if (height > 0) {
+            height -= PADDING * 2;
+        }
+
+        return height;
+    }
+
+    private ConfigInteraction drawConfigs(
+        GuiGraphicsExtractor graphics,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int configY
+    ) {
+        return switch (config.getType()) {
+
+            case LIST, BUTTON, TEXT -> null;
+
+            case TOGGLE ->
+                ConfigTypeRenderer.drawToggle(graphics, this.font, config, controlRightX, configY);
+
+            case SLIDER ->
+                ConfigTypeRenderer.drawSlider(graphics, this.font, config, controlRightX, configY);
+
+            case COLOR ->
+                ConfigTypeRenderer.drawColorPicker(graphics, this.font, config, controlRightX, configY);
+
+            case KEYBIND -> {
+                KeybindConfig keybind = (KeybindConfig) config;
+
+                yield ConfigTypeRenderer.drawKeybind(
+                    graphics, this.font, config, controlRightX, configY, listeningKeybind == keybind
+                );
+            }
+        };
+    }
+
+    private int drawDescription(GuiGraphicsExtractor graphics, List<FormattedCharSequence> lines, int x, int y) {
+        float scale = 0.8f;
+
+        // description text
+        for (int line = 0; line < lines.size(); line++) {
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(
+                x,
+                y + line * this.font.lineHeight
+            );
+            graphics.pose().scale(scale, scale);
+            graphics.text(this.font, lines.get(line), 0, 0, 0xFFADB5C9);
+            graphics.pose().popMatrix();
+        }
+
+        return (int) (lines.size() * this.font.lineHeight * scale);
     }
 
     private void drawCategories(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float ignoredDelta) {
@@ -235,7 +374,7 @@ public class AriesScreen extends Screen {
     }
 
     private void updateSlider(int mouseX, ConfigInteraction interaction) {
-        if (!(interaction.config() instanceof SliderConfig slider)) {
+        if (!(interaction.config() instanceof SliderValue slider)) {
             return;
         }
 
@@ -262,6 +401,28 @@ public class AriesScreen extends Screen {
 
     private float getScale() {
         return Mth.clamp(Math.min(this.width / 1920f, this.height / 1080f), 1.0f, 2.0f);
+    }
+
+    @Override
+    public boolean keyPressed(@NonNull KeyEvent event) {
+        if (listeningKeybind != null) {
+
+            if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
+                listeningKeybind.set(InputConstants.UNKNOWN.getValue());
+                AriesConfig.save();
+
+                listeningKeybind = null;
+                return true;
+            }
+
+            listeningKeybind.set(event.key());
+            AriesConfig.save();
+
+            listeningKeybind = null;
+            return true;
+        }
+
+        return super.keyPressed(event);
     }
 
     @Override
@@ -316,9 +477,14 @@ public class AriesScreen extends Screen {
                 return true;
             }
 
-            if (interaction.config() instanceof IntConfig) {
+            if (interaction.config() instanceof SliderValue) {
                 activeSlider = interaction;
                 updateSlider(mouseX, interaction);
+                return true;
+            }
+
+            if (interaction.config() instanceof KeybindConfig keybind) {
+                listeningKeybind = keybind;
                 return true;
             }
         }

@@ -1,7 +1,9 @@
-package dev.voidedaries.aries.client.feature;
+package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.category.AriesCategory;
-import dev.voidedaries.aries.client.feature.config.types.IntConfig;
+import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.AriesFeature;
+import dev.voidedaries.aries.client.feature.AriesFeatures;
+import dev.voidedaries.aries.client.feature.config.IntConfig;
 import net.minecraft.network.chat.Component;
 
 public class EtherwarpOutlineWidthFeature extends AriesFeature {

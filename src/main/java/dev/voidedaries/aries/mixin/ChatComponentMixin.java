@@ -1,5 +1,6 @@
 package dev.voidedaries.aries.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
@@ -10,6 +11,7 @@ import net.minecraft.client.multiplayer.chat.GuiMessageSource;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,7 +40,7 @@ public abstract class ChatComponentMixin {
     private final Map<Component, CompactEntry> compactedMessages = new IdentityHashMap<>();
 
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
-    private void compactChat(
+    private void aries$compactChat(
         Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci
     ) {
         if (!AriesFeatures.COMPACT_CHAT.isEnabled() || this.allMessages.isEmpty()) {
@@ -108,6 +110,16 @@ public abstract class ChatComponentMixin {
             return;
         }
         
+    }
+
+    @ModifyExpressionValue(method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/components/ChatComponent$DisplayMode;foreground:Z", opcode = Opcodes.GETFIELD))
+    private boolean aries$peekChat(boolean original) {
+        return original || AriesFeatures.PEEK_CHAT.isDown();
+    }
+
+    @ModifyExpressionValue(method = "getHeight()I", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;isChatFocused()Z"))
+    private boolean aries$getHeight(boolean original) {
+        return original || AriesFeatures.PEEK_CHAT.isDown();
     }
 
 }
