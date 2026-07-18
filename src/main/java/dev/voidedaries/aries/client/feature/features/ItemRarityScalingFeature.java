@@ -1,9 +1,9 @@
 package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
-import dev.voidedaries.aries.client.feature.config.BooleanConfig;
-import dev.voidedaries.aries.client.feature.config.FloatConfig;
+import dev.voidedaries.aries.client.feature.types.BooleanConfig;
+import dev.voidedaries.aries.client.feature.types.FloatConfig;
 import dev.voidedaries.aries.client.item.ItemRarity;
 import net.minecraft.network.chat.Component;
 

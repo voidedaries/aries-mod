@@ -1,8 +1,7 @@
-package dev.voidedaries.aries.client.feature.config;
+package dev.voidedaries.aries.client.feature.types;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.voidedaries.aries.Aries;
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
 import dev.voidedaries.aries.mixin.KeyMappingMixin;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;

@@ -1,8 +1,8 @@
 package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
-import dev.voidedaries.aries.client.feature.config.KeybindConfig;
+import dev.voidedaries.aries.client.feature.types.KeybindConfig;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 

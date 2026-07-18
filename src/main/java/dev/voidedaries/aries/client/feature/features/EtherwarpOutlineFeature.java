@@ -1,11 +1,11 @@
 package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.feature.config.ColorConfig;
-import dev.voidedaries.aries.client.feature.config.IntConfig;
-import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.IntConfig;
+import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
-import dev.voidedaries.aries.client.feature.config.BooleanConfig;
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.types.BooleanConfig;
+import dev.voidedaries.aries.client.feature.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.types.ColorConfig;
 import net.minecraft.network.chat.Component;
 
 public class EtherwarpOutlineFeature extends AriesFeature {

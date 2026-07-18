@@ -1,6 +1,6 @@
-package dev.voidedaries.aries.client.feature.config.types;
+package dev.voidedaries.aries.client.feature.types;
 
-public interface SliderConfig {
+public interface SliderValue {
     float getMin();
     float getMax();
 

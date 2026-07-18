@@ -2,7 +2,7 @@ package dev.voidedaries.aries.client.datagen;
 
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.ModConstants;
-import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.item.ItemRarity;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;

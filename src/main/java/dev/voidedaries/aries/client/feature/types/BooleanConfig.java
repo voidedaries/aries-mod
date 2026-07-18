@@ -1,6 +1,4 @@
-package dev.voidedaries.aries.client.feature.config;
-
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
+package dev.voidedaries.aries.client.feature.types;
 
 public class BooleanConfig extends AriesConfigType<Boolean> {
 

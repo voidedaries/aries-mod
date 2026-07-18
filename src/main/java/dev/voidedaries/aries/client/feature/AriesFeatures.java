@@ -2,7 +2,7 @@ package dev.voidedaries.aries.client.feature;
 
 import dev.voidedaries.aries.client.feature.entry.FeatureEntry;
 import dev.voidedaries.aries.client.feature.features.*;
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.types.AriesConfigType;
 
 import java.util.ArrayList;
 import java.util.List;

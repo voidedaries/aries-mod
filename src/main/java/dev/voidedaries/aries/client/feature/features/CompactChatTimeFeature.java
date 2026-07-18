@@ -1,9 +1,9 @@
 package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.feature.config.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.config.IntConfig;
+import dev.voidedaries.aries.client.feature.types.IntConfig;
 import net.minecraft.network.chat.Component;
 
 public class CompactChatTimeFeature extends AriesFeature {

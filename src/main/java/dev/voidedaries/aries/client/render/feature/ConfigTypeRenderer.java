@@ -1,10 +1,10 @@
 package dev.voidedaries.aries.client.render.feature;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.voidedaries.aries.client.feature.config.types.AriesConfigType;
-import dev.voidedaries.aries.client.feature.config.ColorConfig;
-import dev.voidedaries.aries.client.feature.config.KeybindConfig;
-import dev.voidedaries.aries.client.feature.config.SliderValue;
+import dev.voidedaries.aries.client.feature.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.types.KeybindConfig;
+import dev.voidedaries.aries.client.feature.types.SliderValue;
+import dev.voidedaries.aries.client.feature.types.ColorConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
