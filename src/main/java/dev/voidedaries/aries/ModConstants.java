@@ -22,6 +22,7 @@ public class ModConstants {
             .getVersion()
             .getFriendlyString();
 
+    @SuppressWarnings("unused")
     private static final String version = FabricLoader.getInstance()
         .getModContainer(ModConstants.MOD_ID)
         .map(
