@@ -1,10 +1,23 @@
 package dev.voidedaries.aries.client.render.feature;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.types.*;
+import dev.voidedaries.aries.client.feature.types.interaction.ColorEditState;
+import dev.voidedaries.aries.client.feature.types.interaction.ColorPickerState;
+import dev.voidedaries.aries.client.feature.types.interaction.SliderEditState;
+import dev.voidedaries.aries.client.feature.types.interaction.SliderValue;
+import dev.voidedaries.aries.client.gui.AriesScreen;
+import dev.voidedaries.aries.client.gui.ScreenHelper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class ConfigTypeRenderer {
     private static final int PADDING = 10;
@@ -105,7 +118,11 @@ public class ConfigTypeRenderer {
             0xFF222933
         );
 
-        return new ConfigInteraction(config, toggleX, entryY, toggleWidth, toggleHeight);
+        return new ConfigInteraction(config, toggleX, entryY, toggleWidth, toggleHeight, _ -> {
+            BooleanConfig bool = (BooleanConfig) config;
+            bool.set(!bool.get());
+            AriesConfig.save();
+        });
     }
 
     public static ConfigInteraction drawSlider(
@@ -192,25 +209,170 @@ public class ConfigTypeRenderer {
         return new ConfigInteraction(config, x, entryY, width, height);
     }
 
-    public static ConfigInteraction drawColorPicker(
+    public static void updateSlider(int mouseX, ConfigInteraction interaction) {
+        if (!(interaction.config() instanceof SliderValue slider)) {
+            return;
+        }
+
+        int x = interaction.x();
+        int width = interaction.width();
+
+        float percent = (mouseX - x) / (float) width;
+        percent = Mth.clamp(percent, 0f, 1f);
+
+        slider.setFromPercent(percent);
+    }
+
+    public static List<ConfigInteraction> drawColorPicker(
         GuiGraphicsExtractor graphics,
-        Font ignoredfont,
+        Font font,
         AriesConfigType<?> config,
         int controlRightX,
-        int entryY
+        int entryY,
+        int mouseX,
+        int mouseY,
+        ColorEditState editingColor,
+        ColorPickerState pickerState,
+        Consumer<ColorEditState> onEdit,
+        Consumer<OpenColorPicker> onColorPicker
     ) {
         ColorConfig color = (ColorConfig) config;
+
+        List<ConfigInteraction> interactions = new ArrayList<>();
 
         int colorPickerWidth = COLOR_PICKER_WIDTH;
         int colorPickerHeight = COLOR_PICKER_HEIGHT;
 
-        int value = color.get();
+        int value = pickerState != null ? pickerState.getARGB() : color.get();
 
         int x = controlRightX - colorPickerWidth;
 
+        String hex = ColorConfig.formatColor(value);
+
+        if (hex.startsWith("0x")) {
+            hex = hex.substring(2);
+        }
+
+        float scale = 0.85f;
+
+        int padding = 4;
+
+        int textWidth = font.width(hex);
+        int textHeight = font.lineHeight;
+
+        int scaledTextWidth = (int) (textWidth * scale);
+        int scaledTextHeight = (int) (textHeight * scale);
+
+        int boxWidth = scaledTextWidth + (padding * 2) + 2;
+        int boxHeight = scaledTextHeight + (padding * 2);
+
+        int boxX = x - boxWidth - (PADDING / 2);
+
+        int pickerCenterY = entryY + (colorPickerHeight / 2);
+        int boxY = pickerCenterY - (boxHeight / 2);
+
+        // outer border
+        graphics.fill(boxX - 1, boxY - 1, boxX + boxWidth + 1, boxY + boxHeight + 1, 0xFF434E5B);
+
+        //text border
+        graphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xFF151A21);
+
+        graphics.pose().pushMatrix();
+
+        graphics.pose().translate(boxX + padding, boxY + padding);
+        graphics.pose().scale(scale, scale);
+
+        boolean hexHovered = ScreenHelper.isHovered(mouseX, mouseY, boxX, boxY, boxWidth, boxHeight);
+        boolean editing = editingColor != null && editingColor.getColor() == color;
+        boolean active = hexHovered || editing;
+
+        int alphaColor = active ? 0xFFFFFFFF : 0xFFADB5C9;
+        int redColor = active ? 0xFFFF5555 : 0xFFADB5C9;
+        int greenColor = active ? 0xFF55FF55 : 0xFFADB5C9;
+        int blueColor = active ? 0xFF5555FF : 0xFFADB5C9;
+
+        //what texts to show
+        String cleanHex = editing ? editingColor.getInput() : hex;
+
+        MutableComponent hexComponent = Component.empty();
+
+        // Add the actual characters
+        if (!cleanHex.isEmpty()) {
+            hexComponent.append(
+                Component.literal(cleanHex.substring(0, Math.min(2, cleanHex.length())))
+                    .withColor(alphaColor)
+            );
+        }
+
+        if (cleanHex.length() > 2) {
+            hexComponent.append(
+                Component.literal(cleanHex.substring(2, Math.min(4, cleanHex.length())))
+                    .withColor(redColor)
+            );
+        }
+
+        if (cleanHex.length() > 4) {
+            hexComponent.append(
+                Component.literal(cleanHex.substring(4, Math.min(6, cleanHex.length())))
+                    .withColor(greenColor)
+            );
+        }
+
+        if (cleanHex.length() > 6) {
+            hexComponent.append(
+                Component.literal(cleanHex.substring(6, Math.min(8, cleanHex.length())))
+                    .withColor(blueColor)
+            );
+        }
+
+
+        //add caret separately
+        if (editing && editingColor.showCaret()) {
+            hexComponent.append(
+                Component.literal("|")
+                    .withColor(0xFFADB5C9)
+            );
+        }
+
+        //text
+        graphics.text(font, hexComponent, 0, 0, 0xFFADB5C9);
+
+        graphics.pose().popMatrix();
+
+        //color picker
         graphics.fill(x, entryY, x + colorPickerWidth, entryY + colorPickerHeight, value);
 
-        return new ConfigInteraction(config, x, entryY, colorPickerWidth, colorPickerHeight);
+        interactions.add(
+            new ConfigInteraction(
+                config,
+                boxX,
+                boxY,
+                boxWidth,
+                boxHeight,
+                _ -> onEdit.accept(new ColorEditState(color))
+            )
+        );
+
+        interactions.add(
+            new ConfigInteraction(
+                config,
+                x,
+                entryY,
+                colorPickerWidth,
+                colorPickerHeight,
+                _ -> onColorPicker.accept(
+                    new OpenColorPicker(
+                        color,
+                        x + colorPickerWidth / 2,
+                        entryY + colorPickerHeight,
+                        AriesScreen.COLOR_PICKER_BOX_WIDTH,
+                        AriesScreen.COLOR_PICKER_BOX_HEIGHT
+                    )
+                )
+            )
+        );
+
+        return interactions;
     }
 
     public static ConfigInteraction drawKeybind(
@@ -219,7 +381,8 @@ public class ConfigTypeRenderer {
         AriesConfigType<?> config,
         int controlRightX,
         int entryY,
-        boolean listening
+        boolean listening,
+        Consumer<KeybindConfig> onListen
     ) {
         int keybindHeight = KEYBIND_HEIGHT;
 
@@ -262,7 +425,9 @@ public class ConfigTypeRenderer {
 
         graphics.text(font, text, textX, textY, 0xFFADB5C9);
 
-        return new ConfigInteraction(config, keybindX, entryY, keybindWidth, keybindHeight);
+        return new ConfigInteraction(
+            config, keybindX, entryY, keybindWidth, keybindHeight, _ -> onListen.accept(keybind)
+        );
     }
 
 }

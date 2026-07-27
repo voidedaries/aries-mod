@@ -1,14 +1,113 @@
 package dev.voidedaries.aries.client.gui;
 
-import dev.voidedaries.aries.client.feature.types.AriesCategory;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
-public class AriesScreenHelper {
+public class AriesScreenLayout {
 
-    public static AriesCategory lastCategory = AriesCategory.ABOUT;
-    public static int savedScrollPosition = 0;
+    private AriesScreenLayout() {}
 
-    private AriesScreenHelper() {}
+    public static void drawHSVBox(
+        GuiGraphicsExtractor graphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int hueColor
+    ) {
+        // Base hue
+        graphics.fill(x, y, x + width, y + height, hueColor);
+
+        // White -> transparent horizontally
+        for (int i = 0; i < width; i++) {
+            float alpha = 1f - (i / (float) width);
+
+            int color = ((int)(alpha * 255) << 24) | 0xFFFFFF;
+
+            graphics.fill(x + i, y, x + i + 1, y + height, color);
+        }
+
+        // Transparent -> black vertically
+        for (int i = 0; i < height; i++) {
+            float alpha = i / (float) height;
+
+            int color = ((int)(alpha * 255) << 24);
+
+            graphics.fill(x, y + i, x + width, y + i + 1, color);
+        }
+    }
+
+    public static void drawHueBar(
+        GuiGraphicsExtractor graphics,
+        int x,
+        int y,
+        int width,
+        int height
+    ) {
+        int[] colors = {
+            0xFFFF0000, // red
+            0xFFFFFF00, // yellow
+            0xFF00FF00, // green
+            0xFF00FFFF, // cyan
+            0xFF0000FF, // blue
+            0xFFFF00FF, // magenta
+            0xFFFF0000, // red
+        };
+
+        for (int i = 0; i < width; i++) {
+            float percent = i / (float) width;
+
+            float scaled = percent * (colors.length - 1);
+
+            int index = (int) scaled;
+            float local = scaled - index;
+
+            int color = interpolateColor(colors[index], colors[Math.min(index + 1, colors.length - 1)], local);
+
+            graphics.fill(x + i, y, x + i + 1, y + height, color);
+        }
+    }
+
+    public static void drawAlphaBar(
+        GuiGraphicsExtractor graphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int color
+    ) {
+        for (int i = 0; i < width; i++) {
+            float alpha = i / (float) width;
+
+            int result =
+                ((int)(alpha * 255) << 24)
+                    | (color & 0xFFFFFF);
+
+            graphics.fill(
+                x + i,
+                y,
+                x + i + 1,
+                y + height,
+                result
+            );
+        }
+    }
+
+    private static int interpolateColor(int a, int b, float t) {
+        int ar = (a >> 16) & 0xFF;
+        int ag = (a >> 8) & 0xFF;
+        int ab = a & 0xFF;
+
+        int br = (b >> 16) & 0xFF;
+        int bg = (b >> 8) & 0xFF;
+        int bb = b & 0xFF;
+
+        int r = (int) (ar + (br - ar) * t);
+        int g = (int) (ag + (bg - ag) * t);
+        int b2 = (int) (ab + (bb - ab) * t);
+
+        return 0xFF000000 | (r << 16) | (g << 8) | b2;
+    }
 
     public static int calculateThumbHeight(int scrollbarHeight, int contentHeight, int visibleHeight) {
         if (contentHeight <= 0 || contentHeight <= visibleHeight) {

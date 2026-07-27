@@ -2,8 +2,16 @@ package dev.voidedaries.aries.client.feature.types;
 
 public class ColorConfig extends AriesConfigType<Integer> {
 
-    public ColorConfig(String key, int defaultValue) {
-        super(key, defaultValue);
+    public ColorConfig(String key, int value) {
+        super(key, value);
+    }
+
+    public static String formatColor(int color) {
+        return String.format("0x%08X", color);
+    }
+
+    public void reset() {
+        set(getDefaultValue());
     }
 
     @Override

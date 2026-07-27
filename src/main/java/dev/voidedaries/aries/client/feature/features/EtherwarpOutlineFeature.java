@@ -15,7 +15,7 @@ public class EtherwarpOutlineFeature extends AriesFeature {
 
     public final IntConfig width = new IntConfig("etherwarp_outline.width", 2, 1, 5);
 
-    public final ColorConfig valid = new ColorConfig("etherwarp_outline.valid_color", 0xFF0000FF);
+    public final ColorConfig valid = new ColorConfig("etherwarp_outline.valid_color", 0xFF00FF00);
 
     public final ColorConfig invalid = new ColorConfig("etherwarp_outline.invalid_color", 0xFFFF0000);
 

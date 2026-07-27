@@ -12,6 +12,14 @@
   "gui.menu.category.controls": "Controls",
   "gui.menu.category.dev": "Dev",
 
+  "gui.menu.color_picker.hue": "Hue",
+  "gui.menu.color_picker.alpha": "Alpha",
+  "gui.menu.color_picker.hex": "Hex",
+
+  "gui.menu.color_picker.copy": "Copy",
+  "gui.menu.color_picker.paste": "Paste",
+  "gui.menu.color_picker.reset": "Reset",
+
   "key.category.aries.main_category": "Aries Keybinds",
   "key.aries.listening": "...",
   "key.aries.not_bound": "Not Bound",

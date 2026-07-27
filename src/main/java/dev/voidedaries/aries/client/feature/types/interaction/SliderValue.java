@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.feature.types;
+package dev.voidedaries.aries.client.feature.types.interaction;
 
 public interface SliderValue {
 

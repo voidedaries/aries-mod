@@ -1,5 +1,7 @@
 package dev.voidedaries.aries.client.feature.types;
 
+import dev.voidedaries.aries.client.feature.types.interaction.SliderValue;
+
 public class FloatConfig extends AriesConfigType<Float> implements SliderValue {
 
     private final float min;
