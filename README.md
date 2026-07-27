@@ -24,6 +24,16 @@ Whether you're grinding skills, managing chat, or just trying to make SkyBlock l
 - Fully configurable features
 
 ---
+
+## Support
+
+Found a bug or have a suggestion?
+
+Please open an issue on GitHub:
+[Report bugs or request features](https://github.com/voidedaries/aries-mod/issues)
+
+---
+
 ## Installation
 ### Requirements
 - Minecraft `26.2+`
