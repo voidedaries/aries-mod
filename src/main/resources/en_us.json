@@ -1,4 +1,5 @@
 {
+  "aries.mod_name": "Aries",
   "authors.dev.voidedaries": "VoidedAries",
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
@@ -11,6 +12,7 @@
   "gui.menu.category.performance": "Performance",
   "gui.menu.category.controls": "Controls",
   "gui.menu.category.dev": "Dev",
+  "gui.menu.searchbar" : "Search...",
 
   "gui.menu.color_picker.hue": "Hue",
   "gui.menu.color_picker.alpha": "Alpha",

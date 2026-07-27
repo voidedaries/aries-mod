@@ -5,19 +5,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public class ModConstants {
     public static final String MOD_ID = "aries";
 
-    private static final String version = FabricLoader.getInstance()
-        .getModContainer(ModConstants.MOD_ID)
-        .map(
-            mod -> mod.getMetadata().getVersion().getFriendlyString()
-        ).orElse("unknown");
-
-    public static final String displayVersion = version.contains("-")
-        ? version.substring(0, version.indexOf("-"))
-        : version;
-
     public static final String GITHUB_URL = "https://github.com/voidedaries/aries-mod";
-
-    public static final String ABOUT_DESCRIPTION = "Aries is a lightweight, modern QoL mod built to improve the Hypixel SkyBlock experience, designed for newer Minecraft versions, offering intuitive, configurable tools, polished interfaces, and useful features that are easy to use.";
 
     /**
      * Version format:
@@ -33,4 +21,12 @@ public class ModConstants {
             .getMetadata()
             .getVersion()
             .getFriendlyString();
+
+    private static final String version = FabricLoader.getInstance()
+        .getModContainer(ModConstants.MOD_ID)
+        .map(
+            mod -> mod.getMetadata().getVersion().getFriendlyString()
+        ).orElse("unknown");
+
+    public static final String displayVersion = VERSION;
 }

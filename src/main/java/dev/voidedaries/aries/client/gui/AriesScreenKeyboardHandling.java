@@ -16,6 +16,13 @@ public class AriesScreenKeyboardHandling {
     }
 
     public boolean charTyped(@NonNull CharacterEvent event) {
+
+        if (screen.getSearchBar().isFocused()) {
+            screen.getSearchBar().append((char) event.codepoint());
+            screen.updateSearchCategory();
+            return true;
+        }
+
         if (screen.getEditingState() != null) {
             screen.getEditingState().addChar((char) event.codepoint());
             return true;
@@ -27,6 +34,22 @@ public class AriesScreenKeyboardHandling {
     public boolean keyPressed(KeyEvent event) {
 
         // keyboard handling
+
+        if (screen.getSearchBar().isFocused()) {
+            switch (event.key()) {
+                case GLFW.GLFW_KEY_BACKSPACE -> {
+                    screen.getSearchBar().backspace();
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_ESCAPE, GLFW.GLFW_KEY_ENTER -> {
+                    screen.getSearchBar().setFocused(false);
+                    return true;
+                }
+
+            }
+        }
+
         if (screen.getListeningKeybind() != null) {
 
             if (event.key() == GLFW.GLFW_KEY_ESCAPE) {

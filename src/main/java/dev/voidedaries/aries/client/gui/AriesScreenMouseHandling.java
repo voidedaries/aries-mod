@@ -39,7 +39,7 @@ public class AriesScreenMouseHandling {
         }
 
         // github author link
-        if (screen.isAuthorHovered(mouseX, mouseY)) {
+        if (screen.isModTitleHovered(mouseX, mouseY)) {
             Util.getPlatform().openUri(ModConstants.GITHUB_URL);
         }
 
@@ -169,6 +169,16 @@ public class AriesScreenMouseHandling {
             screen.setEditingState(null);
 
             return true;
+        }
+
+        // search bar
+        if (screen.isOverSearchBar(mouseX, mouseY)) {
+            screen.getSearchBar().setFocused(true);
+            return true;
+        }
+
+        if (!screen.isOverSearchBar(mouseX, mouseY)) {
+            screen.getSearchBar().setFocused(false);
         }
 
         // categories

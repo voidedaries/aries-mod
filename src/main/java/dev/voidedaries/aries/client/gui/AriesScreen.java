@@ -18,6 +18,7 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
@@ -25,9 +26,24 @@ import org.jspecify.annotations.NonNull;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AriesScreen extends Screen {
     private AriesCategory selectedCategory = AriesCategory.ABOUT; // first category on first opening
+    private final SearchBar searchBar = new SearchBar();
+    private boolean categoryManuallySelected = false;
+
+    // mouse & keyboard handlers
+    private AriesScreenKeyboardHandling keyboardHandling;
+    private AriesScreenMouseHandling mouseHandling;
+
+    //interaction
+    private ConfigInteraction activeSlider = null;
+    public KeybindConfig listeningKeybind;
+
+    //config states
+    private EditState editingState;
+    private OpenColorPicker activeColorPicker;
 
     // menu
     static final int MENU_WIDTH = 360;
@@ -43,18 +59,6 @@ public class AriesScreen extends Screen {
     // scrollbar
     static final int SCROLLBAR_WIDTH = 4;
     private int scrollOffset = 0;
-
-    // mouse & keyboard handlers
-    private AriesScreenKeyboardHandling keyboardHandling;
-    private AriesScreenMouseHandling mouseHandling;
-
-    //interaction
-    private ConfigInteraction activeSlider = null;
-    public KeybindConfig listeningKeybind;
-
-    //config states
-    private EditState editingState;
-    private OpenColorPicker activeColorPicker;
 
     public static int COLOR_PICKER_BOX_WIDTH = 120;
     public static int COLOR_PICKER_BOX_HEIGHT = 110;
@@ -72,8 +76,15 @@ public class AriesScreen extends Screen {
 
         keyboardHandling = new AriesScreenKeyboardHandling(this);
         mouseHandling = new AriesScreenMouseHandling(this);
+
         selectedCategory = AriesScreenCache.category;
         scrollOffset = AriesScreenCache.savedScrollPosition;
+
+        searchBar.setText(AriesScreenCache.savedSearchText);
+
+        if (searchBar.hasQuery()) {
+            updateSearchCategory();
+        }
     }
 
     @Override
@@ -85,7 +96,6 @@ public class AriesScreen extends Screen {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
-
         //drawing menu & categories
         graphics.fill(x, y, x + getMenuWidth(), y + getMenuHeight(), 0xFF222933);
         graphics.fill(x, y, x + getCategoryWidth(), y + getMenuHeight(), 0xFF151A21);
@@ -93,6 +103,12 @@ public class AriesScreen extends Screen {
         drawCategories(graphics, mouseX, mouseY, delta);
         drawMenu(graphics, mouseX, mouseY, delta);
 
+        int menuX = ScreenHelper.centreX(this.width, getMenuWidth());
+        int menuY = ScreenHelper.centreY(this.height, getMenuHeight());
+
+        drawSearchBar(graphics, menuX, menuY);
+
+        // update cursor
         updateCursor(graphics, mouseX, mouseY);
     }
 
@@ -109,15 +125,21 @@ public class AriesScreen extends Screen {
 
         AriesCategory currentCategory = selectedCategory != null ? selectedCategory : AriesCategory.ABOUT;
 
-        //author
+        if (searchBar.hasQuery() && !categoryManuallySelected) {
+            currentCategory = getSearchCategory();
+        }
+
+        MutableComponent modName =
+            Component.literal("")
+                .append(Component.translatable("aries.mod_name")
+                    .withStyle(s -> isModTitleHovered(mouseX, mouseY) ? s.withUnderlined(true) : s))
+                .append(Component.literal(" • ").withColor(0xFFADB5C9)
+                    .withStyle(s -> s.withUnderlined(false)))
+                .append(Component.literal(ModConstants.displayVersion).withStyle(s -> s.withUnderlined(false)));
+
         graphics.text(
             this.font,
-            Component.literal("Aries")
-                .append(Component.literal(" • ").withColor(0xFFADB5C9))
-                .append(Component.translatable("authors.dev.voidedaries")
-                    .withStyle(s -> isAuthorHovered(mouseX, mouseY) ? s.withUnderlined(true) : s))
-                .append(Component.literal(" • ").withColor(0xFFADB5C9))
-                .append(Component.literal(ModConstants.displayVersion)),
+            modName,
             x + getCategoryWidth() + 2 * PADDING,
             y + PADDING,
             0xFF0058E1
@@ -149,6 +171,10 @@ public class AriesScreen extends Screen {
         // drawing features
         for (AriesFeature feature : AriesFeatures.getFeatures()) {
             if (feature.getCategory() != currentCategory || !feature.isVisible()) {
+                continue;
+            }
+
+            if (searchBar.hasQuery() && !SearchHelper.matches(feature, searchBar.getText())) {
                 continue;
             }
 
@@ -299,6 +325,74 @@ public class AriesScreen extends Screen {
         if (activeColorPicker != null) {
             drawExpandedColorPicker(graphics, activeColorPicker, mouseX, mouseY);
         }
+    }
+
+    private void drawSearchBar(
+        GuiGraphicsExtractor graphics,
+        int menuX,
+        int menuY
+    ) {
+        int height = 12;
+        int maxWidth = 80;
+
+        int x = (int) (menuX + getMenuWidth() - (PADDING * 1.5) - maxWidth);
+        int y = (int) (menuY + PADDING + (this.font.lineHeight - height) / 1.75);
+
+        int textOffset = 1;
+
+        // background
+        graphics.fill(
+            x,
+            y - 1,
+            x + maxWidth,
+            y + height,
+            0xFF151A21
+        );
+
+        graphics.enableScissor(x + 2, y, x + maxWidth - 2, y + height);
+
+        String text = searchBar.getText();
+
+        int textWidth = this.font.width(text);
+        int visibleWidth = maxWidth - PADDING;
+
+        searchBar.updateScrollOffset(textWidth, visibleWidth);
+
+        int textX = x + (PADDING / 2) - searchBar.getScrollOffset();
+        int textY = y + (height - this.font.lineHeight) / 2 + textOffset;
+
+        if (text.isEmpty() && !searchBar.isFocused()) {
+            graphics.text(
+                this.font,
+                Component.translatable("gui.menu.searchbar"),
+                textX,
+                textY,
+                0xFFADB5C9
+            );
+        } else if(!text.isEmpty()) {
+            graphics.text(
+                this.font,
+                Component.literal(text),
+                textX,
+                textY,
+                0xFFFFFFFF
+            );
+        }
+
+        // cursor
+        if (searchBar.isFocused() && searchBar.shouldShowCursor()) {
+            int cursorX = textX + this.font.width(text);
+
+            graphics.fill(
+                cursorX,
+                y + 1,
+                cursorX + 1,
+                y + height - 2,
+                0xFFADB5C9
+            );
+        }
+
+        graphics.disableScissor();
     }
 
     //method for drawing descriptions needed for features & entries (separate method for scaling purposes)
@@ -590,6 +684,11 @@ public class AriesScreen extends Screen {
         int mouseX,
         int mouseY
     ) {
+        if (isOverSearchBar(mouseX, mouseY)) {
+            graphics.requestCursor(CursorTypes.POINTING_HAND);
+            return;
+        }
+
         if (isOverOpenColorPickerControl(mouseX, mouseY)) {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
             return;
@@ -609,7 +708,7 @@ public class AriesScreen extends Screen {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
 
-        if (isAuthorHovered(mouseX, mouseY)) {
+        if (isModTitleHovered(mouseX, mouseY)) {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
     }
@@ -649,6 +748,81 @@ public class AriesScreen extends Screen {
 
     public int getColorPickerButtonWidth(OpenColorPicker picker) {
         return (ColorPickerInteraction.getColorPickerHSVWidth(picker) - getColorPickerButtonGap() * 2) / 3;
+    }
+
+    boolean isOverSearchBar(int mouseX, int mouseY) {
+        int menuX = ScreenHelper.centreX(width, getMenuWidth());
+        int menuY = ScreenHelper.centreY(height, getMenuHeight());
+
+        int width = 90;
+        int height = 14;
+
+        int x = menuX + getMenuWidth() - AriesScreen.PADDING - width;
+        int y = (int)(menuY + AriesScreen.PADDING +
+            (this.font.lineHeight - height) / 1.75);
+
+        return ScreenHelper.isHovered(
+            mouseX,
+            mouseY,
+            x,
+            y - 1,
+            width,
+            height
+        );
+    }
+
+    public void clearSearch() {
+        searchBar.clear();
+        categoryManuallySelected = false;
+        selectedCategory = AriesCategory.ABOUT;
+        scrollOffset = 0;
+    }
+
+    public void updateSearchCategory() {
+        if (!searchBar.hasQuery()) {
+            return;
+        }
+
+        if (!categoryManuallySelected) {
+            AriesCategory bestCategory = getSearchCategory();
+
+            if (bestCategory != null) {
+                selectedCategory = bestCategory;
+                scrollOffset = 0;
+            }
+        }
+    }
+
+    private AriesCategory getSearchCategory() {
+        if (!searchBar.hasQuery()) {
+            return selectedCategory;
+        }
+
+        String query = searchBar.getText().toLowerCase(Locale.ROOT);
+
+        AriesCategory bestCategory = AriesCategory.ABOUT;
+        int bestMatches = 0;
+
+        for (AriesCategory category : AriesCategory.values()) {
+            int matches = 0;
+
+            for (AriesFeature feature : AriesFeatures.getFeatures()) {
+                if (feature.getCategory() != category || !feature.isVisible()) {
+                    continue;
+                }
+
+                if (SearchHelper.matches(feature, query)) {
+                    matches++;
+                }
+            }
+
+            if (matches > bestMatches) {
+                bestMatches = matches;
+                bestCategory = category;
+            }
+        }
+
+        return bestMatches > 0 ? bestCategory : selectedCategory;
     }
 
     private boolean isOverOpenColorPickerControl(int mouseX, int mouseY) {
@@ -735,20 +909,16 @@ public class AriesScreen extends Screen {
         return ScreenHelper.isHovered(mouseX, mouseY, scrollbarX, thumbY, SCROLLBAR_WIDTH, thumbHeight);
     }
 
-    boolean isAuthorHovered(int mouseX, int mouseY) {
+    boolean isModTitleHovered(int mouseX, int mouseY) {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
-        int authorX = x + getCategoryWidth() + PADDING;
-        int authorY = y + PADDING;
+        int modNameX = x + getCategoryWidth() + 2 * PADDING;
+        int modNameY = y + PADDING;
 
-        int titleTextWidth = this.font.width("Aries • ");
-        int authorWidth = this.font.width(Component.translatable("authors.dev.voidedaries"));
+        int modNameWidth = this.font.width(Component.translatable("aries.mod_name"));
 
-        int hoverX = authorX + titleTextWidth;
-        int hoverHeight = this.font.lineHeight;
-
-        return ScreenHelper.isHovered(mouseX, mouseY, hoverX, authorY, authorWidth, hoverHeight);
+        return ScreenHelper.isHovered(mouseX, mouseY, modNameX, modNameY, modNameWidth, this.font.lineHeight);
     }
 
     public boolean isOverColorPicker(int mouseX, int mouseY) {
@@ -815,10 +985,16 @@ public class AriesScreen extends Screen {
 
     public void setSelectedCategory(AriesCategory selectedCategory) {
         this.selectedCategory = selectedCategory;
+        this.categoryManuallySelected = true;
+        this.scrollOffset = 0;
     }
 
     public void setScrollOffset(int scrollOffset) {
         this.scrollOffset = scrollOffset;
+    }
+
+    public SearchBar getSearchBar() {
+        return searchBar;
     }
 
     // editing states
@@ -857,11 +1033,18 @@ public class AriesScreen extends Screen {
         activeColorPicker = null;
     }
 
+    // search bar blinking
+    @Override
+    public void tick() {
+        searchBar.tick();
+    }
+
     // menu saving
     @Override
     public void removed() {
         AriesScreenCache.savedScrollPosition = scrollOffset;
         AriesScreenCache.category = selectedCategory;
+        AriesScreenCache.savedSearchText = searchBar.getText();
 
         super.removed();
     }
