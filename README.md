@@ -26,7 +26,7 @@ Whether you're grinding skills, managing chat, or just trying to make SkyBlock l
 ---
 ## Installation
 ### Requirements
-- Minecraft `1.21.11+`
+- Minecraft `26.2+`
 - Fabric Loader
 - Fabric API
 ### Steps
