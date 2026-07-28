@@ -1,8 +1,15 @@
-<h1 align="center">Aries</h1>
+<div align="center">
 
-<p align="center">
-    <img src="src/main/resources/assets/aries/logo.png" width="140" alt="Aries Logo">
-</p>
+# Aries
+
+<!--suppress CheckImageSize -->
+<img src="https://raw.githubusercontent.com/voidedaries/aries-mod/main/src/main/resources/assets/aries/logo.png" width="160" alt="Aries Logo">
+
+[Source](https://github.com/voidedaries/aries-mod) • [Issues](https://github.com/voidedaries/aries-mod/issues)
+
+A modern Fabric Quality of Life mod for Hypixel SkyBlock.
+
+</div>
 
 ---
 
