@@ -14,7 +14,7 @@ public class OldMasterStarColoursFeature extends AriesFeature {
         super(
             Component.translatable("gui.category.visuals.old_master_star_colours.name"),
             Component.translatable("gui.category.visuals.old_master_star_colours.description"),
-            AriesCategory.VISUALS
+            AriesCategory.DUNGEONS
         );
     }
 

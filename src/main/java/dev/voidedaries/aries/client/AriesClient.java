@@ -1,11 +1,12 @@
 package dev.voidedaries.aries.client;
 
 import dev.voidedaries.aries.client.command.AriesCommands;
+import dev.voidedaries.aries.client.command.ClientCommandHooks;
 import dev.voidedaries.aries.client.event.SkyblockTracker;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.types.KeybindConfig;
 import dev.voidedaries.aries.client.feature.types.AriesConfigType;
+import dev.voidedaries.aries.client.feature.types.KeybindConfig;
 import dev.voidedaries.aries.client.render.RenderManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -26,6 +27,7 @@ public class AriesClient implements ClientModInitializer {
         }
 
         AriesConfig.init();
+        ClientCommandHooks.init();
 
         LevelRenderEvents.AFTER_SOLID_FEATURES.register(RenderManager::render);
 

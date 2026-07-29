@@ -25,7 +25,13 @@ public class AriesFeatures {
     public static final EtherwarpOutlineFeature ETHERWARP_OUTLINE =
         register(new EtherwarpOutlineFeature());
 
+    public static final HeldItemCustomisationFeature HELD_ITEM_CUSTOMISATION =
+        register(new HeldItemCustomisationFeature());
+
     public static final ItemRarityScalingFeature ITEM_RARITY_SCALING = register(new ItemRarityScalingFeature());
+
+    public static final PlayerCustomisationFeature PLAYER_CUSTOMISATION =
+        register(new PlayerCustomisationFeature());
 
     public static final OldMasterStarColoursFeature OLD_MASTER_STAR_COLOURS =
         register(new OldMasterStarColoursFeature());

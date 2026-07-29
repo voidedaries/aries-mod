@@ -4,13 +4,16 @@
   "package": "dev.voidedaries.aries.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "LivingEntityMixin"
   ],
   "client": [
+    "AvatarRendererMixin",
     "ChatComponentMixin",
     "ClientPacketListenerMixin",
     "EntityRenderDispatcherMixin",
     "ItemEntityRendererMixin",
     "ItemEntityRenderStateMixin",
+    "ItemInHandRenderer",
     "ItemStackMixin",
     "KeyMappingMixin",
     "LevelRendererMixin",

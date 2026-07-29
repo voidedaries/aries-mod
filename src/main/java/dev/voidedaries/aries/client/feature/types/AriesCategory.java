@@ -17,7 +17,7 @@ public enum AriesCategory {
     ACHIEVEMENTS("achievements"),
     CHAT("chat"),
     COMMANDS("commands"),
-    FISHING("fishing"),
+    DUNGEONS("dungeons"),
     VISUALS("visuals"),
     PERFORMANCE("performance"),
     CONTROLS("controls"),

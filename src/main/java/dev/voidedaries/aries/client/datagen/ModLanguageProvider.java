@@ -119,13 +119,113 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "changes the scale of dropped items."
         );
 
+        addHeldItemCustomisationTranslations(translations);
+
         addItemRarityScalingTranslations(translations);
+
+        addPlayerCustomisationTranslations(translations);
 
         addTranslation(
             translations, AriesCategory.VISUALS.getId(),
             "old_master_star_colours",
             "Old Master Star Formatting",
             "changes master starred item names to the old star formatting"
+        );
+    }
+
+    private static void addPlayerCustomisationTranslations(
+        TranslationBuilder translations
+    ) {
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "player_customisation",
+            "Player Customisation",
+            "Customises the scaling and the height, width and depth of the player."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "player_customisation.scale",
+            "Player Scaling",
+            "Changes the size of the player."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "player_customisation.height",
+            "Player Height",
+            "Changes the height of the player."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "player_customisation.width",
+            "Player Width",
+            "Changes the width of the player."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "player_customisation.depth",
+            "Player Depth",
+            "Changes the depth of the player."
+        );
+    }
+
+    private static void addHeldItemCustomisationTranslations(
+        TranslationBuilder translations
+    ) {
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation",
+            "Held Item Customisation",
+            "Customises the size, position and animations of held items."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation.scale",
+            "Item Scale",
+            "Changes the size of held items."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation.position_x",
+            "X Position",
+            "Changes the horizontal position of held items."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation.position_y",
+            "Y Position",
+            "Changes the vertical position of held items."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation.position_z",
+            "Z Position",
+            "Changes the depth position of held items."
+        );
+
+        addTranslation(
+            translations,
+            AriesCategory.VISUALS.getId(),
+            "held_item_customisation.swing_speed",
+            "Swing Speed",
+            "Changes the swing speed of held items."
         );
     }
 
