@@ -1,5 +1,13 @@
 {
   "aries.mod_name": "Aries",
+  "aries.overview": "Hypixel SkyBlock QoL Mod",
+  "aries.description": "A lightweight client-side mod designed to improve visibility and reduce repetitive tasks while keeping the vanilla experience.",
+
+  "aries.about.version": "Version: %s",
+  "aries.about.minecraft": "Minecraft: %s",
+  "aries.about.loader": "Loader: Fabric",
+  "aries.about.author": "Created by %s",
+
   "authors.dev.voidedaries": "VoidedAries",
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
@@ -9,9 +17,8 @@
   "gui.menu.category.commands": "Commands",
   "gui.menu.category.dungeons": "Dungeons",
   "gui.menu.category.visuals": "Visuals",
-  "gui.menu.category.performance": "Performance",
-  "gui.menu.category.controls": "Controls",
   "gui.menu.category.dev": "Dev",
+
   "gui.menu.searchbar" : "Search...",
 
   "gui.menu.color_picker.hue": "Hue",

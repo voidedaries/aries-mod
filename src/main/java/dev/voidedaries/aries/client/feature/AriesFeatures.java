@@ -11,30 +11,37 @@ public class AriesFeatures {
 
     private static final List<AriesFeature> FEATURES = new ArrayList<>();
 
-    //chat
+    // chat
     public static final CompactChatFeature COMPACT_CHAT = register(new CompactChatFeature());
     public static final CompactChatTimeFeature COMPACT_CHAT_TIME = register(new CompactChatTimeFeature());
 
     public static final PeekChatFeature PEEK_CHAT = register(new PeekChatFeature());
     public static final ScrollPeekChatFeature SCROLL_PEEK_CHAT = register(new ScrollPeekChatFeature());
 
-    //command
+    // command
     public static final SkipCommandConfirmFeature SKIP_COMMAND_CONFIRM = register(new SkipCommandConfirmFeature());
 
-    //visuals
+    // visuals
     public static final EtherwarpOutlineFeature ETHERWARP_OUTLINE =
         register(new EtherwarpOutlineFeature());
 
     public static final HeldItemCustomisationFeature HELD_ITEM_CUSTOMISATION =
         register(new HeldItemCustomisationFeature());
 
+    public static final HideArmorFeature HIDE_ARMOR = register(new HideArmorFeature());
+
     public static final ItemRarityScalingFeature ITEM_RARITY_SCALING = register(new ItemRarityScalingFeature());
+
+    public static final LowFireFeature LOW_FIRE = register(new LowFireFeature());
 
     public static final PlayerCustomisationFeature PLAYER_CUSTOMISATION =
         register(new PlayerCustomisationFeature());
 
     public static final OldMasterStarColoursFeature OLD_MASTER_STAR_COLOURS =
         register(new OldMasterStarColoursFeature());
+
+    public static final RemoveSecondLayerArmorFeature REMOVE_SECOND_LAYER_ARMOR =
+        register(new RemoveSecondLayerArmorFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);

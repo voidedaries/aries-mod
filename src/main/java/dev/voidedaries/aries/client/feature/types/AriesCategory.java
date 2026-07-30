@@ -19,8 +19,6 @@ public enum AriesCategory {
     COMMANDS("commands"),
     DUNGEONS("dungeons"),
     VISUALS("visuals"),
-    PERFORMANCE("performance"),
-    CONTROLS("controls"),
     DEV("dev");
 
     private final String id;

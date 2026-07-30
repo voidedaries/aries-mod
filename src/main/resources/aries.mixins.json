@@ -7,10 +7,15 @@
     "LivingEntityMixin"
   ],
   "client": [
+    "AbstractContainerScreenAccessorMixin",
+    "AbstractContainerScreenMixin",
     "AvatarRendererMixin",
     "ChatComponentMixin",
     "ClientPacketListenerMixin",
     "EntityRenderDispatcherMixin",
+    "EquipmentLayerRendererMixin",
+    "HumanoidArmorLayerMixin",
+    "InventoryScreenMixin",
     "ItemEntityRendererMixin",
     "ItemEntityRenderStateMixin",
     "ItemInHandRenderer",
@@ -18,7 +23,8 @@
     "KeyMappingMixin",
     "LevelRendererMixin",
     "MouseHandlerMixin",
-    "OptionsMixin"
+    "OptionsMixin",
+    "ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

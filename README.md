@@ -15,7 +15,7 @@ A modern client-side Quality of Life mod for Hypixel SkyBlock.
 
 ## What is Aries?
 
-Aries is a modern **client-side Quality of Life mod** for **Hypixel SkyBlock**, built for modern versions of Minecraft. It adds **configurable visual customisation**, **chat improvements**, **SkyBlock utilities**, and a polished in-game configuration menu. Designed to make everyday SkyBlock gameplay smoother. It adds configurable visual customisation, chat improvements, SkyBlock utilities, and a polished in-game configuration menu designed to make everyday SkyBlock gameplay smoother.
+Aries is a modern **client-side Quality of Life mod** for **Hypixel SkyBlock**, built for modern versions of Minecraft. It adds **configurable visual customisation**, **chat improvements**, **SkyBlock utilities**, and a polished in-game configuration menu. Designed to make every day SkyBlock gameplay smoother. It adds configurable visual customisation, chat improvements, SkyBlock utilities, and a polished in-game configuration menu designed to make every day SkyBlock gameplay smoother.
 
 Whether you're grinding skills, managing chat, or just trying to make SkyBlock less painful, Aries is designed to stay
 **fast**, **simple**, and **helpful**.

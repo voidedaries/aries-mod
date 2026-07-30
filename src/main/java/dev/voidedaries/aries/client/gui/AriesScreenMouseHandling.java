@@ -1,6 +1,5 @@
 package dev.voidedaries.aries.client.gui;
 
-import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.types.ColorConfig;
@@ -38,9 +37,10 @@ public class AriesScreenMouseHandling {
             return false;
         }
 
-        // github author link
-        if (screen.isModTitleHovered(mouseX, mouseY)) {
-            Util.getPlatform().openUri(ModConstants.GITHUB_URL);
+        SocialButton social = screen.getHoveredSocial(mouseX, mouseY);
+
+        if (social != null) {
+            Util.getPlatform().openUri(social.url());
         }
 
         // cancel text editing when clicking elsewhere

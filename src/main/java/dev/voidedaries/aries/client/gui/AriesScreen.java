@@ -1,6 +1,7 @@
 package dev.voidedaries.aries.client.gui;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
@@ -17,8 +18,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
@@ -30,6 +33,13 @@ import java.util.Locale;
 
 public class AriesScreen extends Screen {
     private AriesCategory selectedCategory = AriesCategory.ABOUT; // first category on first opening
+
+    public final List<SocialButton> socials = List.of(
+        new SocialButton(Aries.id("socials/modrinth_logo.png"), ModConstants.MODRINTH_URL, "Modrinth"),
+        new SocialButton(Aries.id("socials/github_logo.png"), ModConstants.GITHUB_URL, "Github"),
+        new SocialButton(Aries.id("socials/discord_logo.png"), ModConstants.DISCORD_URL, "Discord")
+    );
+
     private final SearchBar searchBar = new SearchBar();
     private boolean categoryManuallySelected = false;
 
@@ -96,7 +106,7 @@ public class AriesScreen extends Screen {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
-        //drawing menu & categories
+        // drawing menu & categories
         graphics.fill(x, y, x + getMenuWidth(), y + getMenuHeight(), 0xFF222933);
         graphics.fill(x, y, x + getCategoryWidth(), y + getMenuHeight(), 0xFF151A21);
 
@@ -132,10 +142,9 @@ public class AriesScreen extends Screen {
         MutableComponent modName =
             Component.literal("")
                 .append(Component.translatable("aries.mod_name")
-                    .withStyle(s -> isModTitleHovered(mouseX, mouseY) ? s.withUnderlined(true) : s))
                 .append(Component.literal(" • ").withColor(0xFFADB5C9)
                     .withStyle(s -> s.withUnderlined(false)))
-                .append(Component.literal(ModConstants.displayVersion).withStyle(s -> s.withUnderlined(false)));
+                .append(Component.literal(ModConstants.displayVersion)));
 
         graphics.text(
             this.font,
@@ -151,6 +160,11 @@ public class AriesScreen extends Screen {
             y + PADDING + this.font.lineHeight + PADDING / 2,
             0xFF2D3642
         );
+
+        if (currentCategory == AriesCategory.ABOUT) {
+            drawAboutCategory(graphics, x, y, mouseX, mouseY);
+            return;
+        }
 
         // scissor bounds
         int contentLeft = x + getCategoryWidth() + PADDING;
@@ -325,6 +339,206 @@ public class AriesScreen extends Screen {
         if (activeColorPicker != null) {
             drawExpandedColorPicker(graphics, activeColorPicker, mouseX, mouseY);
         }
+    }
+
+    private void drawAboutCategory(GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY) {
+        int contentAreaWidth = getMenuWidth() - getCategoryWidth();
+
+        int contentY = y + PADDING + this.font.lineHeight + PADDING / 2;
+
+        int logoWidth = 48;
+        int logoHeight = (int)(logoWidth * (592f / 720f));
+
+        int logoX = x + getCategoryWidth() + (contentAreaWidth - logoWidth) / 2;
+
+        // logo
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            ModConstants.ARIES_LOGO,
+            logoX,
+            contentY,
+            0,
+            0,
+            logoWidth,
+            logoHeight,
+            720,
+            592,
+            720,
+            592
+        );
+
+        int centerX = x + getCategoryWidth() + contentAreaWidth / 2;
+
+        Component title = Component.translatable("aries.mod_name");
+
+        graphics.text(
+            this.font,
+            title,
+            centerX - this.font.width(title) / 2,
+            contentY + logoHeight + PADDING / 2,
+            0xFF0058E1
+        );
+
+        // overview
+        Component overview = Component.translatable("aries.overview");
+
+        graphics.pose().pushMatrix();
+
+        float scale = 0.9f;
+
+        graphics.pose().translate(centerX, (float) (contentY + logoHeight + PADDING * 2));
+        graphics.pose().scale(scale, scale);
+
+        graphics.text(
+            this.font,
+            overview,
+            -this.font.width(overview) / 2,
+            0,
+            0xFFFFFFFF
+        );
+
+        graphics.pose().popMatrix();
+
+        // desc
+        List<FormattedCharSequence> description = this.font.split(
+            Component.translatable("aries.description"),
+            260
+        );
+
+        int descriptionY = (int) (contentY + logoHeight + PADDING * 3.5);
+
+        graphics.pose().pushMatrix();
+
+        graphics.pose().translate(centerX, descriptionY);
+        graphics.pose().scale(scale, scale);
+
+        int scaledY = 0;
+
+        for (FormattedCharSequence line : description) {
+            graphics.text(
+                this.font,
+                line,
+                -this.font.width(line) / 2,
+                scaledY,
+                0xFFADB5C9
+            );
+
+            scaledY += this.font.lineHeight;
+        }
+
+        graphics.pose().popMatrix();
+
+        int infoY = descriptionY + (description.size() * this.font.lineHeight) + PADDING / 2;
+
+        graphics.horizontalLine(
+            (x + getCategoryWidth() + PADDING),
+            x + getMenuWidth() - (PADDING * 2),
+            infoY - PADDING / 5,
+            0xFF2D3642
+        );
+
+        if (ModConstants.version == null) {
+            return;
+        }
+
+        if (ModConstants.minecraftVersion == null) {
+            return;
+        }
+
+        List<Component> info = List.of(
+            Component.translatable("aries.about.version", ModConstants.version),
+            Component.translatable("aries.about.minecraft", ModConstants.minecraftVersion),
+            Component.translatable("aries.about.loader"),
+            Component.translatable("aries.about.author", "VoidedAries")
+        );
+
+        graphics.pose().pushMatrix();
+
+        graphics.pose().translate(centerX, (float) ((float) infoY - PADDING * 1.5));
+        graphics.pose().scale(scale, scale);
+
+        for (Component line : info) {
+            graphics.text(
+                this.font,
+                line,
+                -this.font.width(line) / 2,
+                scaledY,
+                0xFFADB5C9
+            );
+
+            scaledY += this.font.lineHeight + 4;
+        }
+
+        graphics.pose().popMatrix();
+
+        int socialSize = 16;
+        int spacing = (int) (PADDING * 1.5);
+        int iconTextSpacing = PADDING / 2;
+
+        int totalWidth = 0;
+
+        for (SocialButton social : socials) {
+            Component name = Component.literal(social.name());
+
+            totalWidth += socialSize
+                + iconTextSpacing
+                + this.font.width(name);
+
+            totalWidth += spacing;
+        }
+
+        totalWidth -= spacing;
+
+        int socialX = centerX - totalWidth / 2;
+        int socialY = (int) (infoY + PADDING * 6.5);
+        int socialTextOffset = 1;
+
+        SocialButton hoveredSocial = getHoveredSocial(mouseX, mouseY);
+
+        for (SocialButton social : socials) {
+
+            drawSocialIcon(graphics, social.icon(), socialX, socialY);
+
+            socialX += socialSize + iconTextSpacing;
+
+            MutableComponent plainName = Component.literal(social.name());
+
+            boolean hovered = social.equals(hoveredSocial);
+
+            Component name = plainName.withStyle(style -> style.withUnderlined(hovered));
+
+            graphics.text(
+                this.font,
+                name,
+                socialX,
+                socialY + (socialSize - this.font.lineHeight) / 2 + socialTextOffset,
+                0xFFFFFFFF
+            );
+
+            socialX += this.font.width(plainName) + spacing;
+        }
+    }
+
+    private void drawSocialIcon(
+        GuiGraphicsExtractor graphics,
+        Identifier texture,
+        int x,
+        int y
+    ) {
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            texture,
+            x,
+            y,
+            0,
+            0,
+            16,
+            16,
+            512,
+            512,
+            512,
+            512
+        );
     }
 
     private void drawSearchBar(
@@ -680,11 +894,13 @@ public class AriesScreen extends Screen {
 
     //menu hovering options
     private void updateCursor(
-        GuiGraphicsExtractor graphics,
-        int mouseX,
-        int mouseY
-    ) {
+        GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (isOverSearchBar(mouseX, mouseY)) {
+            graphics.requestCursor(CursorTypes.POINTING_HAND);
+            return;
+        }
+
+        if (isOverSocials(mouseX, mouseY)) {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
             return;
         }
@@ -707,10 +923,79 @@ public class AriesScreen extends Screen {
         if (isOverScrollbar(mouseX, mouseY)) {
             graphics.requestCursor(CursorTypes.POINTING_HAND);
         }
+    }
 
-        if (isModTitleHovered(mouseX, mouseY)) {
-            graphics.requestCursor(CursorTypes.POINTING_HAND);
+    public boolean isOverSocials(int mouseX, int mouseY) {
+        return getHoveredSocial(mouseX, mouseY) != null;
+    }
+
+    public SocialButton getHoveredSocial(int mouseX, int mouseY) {
+        int socialSize = 16;
+        int spacing = 8;
+        int iconTextSpacing = 4;
+
+        int totalWidth = 0;
+
+        for (SocialButton social : socials) {
+            totalWidth += socialSize
+                + iconTextSpacing
+                + this.font.width(Component.literal(social.name()))
+                + spacing;
         }
+
+        totalWidth -= spacing;
+
+        int x = ScreenHelper.centreX(this.width, getMenuWidth());
+        int y = ScreenHelper.centreY(this.height, getMenuHeight());
+
+        int contentAreaWidth = getMenuWidth() - getCategoryWidth();
+
+        int centerX = x + getCategoryWidth() + contentAreaWidth / 2;
+
+        // recreate your About layout positions
+        int contentY = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.25);
+
+        int logoWidth = 48;
+        int logoHeight = (int)(logoWidth * (592f / 720f));
+
+        int descriptionY = contentY + logoHeight + PADDING * 4;
+
+        // you need the same description height calculation
+        List<FormattedCharSequence> description = this.font.split(
+            Component.translatable("aries.description"),
+            260
+        );
+
+        int infoY = descriptionY
+            + (description.size() * this.font.lineHeight)
+            + PADDING;
+
+        int socialX = centerX - totalWidth / 2;
+        int socialY = (int) (infoY + PADDING * 5.25);
+
+        for (SocialButton social : socials) {
+
+            Component name = Component.literal(social.name());
+
+            int width = socialSize
+                + iconTextSpacing
+                + this.font.width(name);
+
+            if (ScreenHelper.isHovered(
+                mouseX,
+                mouseY,
+                socialX,
+                socialY,
+                width,
+                socialSize
+            )) {
+                return social;
+            }
+
+            socialX += width + spacing;
+        }
+
+        return null;
     }
 
     private boolean isOverColorPickerButton(int mouseX, int mouseY) {
@@ -907,18 +1192,6 @@ public class AriesScreen extends Screen {
             );
 
         return ScreenHelper.isHovered(mouseX, mouseY, scrollbarX, thumbY, SCROLLBAR_WIDTH, thumbHeight);
-    }
-
-    boolean isModTitleHovered(int mouseX, int mouseY) {
-        int x = ScreenHelper.centreX(this.width, getMenuWidth());
-        int y = ScreenHelper.centreY(this.height, getMenuHeight());
-
-        int modNameX = x + getCategoryWidth() + 2 * PADDING;
-        int modNameY = y + PADDING;
-
-        int modNameWidth = this.font.width(Component.translatable("aries.mod_name"));
-
-        return ScreenHelper.isHovered(mouseX, mouseY, modNameX, modNameY, modNameWidth, this.font.lineHeight);
     }
 
     public boolean isOverColorPicker(int mouseX, int mouseY) {
