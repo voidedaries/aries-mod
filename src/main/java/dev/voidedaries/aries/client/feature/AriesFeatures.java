@@ -30,11 +30,16 @@ public class AriesFeatures {
 
     public static final ItemRarityScalingFeature ITEM_RARITY_SCALING = register(new ItemRarityScalingFeature());
 
+    public static final LowFireFeature LOW_FIRE = register(new LowFireFeature());
+
     public static final PlayerCustomisationFeature PLAYER_CUSTOMISATION =
         register(new PlayerCustomisationFeature());
 
     public static final OldMasterStarColoursFeature OLD_MASTER_STAR_COLOURS =
         register(new OldMasterStarColoursFeature());
+
+    public static final RemoveSecondLayerArmorFeature REMOVE_SECOND_LAYER_ARMOR =
+        register(new RemoveSecondLayerArmorFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);

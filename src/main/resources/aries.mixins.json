@@ -11,6 +11,7 @@
     "ChatComponentMixin",
     "ClientPacketListenerMixin",
     "EntityRenderDispatcherMixin",
+    "EquipmentLayerRendererMixin",
     "ItemEntityRendererMixin",
     "ItemEntityRenderStateMixin",
     "ItemInHandRenderer",
@@ -18,7 +19,8 @@
     "KeyMappingMixin",
     "LevelRendererMixin",
     "MouseHandlerMixin",
-    "OptionsMixin"
+    "OptionsMixin",
+    "ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

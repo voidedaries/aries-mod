@@ -9,9 +9,8 @@
   "gui.menu.category.commands": "Commands",
   "gui.menu.category.dungeons": "Dungeons",
   "gui.menu.category.visuals": "Visuals",
-  "gui.menu.category.performance": "Performance",
-  "gui.menu.category.controls": "Controls",
   "gui.menu.category.dev": "Dev",
+
   "gui.menu.searchbar" : "Search...",
 
   "gui.menu.color_picker.hue": "Hue",

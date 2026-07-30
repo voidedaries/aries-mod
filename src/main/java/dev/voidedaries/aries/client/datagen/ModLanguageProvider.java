@@ -119,6 +119,20 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "changes the scale of dropped items."
         );
 
+        addTranslation(
+            translations, AriesCategory.VISUALS.getId(),
+            "low_fire",
+            "Low Fire",
+            "controls how low the fire overlay is displayed while burning."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS.getId(),
+            "second_layer_leather_armor",
+            "Hide Leather Armour Overlay",
+            "disable the secondary layer on leather armour."
+        );
+
         addHeldItemCustomisationTranslations(translations);
 
         addItemRarityScalingTranslations(translations);
