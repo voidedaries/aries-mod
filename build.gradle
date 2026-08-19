@@ -1,5 +1,6 @@
 plugins {
     id "net.fabricmc.fabric-loom" version '1.17-SNAPSHOT'
+    id "com.modrinth.minotaur" version "${modrinth_version}"
     id 'maven-publish'
 }
 
@@ -12,6 +13,23 @@ base {
 
 loom {
     accessWidenerPath = file("src/main/resources/aries.aw")
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = archives_base_name.toLowerCase(Locale.ROOT)
+
+    versionNumber = project.version.toString()
+    versionType = "release"
+
+    uploadFile = tasks.jar
+
+    gameVersions = [minecraft_version]
+
+    dependencies {
+        required.project "fabric-api"
+        required.project "hypixel-mod-api"
+    }
 }
 
 
@@ -27,7 +45,7 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
-    // See thw hypixel mod API page for the repo https://github.com/HypixelDev/ModAPI/blob/master/README.md
+    // See the hypixel mod API page for the repo https://github.com/HypixelDev/ModAPI/blob/master/README.md
     maven {
         url 'https://repo.hypixel.net/repository/Hypixel/'
     }
@@ -38,7 +56,6 @@ repositories {
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
