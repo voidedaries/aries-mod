@@ -24,52 +24,171 @@ if (-not $previousVersion) {
     $previousVersion = $currentVersion
 }
 
+# Extract the base MAJOR.MINOR.PATCH from the current version
+$currentBaseVersion = [regex]::Match(
+    $currentVersion,
+    "\d+\.\d+\.\d+"
+).Value
 
-$newVersion = [Microsoft.VisualBasic.Interaction]::InputBox(
-@"
-Aries Version Update
+# Create version selection window
+[xml]$xaml = @"
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    Title="Aries Version Check"
+    Width="430"
+    Height="390"
+    WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize">
 
-Use:
-MAJOR.MINOR.PATCH[-STAGE]
+    <StackPanel Margin="25">
 
-Examples:
-  0.1.0-alpha
-  0.1.0-alpha.1
-  0.2.0
-  1.0.0
+        <TextBlock
+            Text="Aries Version Update"
+            FontSize="20"
+            FontWeight="Bold"
+            Margin="0,0,0,15"/>
 
-Version guidelines:
-  MAJOR - Breaking changes, rewrites, major redesigns
-  MINOR - New features or large additions
-  PATCH - Bug fixes, improvements, tweaks
-  STAGE - Optional release stage (alpha, beta, release)
+        <TextBlock
+            Text="Select release type:"
+            FontWeight="SemiBold"
+            Margin="0,0,0,8"/>
 
-Before committing:
-- Increase the version if needed
-- Keep unchanged only for small commits
-- Never downgrade versions
+        <RadioButton
+            Name="ReleaseRadio"
+            Content="Release"
+            IsChecked="True"
+            Margin="0,3"/>
 
+        <RadioButton
+            Name="BetaRadio"
+            Content="Beta"
+            Margin="0,3"/>
 
-Previous version:
-$previousVersion
+        <RadioButton
+            Name="AlphaRadio"
+            Content="Alpha"
+            Margin="0,3"/>
 
-New version:
-"@,
-    "Aries Version Check",
-    $currentVersion
-)
+        <TextBlock
+            Text="Version:"
+            FontWeight="SemiBold"
+            Margin="0,15,0,5"/>
 
+        <TextBox
+            Name="VersionBox"
+            Text="$currentBaseVersion"
+            Height="28"
+            Padding="5"/>
 
-if ([string]::IsNullOrWhiteSpace($newVersion)) {
-    $newVersion = $currentVersion
+        <TextBlock
+            Name="PreviousVersionText"
+            Text="Previous version: $previousVersion"
+            Foreground="Gray"
+            Margin="0,12,0,0"/>
+
+        <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Margin="0,20,0,0">
+
+            <Button
+                Name="CancelButton"
+                Content="Cancel"
+                Width="80"
+                Margin="0,0,8,0"
+                IsCancel="True"/>
+
+            <Button
+                Name="ContinueButton"
+                Content="Continue"
+                Width="90"
+                IsDefault="True"/>
+
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>
+"@
+
+$reader = New-Object System.Xml.XmlNodeReader $xaml
+$window = [Windows.Markup.XamlReader]::Load($reader)
+
+$releaseRadio = $window.FindName("ReleaseRadio")
+$betaRadio = $window.FindName("BetaRadio")
+$alphaRadio = $window.FindName("AlphaRadio")
+$versionBox = $window.FindName("VersionBox")
+$continueButton = $window.FindName("ContinueButton")
+$cancelButton = $window.FindName("CancelButton")
+
+$cancelled = $false
+
+$cancelButton.Add_Click({
+    $script:cancelled = $true
+    $window.Close()
+})
+
+$continueButton.Add_Click({
+    $window.Close()
+})
+
+$window.ShowDialog() | Out-Null
+
+if ($cancelled) {
+    Write-Host "Version update cancelled."
+    exit 1
 }
 
+# Get the version entered by the user
+$baseVersion = $versionBox.Text.Trim()
+
+if ([string]::IsNullOrWhiteSpace($baseVersion)) {
+    [System.Windows.MessageBox]::Show(
+        "Version cannot be empty.",
+        "Aries Version Error",
+        "OK",
+        "Error"
+    )
+
+    exit 1
+}
+
+# Validate MAJOR.MINOR.PATCH
+if ($baseVersion -notmatch "^\d+\.\d+\.\d+$") {
+    [System.Windows.MessageBox]::Show(
+        "Invalid version format:`n`n$baseVersion`n`nExpected format: MAJOR.MINOR.PATCH",
+        "Aries Version Error",
+        "OK",
+        "Error"
+    )
+
+    exit 1
+}
+
+# Determine release type
+if ($alphaRadio.IsChecked) {
+    $releaseType = "alpha"
+}
+elseif ($betaRadio.IsChecked) {
+    $releaseType = "beta"
+}
+else {
+    $releaseType = "release"
+}
+
+# Build final version
+if ($releaseType -eq "release") {
+    $newVersion = $baseVersion
+}
+else {
+    $newVersion = "$baseVersion-$releaseType"
+}
 
 Write-Host ""
 Write-Host "Previous version: $previousVersion"
-Write-Host "Current version:  $newVersion"
+Write-Host "Selected type:    $releaseType"
+Write-Host "New version:      $newVersion"
 Write-Host ""
-
 
 # Check downgrade
 try {
@@ -96,7 +215,7 @@ catch {
     exit 1
 }
 
-
+# Confirm version
 if ($newVersion -eq $previousVersion) {
 
     $result = [System.Windows.MessageBox]::Show(
@@ -127,15 +246,12 @@ else {
     }
 }
 
-
 # Update gradle.properties
 (Get-Content $file) `
     -replace "^mod_version=.*", "mod_version=$newVersion" |
     Set-Content $file
 
-
 git add $file
-
 
 Write-Host ""
 Write-Host "Version set to $newVersion"

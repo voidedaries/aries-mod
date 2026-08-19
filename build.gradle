@@ -15,12 +15,19 @@ loom {
     accessWidenerPath = file("src/main/resources/aries.aw")
 }
 
+def modVersion = project.version.toString()
+
+def modrinthVersionType =
+        modVersion.contains("-alpha") ? "alpha" :
+                modVersion.contains("-beta") ? "beta" :
+                        "release"
+
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
     projectId = archives_base_name.toLowerCase(Locale.ROOT)
 
-    versionNumber = project.version.toString()
-    versionType = "release"
+    versionNumber = modVersion
+    versionType = modrinthVersionType
 
     uploadFile = tasks.jar
 

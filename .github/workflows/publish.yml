@@ -1,4 +1,4 @@
-name: Publish to Modrinth
+name: Build and Publish to Modrinth
 
 on:
   push:
