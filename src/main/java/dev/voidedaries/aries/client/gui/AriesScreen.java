@@ -166,6 +166,32 @@ public class AriesScreen extends Screen {
             return;
         }
 
+        if (currentCategory == AriesCategory.DEV) {
+            Component warning = Component.translatable("gui.menu.category.dev.warning");
+
+            float warningScale = 0.85f;
+
+            List<FormattedCharSequence> warningLines =
+                this.font.split(warning, (getMenuWidth() - getCategoryWidth()));
+
+            int warningHeight = 0;
+
+            for (FormattedCharSequence warningLine : warningLines) {
+                graphics.pose().pushMatrix();
+
+                graphics.pose().translate(contentX, entryContentY + warningHeight);
+                graphics.pose().scale(warningScale, warningScale);
+
+                graphics.text(this.font, warningLine, 0, 0, 0xFFFF5555);
+
+                graphics.pose().popMatrix();
+
+                warningHeight += (int) (this.font.lineHeight * warningScale);
+            }
+
+            entryContentY += warningHeight + PADDING;
+        }
+
         // scissor bounds
         int contentLeft = x + getCategoryWidth() + PADDING;
         int contentTop = contentY - PADDING;

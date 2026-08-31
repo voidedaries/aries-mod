@@ -2,7 +2,7 @@ package dev.voidedaries.aries.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.voidedaries.aries.client.accessor.ItemEntityRenderStateAccessor;
-import dev.voidedaries.aries.client.event.SkyblockTracker;
+import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.item.ItemRarity;
 import dev.voidedaries.aries.client.item.ItemRarityScales;
@@ -59,7 +59,7 @@ public class ItemEntityRendererMixin {
         CameraRenderState camera,
         CallbackInfo ci
     ) {
-        if (!AriesFeatures.ITEM_RARITY_SCALING.enabled.get() || !SkyblockTracker.isPlayerInSkyblock()) {
+        if (!AriesFeatures.ITEM_RARITY_SCALING.enabled.get() || !HypixelState.isPlayerInSkyblock()) {
             return;
         }
 

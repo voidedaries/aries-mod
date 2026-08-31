@@ -1,5 +1,6 @@
 package dev.voidedaries.aries.client.feature;
 
+import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.entry.FeatureEntry;
 import dev.voidedaries.aries.client.feature.features.*;
 import dev.voidedaries.aries.client.feature.types.AriesConfigType;
@@ -20,6 +21,16 @@ public class AriesFeatures {
 
     // command
     public static final SkipCommandConfirmFeature SKIP_COMMAND_CONFIRM = register(new SkipCommandConfirmFeature());
+
+    // dev
+    public static final HypixelEnvironmentOverrideFeature HYPIXEL_ENVIRONMENT_OVERRIDE =
+        register(new HypixelEnvironmentOverrideFeature());
+
+    public static final YggdrasilLogSuppressionFeature YGGDRASIL_LOG_SUPPRESSION =
+        register(new YggdrasilLogSuppressionFeature());
+
+    // setting
+    public static final AriesPauseMenuButtonFeature PAUSE_MENU_BUTTON = register(new AriesPauseMenuButtonFeature());
 
     // visuals
     public static final EtherwarpOutlineFeature ETHERWARP_OUTLINE =
@@ -66,6 +77,8 @@ public class AriesFeatures {
         return list;
     }
 
-    public static void init() {}
+    public static void init() {
+        Aries.log("AriesFeatures loaded");
+    }
 
 }

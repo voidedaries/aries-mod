@@ -4,7 +4,8 @@
   "package": "dev.voidedaries.aries.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "YggdrasilServicesKeyInfoMixin"
   ],
   "client": [
     "AbstractContainerScreenAccessorMixin",
@@ -24,6 +25,7 @@
     "LevelRendererMixin",
     "MouseHandlerMixin",
     "OptionsMixin",
+    "PauseScreenMixin",
     "ScreenEffectRendererMixin"
   ],
   "injectors": {

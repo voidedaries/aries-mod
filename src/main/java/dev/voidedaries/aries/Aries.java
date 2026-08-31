@@ -30,4 +30,12 @@ public class Aries implements ModInitializer {
     public static void debug(String message, Object... params) {
         LOGGER.debug(message, params);
     }
+
+    public static void warn(String message) {
+        LOGGER.warn(message);
+    }
+
+    public static void warn(String message, Object... params) {
+        LOGGER.warn(message, params);
+    }
 }

@@ -8,6 +8,8 @@ public class ModConstants {
 
     public static final Identifier ARIES_LOGO = Aries.id("logo.png");
 
+    public static final String NEU_API = "https://api.github.com/repos/NotEnoughUpdates/NotEnoughUpdates-REPO/commits/master";
+
     public static final String GITHUB_URL = "https://github.com/voidedaries/aries-mod";
     public static final String MODRINTH_URL = "https://modrinth.com/mod/aries";
     public static final String DISCORD_URL = "https://discord.gg/E5DYwuKPK3";

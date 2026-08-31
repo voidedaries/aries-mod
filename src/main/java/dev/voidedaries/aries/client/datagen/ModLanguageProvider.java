@@ -50,6 +50,20 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         }
 
         addTranslation(
+            translations, AriesCategory.DEV.getId(),
+            "hypixel_environment_override",
+            "Hypixel Environment Override",
+            "overrides Hypixel and SkyBlock detection for testing"
+        );
+
+        addTranslation(
+            translations, AriesCategory.DEV.getId(),
+            "yggdrasil_log_suppression",
+            "Suppress Yggdrasil Errors",
+            "hides repeated texture signature errors from the log."
+        );
+
+        addTranslation(
             translations, AriesCategory.CHAT.getId(),
             "compact_chat",
             "Compact Chat",
@@ -82,6 +96,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "skip_command_confirmation",
             "Skip Command Confirmation",
             "skips command confirmation prompts caused by missing client-side command permissions."
+        );
+
+        addTranslation(
+            translations, AriesCategory.SETTINGS.getId(),
+            "pause_menu_button",
+            "Pause Menu Button",
+            "Adds an Aries button to the pause menu."
         );
 
         addTranslation(

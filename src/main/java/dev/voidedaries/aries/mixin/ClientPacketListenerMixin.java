@@ -1,6 +1,7 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import dev.voidedaries.aries.client.hypixel.HypixelState;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +16,12 @@ public class ClientPacketListenerMixin {
         String command,
         CallbackInfoReturnable<ClientPacketListener.CommandCheckResult> cir
     ) {
-        if (!AriesFeatures.SKIP_COMMAND_CONFIRM.enabled.get()) {
+        if (!AriesFeatures.SKIP_COMMAND_CONFIRM.enabled.get()
+            && !AriesFeatures.HYPIXEL_ENVIRONMENT_OVERRIDE.isEnabled()) {
+            return;
+        }
+
+        if (!HypixelState.isOnHypixelNetwork()) {
             return;
         }
 
