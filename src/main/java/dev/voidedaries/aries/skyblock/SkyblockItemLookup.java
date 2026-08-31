@@ -63,16 +63,12 @@ public class SkyblockItemLookup {
         return getSkyblockItem().displayName();
     }
 
-    public boolean containsDisplayName(String name) {
-        return name.contains(getCleanDisplayName());
-    }
-
     public String getCleanDisplayName() {
         return getDisplayName().getString().replaceAll("§.", "");
     }
 
-    public CompoundTag getNbt() {
-        return getSkyblockItem().nbt();
+    public CompoundTag getCustomData() {
+        return getSkyblockItem().customData();
     }
 
     public List<Component> getLore() {

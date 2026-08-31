@@ -2,11 +2,11 @@ package dev.voidedaries.aries.client;
 
 import dev.voidedaries.aries.client.command.AriesCommands;
 import dev.voidedaries.aries.client.command.ClientCommandHooks;
-import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.feature.types.AriesConfigType;
 import dev.voidedaries.aries.client.feature.types.KeybindConfig;
+import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.render.RenderManager;
 import dev.voidedaries.aries.skyblock.repo.SkyBlockRepoDownloader;
 import net.fabricmc.api.ClientModInitializer;
@@ -35,8 +35,6 @@ public class AriesClient implements ClientModInitializer {
         LevelRenderEvents.AFTER_SOLID_FEATURES.register(RenderManager::render);
 
         (new Thread(new ConfigWatcher(), "Aries-ConfigWatcher")).start();
-
-        HypixelState.register();
 
         ClientCommandRegistrationCallback.EVENT.register((
                 (dispatcher, _)

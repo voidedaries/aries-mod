@@ -64,7 +64,7 @@ public class SkyBlockRepoDownloader {
             Aries.log("Local NEU repo commit: {}", localCommit);
 
             if (latestCommit.equals(localCommit)) {
-                Aries.log("NEU repository is already up to date");
+                Aries.log("NEU repository is up to date");
                 NeuItemJsonParser.readNeuSkyblockItemZip();
                 return;
             }

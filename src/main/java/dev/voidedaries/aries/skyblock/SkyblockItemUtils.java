@@ -9,6 +9,10 @@ public class SkyblockItemUtils {
 
     private SkyblockItemUtils() {}
 
+    public static boolean containsDisplayName(SkyblockItemLookup skyblockItem, String name) {
+        return name.contains(skyblockItem.getCleanDisplayName());
+    }
+
     public static Optional<Component> findLoreLine(List<Component> lore, String text) {
         for (Component line : lore) {
             String cleanLine = cleanLoreLine(line);

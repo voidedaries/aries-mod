@@ -34,11 +34,11 @@ public class EtherwarpRenderer {
     private static SkyblockItem getEtherwarpItem(ItemStack stack) {
         String itemName = stack.getHoverName().getString();
 
-        if (SkyblockItemLookup.ASPECT_OF_THE_END.containsDisplayName(itemName)) {
+        if (SkyblockItemUtils.containsDisplayName(SkyblockItemLookup.ASPECT_OF_THE_END, itemName)) {
             return SkyblockItemLookup.ASPECT_OF_THE_END.getSkyblockItem();
         }
 
-        if (SkyblockItemLookup.ASPECT_OF_THE_VOID.containsDisplayName(itemName)) {
+        if (SkyblockItemUtils.containsDisplayName(SkyblockItemLookup.ASPECT_OF_THE_VOID, itemName)) {
             return SkyblockItemLookup.ASPECT_OF_THE_VOID.getSkyblockItem();
         }
 
