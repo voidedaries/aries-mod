@@ -4,7 +4,7 @@ import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.types.BooleanConfig;
 import dev.voidedaries.aries.client.feature.types.FloatConfig;
-import dev.voidedaries.aries.client.item.ItemRarity;
+import dev.voidedaries.aries.skyblock.item.ItemRarity;
 import net.minecraft.network.chat.Component;
 
 import java.util.EnumMap;

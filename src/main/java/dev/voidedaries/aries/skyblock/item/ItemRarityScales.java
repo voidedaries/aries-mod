@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.item;
+package dev.voidedaries.aries.skyblock.item;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 

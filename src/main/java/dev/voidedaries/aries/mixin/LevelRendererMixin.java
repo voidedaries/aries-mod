@@ -2,6 +2,7 @@ package dev.voidedaries.aries.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.voidedaries.aries.client.render.item.EtherwarpRenderer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -16,12 +17,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-    @Inject(method = "submitBlockOutline", at = @At("HEAD"), cancellable = true)
+    @Inject(
+        //? if >=26.2
+        method = "submitBlockOutline",
+        //? if <26.2
+        //method = "extractBlockOutline",
+        at = @At("HEAD"),
+        cancellable = true)
     private void aries$hideVanillaOutline(
-        PoseStack poseStack,
-        SubmitNodeCollector submitNodeCollector,
-        LevelRenderState levelRenderState,
-        CallbackInfo ci
+        //? if >= 26.2
+        PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LevelRenderState levelRenderState, CallbackInfo ci
+        //? if <26.2
+        //Camera camera, LevelRenderState levelRenderState, CallbackInfo ci
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

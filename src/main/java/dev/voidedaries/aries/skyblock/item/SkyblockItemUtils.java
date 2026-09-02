@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.skyblock;
+package dev.voidedaries.aries.skyblock.item;
 
 import net.minecraft.network.chat.Component;
 

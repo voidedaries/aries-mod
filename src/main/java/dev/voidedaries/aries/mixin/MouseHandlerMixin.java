@@ -1,6 +1,7 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +23,12 @@ public class MouseHandlerMixin {
     @ModifyVariable(method = "onScroll", at = @At(value = "STORE"), name = "wheel")
     private int aries$scrollChat(int wheel) {
         if (AriesFeatures.SCROLL_PEEK_CHAT.isEnabled() && AriesFeatures.PEEK_CHAT.isDown()) {
+            //? if >=26.2 {
             Minecraft.getInstance().gui.hud.getChat().scrollChat(wheel);
+             //?}
+            //? if <26.2 {
+            /*Minecraft.getInstance().gui.getChat().scrollChat(wheel);
+            *///?}
         }
         return wheel;
     }

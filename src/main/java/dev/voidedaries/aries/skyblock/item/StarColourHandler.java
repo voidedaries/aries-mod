@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.item;
+package dev.voidedaries.aries.skyblock.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

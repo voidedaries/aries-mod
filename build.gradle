@@ -4,7 +4,7 @@ plugins {
     id 'maven-publish'
 }
 
-version = project.mod_version
+version = version = "${project.minecraft_version}+${project.mod_version}"
 group = project.maven_group
 
 base {
@@ -12,15 +12,24 @@ base {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/aries.aw")
+    accessWidenerPath = rootProject.file("src/main/resources/aries.aw")
+
+    runs {
+        client {
+            generateRunConfig = true
+            runDirectory = file("../../run")
+
+            systemProperties.put("devauth.enabled", "true")
+            systemProperties.put("devauth.account", "main")
+        }
+    }
 }
 
 def modVersion = project.version.toString()
 
 def modrinthVersionType =
         modVersion.contains("-alpha") ? "alpha" :
-                modVersion.contains("-beta") ? "beta" :
-                        "release"
+                modVersion.contains("-beta") ? "beta" : "release"
 
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
@@ -64,7 +73,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     implementation "net.hypixel:mod-api:${project.hypixel_mod_api_version}"
 
     implementation "me.djtheredstoner:DevAuth-fabric:${project.dev_auth_version}"
@@ -72,6 +81,8 @@ dependencies {
 
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
     inputs.property "version", project.version
     //noinspection GrUnresolvedAccess
     inputs.property "minecraft_version", project.minecraft_version

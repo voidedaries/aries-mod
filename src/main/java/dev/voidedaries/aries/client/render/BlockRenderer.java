@@ -2,6 +2,7 @@ package dev.voidedaries.aries.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.voidedaries.aries.client.gui.AriesScreen;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,12 @@ public class BlockRenderer {
         PoseStack poseStack = context.poseStack();
         SubmitNodeCollector collector = context.submitNodeCollector();
 
+        //? if >=26.2 {
         Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        //?}
+        //? if <26.2 {
+        /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+         *///?}
         Vec3 camPos = camera.position();
 
         poseStack.pushPose();

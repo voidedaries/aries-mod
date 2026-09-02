@@ -799,7 +799,7 @@ public class AriesScreen extends Screen {
         graphics.fill(x, thumbY, x + SCROLLBAR_WIDTH, thumbY + thumbHeight, 0xFF0058E1);
     }
 
-    //draws configs e.g. drawer methods within ConfigTypeRenderer e.g. toggles/color pickers etc. needed for drawMenu
+    //draws configs ThirdPersonNameTagFeature.g. drawer methods within ConfigTypeRenderer ThirdPersonNameTagFeature.g. toggles/color pickers etc. needed for drawMenu
     private List<ConfigInteraction> drawConfigs(
         GuiGraphicsExtractor graphics,
         AriesConfigType<?> config,

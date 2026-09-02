@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
@@ -50,7 +51,14 @@ public abstract class ChatComponentMixin {
         String incomingText = contents.getString();
 
         Minecraft minecraft = Minecraft.getInstance();
+
+        //? if >=26.2 {
         int currentTick = minecraft.gui.hud.getGuiTicks();
+        //?}
+        //? if <26.2 {
+        /*int currentTick = minecraft.gui.getGuiTicks();
+        *///?}
+
         int compactTime = AriesFeatures.COMPACT_CHAT_TIME.getCompactTimeSeconds() * SharedConstants.TICKS_PER_SECOND;
 
         // delete compactedByMod of entries no longer in allMessages
@@ -95,6 +103,8 @@ public abstract class ChatComponentMixin {
             compactedMessages.put(compacted, new CompactEntry(incomingText, newCount));
 
             this.allMessages.remove(time);
+
+            //? if >=26.2 {
             this.allMessages.addFirst(
                 new GuiMessage(
                     minecraft.gui.hud.getGuiTicks(),
@@ -104,6 +114,18 @@ public abstract class ChatComponentMixin {
                     existingMessage.tag()
                 )
             );
+             //?}
+            //? if <26.2 {
+            /*this.allMessages.addFirst(
+                new GuiMessage(
+                    minecraft.gui.getGuiTicks(),
+                    compacted,
+                    existingMessage.signature(),
+                    existingMessage.source(),
+                    existingMessage.tag()
+                )
+            );
+            *///?}
 
             this.rescaleChat();
             ci.cancel();

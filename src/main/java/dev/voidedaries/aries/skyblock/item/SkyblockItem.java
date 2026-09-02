@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.skyblock;
+package dev.voidedaries.aries.skyblock.item;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

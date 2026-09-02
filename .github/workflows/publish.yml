@@ -23,9 +23,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Aries
-        run: ./gradlew build
+        run: ./gradlew buildAll
 
       - name: Publish to Modrinth
-        run: ./gradlew modrinth
+        run: ./gradlew publishModrinth
         env:
           MODRINTH_TOKEN: ${{secrets.MODRINTH_TOKEN}}

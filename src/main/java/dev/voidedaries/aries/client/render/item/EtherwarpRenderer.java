@@ -2,9 +2,9 @@ package dev.voidedaries.aries.client.render.item;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.render.BlockRenderer;
-import dev.voidedaries.aries.skyblock.SkyblockItem;
-import dev.voidedaries.aries.skyblock.SkyblockItemLookup;
-import dev.voidedaries.aries.skyblock.SkyblockItemUtils;
+import dev.voidedaries.aries.skyblock.item.SkyblockItem;
+import dev.voidedaries.aries.skyblock.item.SkyblockItemLookup;
+import dev.voidedaries.aries.skyblock.item.SkyblockItemUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -187,7 +187,11 @@ public class EtherwarpRenderer {
             return null;
         }
 
-        Camera camera = minecraft.gameRenderer.mainCamera();
+        //? if >=26.2
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+
+        //? if <26.2
+        //Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         Vec3 start = camera.position();
         Vec3 look = new Vec3(camera.forwardVector());

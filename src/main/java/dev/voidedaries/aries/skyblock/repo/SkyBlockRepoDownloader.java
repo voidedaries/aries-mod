@@ -4,8 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.ModConstants;
-import dev.voidedaries.aries.skyblock.NeuItemJsonParser;
-import dev.voidedaries.aries.skyblock.SkyblockItemLookup;
+import dev.voidedaries.aries.skyblock.item.SkyblockItemLookup;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jspecify.annotations.Nullable;
 

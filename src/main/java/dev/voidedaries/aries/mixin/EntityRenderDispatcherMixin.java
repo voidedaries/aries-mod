@@ -1,6 +1,6 @@
 package dev.voidedaries.aries.mixin;
 
-import dev.voidedaries.aries.client.item.ItemRarity;
+import dev.voidedaries.aries.skyblock.item.ItemRarity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;

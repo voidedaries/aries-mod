@@ -10,7 +10,15 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ScreenEffectRenderer.class)
 public class ScreenEffectRendererMixin {
 
-    @ModifyVariable(method = "submitFire", at = @At("HEAD"), argsOnly = true, name = "poseStack")
+    @ModifyVariable(
+        //? if >=26.2
+        method = "submitFire",
+        //? if <26.2
+        //method = "renderFire",
+        at = @At("HEAD"),
+        argsOnly = true,
+        name = "poseStack"
+        )
     private static PoseStack aries$lowFire(PoseStack poseStack) {
         Float offset = AriesFeatures.LOW_FIRE.offset.get();
 

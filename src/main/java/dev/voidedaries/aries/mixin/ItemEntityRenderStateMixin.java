@@ -1,7 +1,7 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.accessor.ItemEntityRenderStateAccessor;
-import dev.voidedaries.aries.client.item.ItemRarity;
+import dev.voidedaries.aries.skyblock.item.ItemRarity;
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

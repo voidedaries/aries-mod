@@ -1,7 +1,7 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.item.StarColourHandler;
+import dev.voidedaries.aries.skyblock.item.StarColourHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

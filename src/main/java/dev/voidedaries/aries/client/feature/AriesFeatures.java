@@ -12,6 +12,10 @@ public class AriesFeatures {
 
     private static final List<AriesFeature> FEATURES = new ArrayList<>();
 
+    // dungeons
+    public static final OldMasterStarColoursFeature OLD_MASTER_STAR_COLOURS =
+        register(new OldMasterStarColoursFeature());
+
     // chat
     public static final CompactChatFeature COMPACT_CHAT = register(new CompactChatFeature());
     public static final CompactChatTimeFeature COMPACT_CHAT_TIME = register(new CompactChatTimeFeature());
@@ -48,11 +52,10 @@ public class AriesFeatures {
     public static final PlayerCustomisationFeature PLAYER_CUSTOMISATION =
         register(new PlayerCustomisationFeature());
 
-    public static final OldMasterStarColoursFeature OLD_MASTER_STAR_COLOURS =
-        register(new OldMasterStarColoursFeature());
-
     public static final RemoveSecondLayerArmorFeature REMOVE_SECOND_LAYER_ARMOR =
         register(new RemoveSecondLayerArmorFeature());
+
+    public static final ThirdPersonNameTagFeature THIRD_PERSON_NAME_TAG = register(new ThirdPersonNameTagFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);
