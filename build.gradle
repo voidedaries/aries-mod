@@ -114,6 +114,10 @@ java {
     withSourcesJar()
 }
 
+tasks.named("sourcesJar") {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
