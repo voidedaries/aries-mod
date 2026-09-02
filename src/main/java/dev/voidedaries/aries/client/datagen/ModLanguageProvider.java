@@ -3,7 +3,7 @@ package dev.voidedaries.aries.client.datagen;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.feature.types.AriesCategory;
-import dev.voidedaries.aries.client.item.ItemRarity;
+import dev.voidedaries.aries.skyblock.item.ItemRarity;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.loader.api.FabricLoader;
@@ -152,6 +152,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "second_layer_leather_armor",
             "Hide Leather Armour Overlay",
             "disable the secondary layer on leather armour."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS.getId(),
+            "third_person_nametag",
+            "Third Person Name Tag",
+            "shows your own name tag in third person."
         );
 
         addTranslation(
