@@ -53,11 +53,11 @@ public abstract class ChatComponentMixin {
         Minecraft minecraft = Minecraft.getInstance();
 
         //? if >=26.2 {
-        int currentTick = minecraft.gui.hud.getGuiTicks();
-        //?}
-        //? if <26.2 {
-        /*int currentTick = minecraft.gui.getGuiTicks();
+        /*int currentTick = minecraft.gui.hud.getGuiTicks();
         *///?}
+        //? if <26.2 {
+        int currentTick = minecraft.gui.getGuiTicks();
+        //?}
 
         int compactTime = AriesFeatures.COMPACT_CHAT_TIME.getCompactTimeSeconds() * SharedConstants.TICKS_PER_SECOND;
 
@@ -105,7 +105,7 @@ public abstract class ChatComponentMixin {
             this.allMessages.remove(time);
 
             //? if >=26.2 {
-            this.allMessages.addFirst(
+            /*this.allMessages.addFirst(
                 new GuiMessage(
                     minecraft.gui.hud.getGuiTicks(),
                     compacted,
@@ -114,9 +114,9 @@ public abstract class ChatComponentMixin {
                     existingMessage.tag()
                 )
             );
-             //?}
+             *///?}
             //? if <26.2 {
-            /*this.allMessages.addFirst(
+            this.allMessages.addFirst(
                 new GuiMessage(
                     minecraft.gui.getGuiTicks(),
                     compacted,
@@ -125,7 +125,7 @@ public abstract class ChatComponentMixin {
                     existingMessage.tag()
                 )
             );
-            *///?}
+            //?}
 
             this.rescaleChat();
             ci.cancel();

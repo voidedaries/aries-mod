@@ -58,11 +58,11 @@ public class AriesCommands {
 
     private static int openAriesMenu() {
         //? if >=26.2 {
-        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.setScreen(new AriesScreen()));
-         //?}
+        /*Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.setScreen(new AriesScreen()));
+         *///?}
         //? if <26.2 {
-        /*Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new AriesScreen()));
-        *///?}
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new AriesScreen()));
+        //?}
 
         if (Minecraft.getInstance().player == null) {
             return SINGLE_FAIL;

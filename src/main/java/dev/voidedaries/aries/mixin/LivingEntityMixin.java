@@ -1,6 +1,8 @@
 package dev.voidedaries.aries.mixin;
 
+import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,7 +25,7 @@ public class LivingEntityMixin {
     @Unique
     private int aries$swingCooldown;
 
-    @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;)V", at = @At("TAIL"), cancellable = true)
     private void aries$onSwing(InteractionHand hand, CallbackInfo ci) {
         if (!AriesFeatures.HELD_ITEM_CUSTOMISATION.isEnabled()) {
             return;
