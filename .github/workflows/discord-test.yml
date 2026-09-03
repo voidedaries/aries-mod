@@ -11,99 +11,16 @@ jobs:
       - name: Checkout Aries repository
         uses: actions/checkout@v4
 
-      - name: Check Discord webhook secret
-        shell: bash
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "DISCORD_WEBHOOK_URL is empty"
-            exit 1
-          fi
-
-          echo "DISCORD_WEBHOOK_URL is present"
-          echo "Length: ${#DISCORD_WEBHOOK_URL}"
-
       - name: Announce release on Discord
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          python - <<'PY'
-          import json
-          import os
-          import re
-          import urllib.error
-          import urllib.request
-          from pathlib import Path
-
-          gradle_properties = Path("gradle.properties").read_text(encoding="utf-8")
-
-          mod_version_match = re.search(
-              r"^mod_version=(.+)$",
-              gradle_properties,
-              re.MULTILINE
-          )
-
-          if not mod_version_match:
-              raise RuntimeError("Could not find mod_version in gradle.properties")
-
-          mod_version = mod_version_match.group(1).strip()
-
-          versions_dir = Path("versions")
-
-          minecraft_versions = sorted(
-              path.name
-              for path in versions_dir.iterdir()
-              if path.is_dir()
-          )
-
-          if not minecraft_versions:
-              raise RuntimeError("Could not find any Minecraft versions in versions/")
-
-          if len(minecraft_versions) == 1:
-              version_text = minecraft_versions[0]
-          elif len(minecraft_versions) == 2:
-              version_text = " and ".join(minecraft_versions)
-          else:
-              version_text = ", ".join(minecraft_versions[:-1])
-              version_text += " and " + minecraft_versions[-1]
-
-          commit_message = os.environ.get("COMMIT_MESSAGE", "").strip()
-
-          if commit_message:
-              commit_message = commit_message.splitlines()[0].strip()
-          else:
-              commit_message = "Test Discord announcement"
-
-          if commit_message:
-              commit_message = commit_message[0].upper() + commit_message[1:]
-
-          message = f"""## Aries {mod_version} for {version_text}
-
-          * {commit_message}
-
-          https://modrinth.com/mod/aries"""
-
-          payload = {
+          curl --fail-with-body \
+            -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: Aries-GitHub-Actions/1.0" \
+            --data-raw '{
               "username": "Aries Bot",
-              "content": message
-          }
-
-          request = urllib.request.Request(
-              os.environ["DISCORD_WEBHOOK_URL"],
-              data=json.dumps(payload).encode("utf-8"),
-              headers={"Content-Type": "application/json"},
-              method="POST"
-          )
-
-          try:
-              with urllib.request.urlopen(request) as response:
-                  print(f"Discord webhook responded with HTTP {response.status}")
-          except urllib.error.HTTPError as error:
-              body = error.read().decode("utf-8", errors="replace")
-              print(f"Discord returned HTTP {error.code}")
-              print(f"Response body: {body}")
-              raise
-          PY
+              "content": "## Aries 1.4.2 for 26.1.2 and 26.2\n\n* Test Discord announcement\n\nhttps://modrinth.com/mod/aries"
+            }'
