@@ -1,0 +1,90 @@
+name: Test Discord Announcement
+
+on:
+  workflow_dispatch:
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Aries repository
+        uses: actions/checkout@v4
+
+      - name: Announce release on Discord
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.request
+          from pathlib import Path
+
+          gradle_properties = Path("gradle.properties").read_text(encoding="utf-8")
+
+          mod_version_match = re.search(
+              r"^mod_version=(.+)$",
+              gradle_properties,
+              re.MULTILINE
+          )
+
+          if not mod_version_match:
+              raise RuntimeError("Could not find mod_version in gradle.properties")
+
+          mod_version = mod_version_match.group(1).strip()
+
+          versions_dir = Path("versions")
+
+          minecraft_versions = sorted(
+              path.name
+              for path in versions_dir.iterdir()
+              if path.is_dir()
+          )
+
+          if not minecraft_versions:
+              raise RuntimeError("Could not find any Minecraft versions in versions/")
+
+          if len(minecraft_versions) == 1:
+              version_text = minecraft_versions[0]
+          elif len(minecraft_versions) == 2:
+              version_text = " and ".join(minecraft_versions)
+          else:
+              version_text = ", ".join(minecraft_versions[:-1])
+              version_text += " and " + minecraft_versions[-1]
+
+          commit_message = os.environ.get(
+              "COMMIT_MESSAGE",
+              "Test Discord announcement"
+          ).splitlines()[0].strip()
+
+          if commit_message:
+              commit_message = commit_message[0].upper() + commit_message[1:]
+
+          message = f"""## Aries {mod_version} for {version_text}
+
+          * {commit_message}
+
+          https://modrinth.com/mod/aries"""
+
+          payload = {
+              "username": "Aries Bot",
+              "content": message
+          }
+
+          request = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK_URL"],
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST"
+          )
+
+          with urllib.request.urlopen(request) as response:
+              if response.status >= 300:
+                  raise RuntimeError(
+                      f"Discord webhook failed with status {response.status}"
+                  )
+          PY
