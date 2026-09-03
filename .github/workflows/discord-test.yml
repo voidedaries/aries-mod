@@ -56,10 +56,12 @@ jobs:
               version_text = ", ".join(minecraft_versions[:-1])
               version_text += " and " + minecraft_versions[-1]
 
-          commit_message = os.environ.get(
-              "COMMIT_MESSAGE",
-              "Test Discord announcement"
-          ).splitlines()[0].strip()
+          commit_message = os.environ.get("COMMIT_MESSAGE", "").strip()
+
+          if commit_message:
+              commit_message = commit_message.splitlines()[0].strip()
+          else:
+              commit_message = "Test Discord announcement"
 
           if commit_message:
               commit_message = commit_message[0].upper() + commit_message[1:]
