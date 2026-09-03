@@ -11,6 +11,19 @@ jobs:
       - name: Checkout Aries repository
         uses: actions/checkout@v4
 
+      - name: Check Discord webhook secret
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is empty"
+            exit 1
+          fi
+
+          echo "DISCORD_WEBHOOK_URL is present"
+          echo "Length: ${#DISCORD_WEBHOOK_URL}"
+
       - name: Announce release on Discord
         shell: bash
         env:
@@ -21,6 +34,7 @@ jobs:
           import json
           import os
           import re
+          import urllib.error
           import urllib.request
           from pathlib import Path
 
@@ -84,9 +98,12 @@ jobs:
               method="POST"
           )
 
-          with urllib.request.urlopen(request) as response:
-              if response.status >= 300:
-                  raise RuntimeError(
-                      f"Discord webhook failed with status {response.status}"
-                  )
+          try:
+              with urllib.request.urlopen(request) as response:
+                  print(f"Discord webhook responded with HTTP {response.status}")
+          except urllib.error.HTTPError as error:
+              body = error.read().decode("utf-8", errors="replace")
+              print(f"Discord returned HTTP {error.code}")
+              print(f"Response body: {body}")
+              raise
           PY
