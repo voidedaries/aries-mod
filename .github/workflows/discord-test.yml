@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Announce release on Discord
+        if: success()
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -25,14 +26,22 @@ jobs:
 
           gradle_properties = Path("gradle.properties").read_text(encoding="utf-8")
 
-          match = re.search(r"^mod_version=(.+)$", gradle_properties, re.MULTILINE)
+          match = re.search(
+              r"^mod_version=(.+)$",
+              gradle_properties,
+              re.MULTILINE
+          )
 
           if not match:
               raise RuntimeError("Could not find mod_version")
 
           mod_version = match.group(1).strip()
 
-          versions = sorted(path.name for path in Path("versions").iterdir()if path.is_dir())
+          versions = sorted(
+              path.name
+              for path in Path("versions").iterdir()
+              if path.is_dir()
+          )
 
           if len(versions) == 1:
               version_text = versions[0]
@@ -47,8 +56,9 @@ jobs:
           if commit_message:
               commit_message = commit_message.splitlines()[0].strip()
           else:
-              commit_message = "Test Discord announcement"
+              commit_message = "New release"
 
+          commit_message = commit_message[0].upper() + commit_message[1:]
           commit_message = commit_message[:1000]
 
           message = (
