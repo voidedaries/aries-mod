@@ -24,11 +24,11 @@ public class MouseHandlerMixin {
     private int aries$scrollChat(int wheel) {
         if (AriesFeatures.SCROLL_PEEK_CHAT.isEnabled() && AriesFeatures.PEEK_CHAT.isDown()) {
             //? if >=26.2 {
-            /*Minecraft.getInstance().gui.hud.getChat().scrollChat(wheel);
-             *///?}
+            Minecraft.getInstance().gui.hud.getChat().scrollChat(wheel);
+             //?}
             //? if <26.2 {
-            Minecraft.getInstance().gui.getChat().scrollChat(wheel);
-            //?}
+            /*Minecraft.getInstance().gui.getChat().scrollChat(wheel);
+            *///?}
         }
         return wheel;
     }

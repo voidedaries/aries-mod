@@ -51,11 +51,11 @@ public class BlockRenderer {
         SubmitNodeCollector collector = context.submitNodeCollector();
 
         //? if >=26.2 {
-        /*Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
-        *///?}
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        //?}
         //? if <26.2 {
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-         //?}
+        /*Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+         *///?}
         Vec3 camPos = camera.position();
 
         poseStack.pushPose();

@@ -19,16 +19,16 @@ public class LevelRendererMixin {
 
     @Inject(
         //? if >=26.2
-        //method = "submitBlockOutline",
+        method = "submitBlockOutline",
         //? if <26.2
-        method = "extractBlockOutline",
+        //method = "extractBlockOutline",
         at = @At("HEAD"),
         cancellable = true)
     private void aries$hideVanillaOutline(
         //? if >= 26.2
-        //PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LevelRenderState levelRenderState, CallbackInfo ci
+        PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LevelRenderState levelRenderState, CallbackInfo ci
         //? if <26.2
-        Camera camera, LevelRenderState levelRenderState, CallbackInfo ci
+        //Camera camera, LevelRenderState levelRenderState, CallbackInfo ci
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

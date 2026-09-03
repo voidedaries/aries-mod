@@ -12,9 +12,9 @@ public class ScreenEffectRendererMixin {
 
     @ModifyVariable(
         //? if >=26.2
-        //method = "submitFire",
+        method = "submitFire",
         //? if <26.2
-        method = "renderFire",
+        //method = "renderFire",
         at = @At("HEAD"),
         argsOnly = true,
         name = "poseStack"

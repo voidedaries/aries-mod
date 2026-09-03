@@ -188,10 +188,10 @@ public class EtherwarpRenderer {
         }
 
         //? if >=26.2
-        //Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
         //? if <26.2
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        //Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         Vec3 start = camera.position();
         Vec3 look = new Vec3(camera.forwardVector());
