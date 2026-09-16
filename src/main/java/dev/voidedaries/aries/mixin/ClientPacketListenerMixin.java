@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
     @Unique
-    private static final Pattern ASHFANG_DEATH = Pattern.compile("^ ☠ You were killed by Ashfang\\.$");
+    private static final Pattern ASHFANG_DEATH = Pattern.compile("^ ☠ You were killed by Ashfang(?: .+)?\\.$");
 
     @Inject(method = "handleSetEntityPassengersPacket", at = @At("HEAD"), cancellable = true)
     private void aries$suppressPassengerSpam(ClientboundSetPassengersPacket packet, CallbackInfo ci) {

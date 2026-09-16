@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 
 public class HypixelEnvironmentOverrideFeature extends AriesFeature {
     public final BooleanConfig enabled = addConfig(
-        new BooleanConfig("hypixel_environment_override.enabled", true)
+        new BooleanConfig("hypixel_environment_override.enabled", false)
     );
 
     public HypixelEnvironmentOverrideFeature() {

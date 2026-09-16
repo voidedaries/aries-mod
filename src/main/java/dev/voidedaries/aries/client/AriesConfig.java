@@ -78,17 +78,6 @@ public class AriesConfig {
             }
         }
 
-        Aries.log(
-            "Version check: saved={}, current={}, newVersion={}",
-            INSTANCE.lastVersion,
-            currentVersion,
-            newVersion
-        );
-
-        if (newVersion) {
-            Aries.log("Aries updated from {} to {}", INSTANCE.lastVersion, currentVersion);
-        }
-
         INSTANCE.lastVersion = currentVersion;
 
         save();

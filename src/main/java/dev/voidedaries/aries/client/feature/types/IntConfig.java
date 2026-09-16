@@ -7,7 +7,7 @@ public class IntConfig extends AriesConfigType<Integer> implements SliderValue {
     private final int min;
     private final int max;
 
-    public IntConfig(String key, Integer defaultValue,  int min, int max) {
+    public IntConfig(String key, Integer defaultValue, int min, int max) {
         super(key, defaultValue);
         this.min = min;
         this.max = max;

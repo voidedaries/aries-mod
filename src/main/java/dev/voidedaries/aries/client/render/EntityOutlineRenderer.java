@@ -1,6 +1,6 @@
 package dev.voidedaries.aries.client.render;
 
-import dev.voidedaries.aries.client.render.item.AshfangRenderer;
+import dev.voidedaries.aries.client.render.entity.AshfangRenderer;
 import net.minecraft.world.entity.Entity;
 
 public class EntityOutlineRenderer {

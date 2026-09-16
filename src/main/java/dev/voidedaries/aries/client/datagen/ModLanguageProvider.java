@@ -158,6 +158,27 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         );
 
         addTranslation(
+            translations, AriesCategory.CRIMSON_ISLE,
+            "blazing_soul_trajectory",
+            "Blazing Soul Trajectory",
+            "displays the trajectory of the Blazing Soul based on player direction."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRIMSON_ISLE,
+            "blazing_soul_trajectory.color",
+            "Blazing Soul Trajectory Color",
+            "sets the color of the Blazing Soul trajectory."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRIMSON_ISLE,
+            "blazing_soul_trajectory.width",
+            "Blazing Soul Trajectory Width",
+            "sets the width of the Blazing Soul trajectory."
+        );
+
+        addTranslation(
             translations, AriesCategory.SETTINGS,
             "pause_menu_button",
             "Pause Menu Button",

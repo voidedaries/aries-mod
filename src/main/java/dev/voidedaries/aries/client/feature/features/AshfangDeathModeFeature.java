@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 
 public class AshfangDeathModeFeature extends AriesFeature {
     public final BooleanConfig enabled = addConfig(
-        new BooleanConfig("ashfang_death_mode.enabled", true)
+        new BooleanConfig("ashfang_death_mode.enabled", false)
     );
 
     public AshfangDeathModeFeature() {

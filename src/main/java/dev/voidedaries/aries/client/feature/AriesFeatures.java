@@ -29,6 +29,8 @@ public class AriesFeatures {
     // crimson isle
     public static final AshfangDeathModeFeature ASHFANG_DEATH_MODE = register(new AshfangDeathModeFeature());
     public static final AshfangMobsColorFeature ASHFANG_MOBS_COLOR = register(new AshfangMobsColorFeature());
+    public static final BlazingSoulTrajectoryFeature BLAZING_SOUL_TRAJECTORY =
+        register(new BlazingSoulTrajectoryFeature());
 
     // dev
     public static final HypixelEnvironmentOverrideFeature HYPIXEL_ENVIRONMENT_OVERRIDE =

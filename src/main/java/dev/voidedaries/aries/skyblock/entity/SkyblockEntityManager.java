@@ -5,7 +5,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,23 +20,20 @@ public class SkyblockEntityManager {
 
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.level == null) {
+            ClientLevel world = client.level;
+
+            if (world == null) {
                 SkyblockEntityManager.clear();
                 return;
             }
 
-            for (Entity entity : client.level.entitiesForRendering()) {
-                SkyblockEntityManager.registerEntity(entity);
+            for (Entity entity : world.entitiesForRendering()) {
+                SkyblockEntityManager.registerEntity(world, entity);
             }
         });
     }
 
-    public static void registerEntity(Entity entity) {
-        Level level = entity.level();
-
-        if (!(level instanceof ClientLevel world)) {
-            return;
-        }
+    public static void registerEntity(ClientLevel world, Entity entity) {
 
         if (entity instanceof ArmorStand armorStand) {
             checkNameTag(armorStand, world);

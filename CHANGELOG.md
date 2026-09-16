@@ -2,13 +2,11 @@
 
 ### Features
 
-- Added moveable GUIs with configurable positions
-- Added Ashfang Death Mode
-- Added Ashfang mob colors for Followers, Acolytes, and Underlings
-- Added configurable colors for Ashfang mobs
-- Added an option to suppress Minecraft passenger and team spam logs
+- Added a trajectory indicator for Blazing Souls and an outline for Ashfang when targeted.
 
 ### Improvements
 
-- Added list configs for features with multiple modes
-- Added a new Crimson Isle category
+- Amended Ashfang Death Mode default to off.
+- Updated Ashfang death detection to also include Ashfang Followers.
+- Amended Hypixel Environment Override default to off.
+- Added a dynamic line renderer for rendering in world lines.

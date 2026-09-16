@@ -1,4 +1,4 @@
-package dev.voidedaries.aries.client.render.item;
+package dev.voidedaries.aries.client.render.entity;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.skyblock.entity.SkyblockEntity;
@@ -10,6 +10,10 @@ public class AshfangRenderer {
     private AshfangRenderer() {}
 
     public static int getOutlineColor(Entity entity) {
+        if (BlazingSoulRenderer.isAshfang(entity) && BlazingSoulRenderer.isAshfangInTrajectory()) {
+            return AriesFeatures.BLAZING_SOUL_TRAJECTORY.color.get();
+        }
+
         SkyblockEntity skyblockEntity = SkyblockEntityManager.get(entity.getId());
 
         if (skyblockEntity == null) {

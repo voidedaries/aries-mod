@@ -74,10 +74,11 @@ public abstract class EntityRendererMixin<T extends Entity> {
     private void aries$applyOutline(Entity entity, EntityRenderState state, float partialTicks, CallbackInfo ci) {
         int outlineColor = EntityOutlineRenderer.getOutlineColor(entity);
 
-        if (outlineColor != 0) {
-            state.outlineColor = outlineColor;
+        if (outlineColor == 0) {
+            return;
         }
 
+        state.outlineColor = outlineColor;
     }
 
 }
