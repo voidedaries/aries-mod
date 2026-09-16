@@ -1,6 +1,7 @@
 package dev.voidedaries.aries.client.render.item;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import dev.voidedaries.aries.client.feature.features.EtherwarpOutlineFeature;
 import dev.voidedaries.aries.client.render.BlockRenderer;
 import dev.voidedaries.aries.skyblock.item.SkyblockItem;
 import dev.voidedaries.aries.skyblock.item.SkyblockItemLookup;
@@ -134,17 +135,29 @@ public class EtherwarpRenderer {
         TargetState state = getTargetState(player, pos, distance, etherwarpRange);
 
         switch (state) {
-            case VALID -> BlockRenderer.renderBlockOutline(
-                context, box,
-                AriesFeatures.ETHERWARP_OUTLINE.valid.get(),
-                AriesFeatures.ETHERWARP_OUTLINE.width.get()
-            );
+            case VALID -> {
+                switch (EtherwarpOutlineFeature.mode.get()) {
+                    case FILL -> BlockRenderer.renderBlock(context, box, AriesFeatures.ETHERWARP_OUTLINE.valid.get());
+                    case OUTLINE ->
+                        BlockRenderer.renderBlockOutline(
+                            context, box,
+                            AriesFeatures.ETHERWARP_OUTLINE.valid.get(),
+                            AriesFeatures.ETHERWARP_OUTLINE.width.get()
+                        );
+                }
+            }
 
-            case BLOCKED, INVALID_BLOCK -> BlockRenderer.renderBlockOutline(
-                context, box,
-                AriesFeatures.ETHERWARP_OUTLINE.invalid.get(),
-                AriesFeatures.ETHERWARP_OUTLINE.width.get()
-            );
+            case BLOCKED, INVALID_BLOCK -> {
+                switch (EtherwarpOutlineFeature.mode.get()) {
+                    case FILL -> BlockRenderer.renderBlock(context, box, AriesFeatures.ETHERWARP_OUTLINE.invalid.get());
+                    case OUTLINE ->
+                        BlockRenderer.renderBlockOutline(
+                            context, box,
+                            AriesFeatures.ETHERWARP_OUTLINE.invalid.get(),
+                            AriesFeatures.ETHERWARP_OUTLINE.width.get()
+                        );
+                }
+            }
 
             case OUT_OF_RANGE -> {}
         }
@@ -188,10 +201,10 @@ public class EtherwarpRenderer {
         }
 
         //? if >=26.2
-        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        //Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
 
         //? if <26.2
-        //Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         Vec3 start = camera.position();
         Vec3 look = new Vec3(camera.forwardVector());

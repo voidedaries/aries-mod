@@ -73,12 +73,14 @@ jobs:
           commit_message = os.environ.get("COMMIT_MESSAGE", "").strip()
 
           if commit_message:
-              commit_message = commit_message.splitlines()[0].strip()
+            commit_message = commit_message.splitlines()[0].strip()
           else:
-              commit_message = "New release"
-
+            commit_message = "New release"
+  
           commit_message = commit_message[0].upper() + commit_message[1:]
-          commit_message = commit_message[:1000]
+          
+          if len(commit_message) > 120:
+            commit_message = commit_message[:117].rstrip() + "..."
 
           message = (
               f"## Aries {mod_version} for {version_text}\n\n"

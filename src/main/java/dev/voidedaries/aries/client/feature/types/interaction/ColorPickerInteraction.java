@@ -1,7 +1,6 @@
 package dev.voidedaries.aries.client.feature.types.interaction;
 
 import dev.voidedaries.aries.client.gui.AriesScreen;
-import dev.voidedaries.aries.client.render.feature.OpenColorPicker;
 import net.minecraft.util.Mth;
 
 public class ColorPickerInteraction {

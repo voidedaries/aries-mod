@@ -1,5 +1,7 @@
 {
   "aries.mod_name": "Aries",
+  "authors.dev.voidedaries": "VoidedAries",
+
   "aries.overview": "Hypixel SkyBlock QoL Mod",
   "aries.description": "A lightweight client-side mod designed to improve visibility and reduce repetitive tasks while keeping the vanilla experience.",
 
@@ -8,17 +10,20 @@
   "aries.about.loader": "Loader: Fabric",
   "aries.about.author": "Created by %s",
 
-  "authors.dev.voidedaries": "VoidedAries",
+  "gui.locations_screen": "Aries GUI Locations",
+
   "gui.menu.categories": "Categories",
   "gui.menu.category.about": "About",
   "gui.menu.category.settings": "Settings",
   "gui.menu.category.achievements": "Achievements",
   "gui.menu.category.chat": "Chat",
   "gui.menu.category.commands": "Commands",
+  "gui.menu.category.crimson_isle": "Crimson Isle",
   "gui.menu.category.dungeons": "Dungeons",
   "gui.menu.category.visuals": "Visuals",
   "gui.menu.category.dev": "Dev",
   "gui.menu.category.dev.warning": "⚠ Warning: Development features may cause unexpected behavior. Use with caution.",
+  "gui.menu.category.misc": "Misc",
 
   "gui.menu.searchbar" : "Search...",
 
@@ -33,5 +38,6 @@
   "key.category.aries.main_category": "Aries Keybinds",
   "key.aries.listening": "...",
   "key.aries.not_bound": "Not Bound",
-  "key.aries.peek_chat.keybind": "Peek Chat"
+  "key.aries.peek_chat.keybind": "Peek Chat",
+  "key.aries.gui_location.keybind": "GUI Locations"
 }

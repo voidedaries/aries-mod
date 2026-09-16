@@ -37,6 +37,7 @@ modrinth {
 
     versionNumber = modVersion
     versionType = modrinthVersionType
+    changelog = rootProject.file("CHANGELOG.md").text
 
     uploadFile = tasks.jar
 
@@ -47,7 +48,6 @@ modrinth {
         required.project "hypixel-mod-api"
     }
 }
-
 
 fabricApi {
     configureDataGeneration {
@@ -89,6 +89,13 @@ processResources {
     //noinspection GrUnresolvedAccess
     inputs.property "loader_version", project.loader_version
     filteringCharset "UTF-8"
+
+    from(rootProject.file("CHANGELOG.md")) {
+        into("assets/aries")
+        rename {
+            "changelog.md"
+        }
+    }
 
     filesMatching("fabric.mod.json") {
         //noinspection GrUnresolvedAccess

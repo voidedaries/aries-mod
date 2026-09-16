@@ -1,14 +1,18 @@
 package dev.voidedaries.aries.client;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.logging.LogUtils;
 import dev.voidedaries.aries.Aries;
+import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.feature.types.*;
+import dev.voidedaries.aries.client.gui.location.AriesHudManager;
+import dev.voidedaries.aries.client.gui.location.HudPosition;
+import dev.voidedaries.aries.client.gui.location.HudRenderable;
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.glfw.GLFW;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -20,6 +24,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class AriesConfig {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -32,10 +37,60 @@ public class AriesConfig {
     public static AriesConfig INSTANCE;
 
     public Map<String, JsonObject> categories = new HashMap<>();
+    private static final String HUD_CATEGORY = "hud";
+
+    private String lastVersion = "";
+
+    private static boolean newVersion;
+
+    public static boolean isNewVersion() {
+        return newVersion;
+    }
+
+    private static String getAriesVersion(String fullVersion) {
+        int plusIndex = fullVersion.indexOf('+');
+
+        if (plusIndex == -1 || plusIndex == fullVersion.length() - 1) {
+            return fullVersion;
+        }
+
+        return fullVersion.substring(plusIndex + 1);
+    }
 
     public static void init() {
         Aries.log("Loading Aries config...");
         INSTANCE = load();
+
+        String currentVersion = Objects.requireNonNull(ModConstants.version);
+
+        newVersion = false;
+
+        if (INSTANCE.lastVersion.isEmpty()) {
+            newVersion = true;
+        } else {
+            try {
+                String savedModVersion = getAriesVersion(INSTANCE.lastVersion);
+                String currentModVersion = getAriesVersion(currentVersion);
+
+                newVersion = Version.parse(savedModVersion).compareTo(Version.parse(currentModVersion)) < 0;
+            } catch (VersionParsingException e) {
+                LOGGER.warn("Invalid saved Aries version '{}'", INSTANCE.lastVersion, e);
+            }
+        }
+
+        Aries.log(
+            "Version check: saved={}, current={}, newVersion={}",
+            INSTANCE.lastVersion,
+            currentVersion,
+            newVersion
+        );
+
+        if (newVersion) {
+            Aries.log("Aries updated from {} to {}", INSTANCE.lastVersion, currentVersion);
+        }
+
+        INSTANCE.lastVersion = currentVersion;
+
         save();
     }
 
@@ -49,8 +104,16 @@ public class AriesConfig {
             Files.createDirectories(ARIES_FILE.getParent());
             writeFromRuntime();
 
+            JsonObject root = new JsonObject();
+
+            for (Map.Entry<String, JsonObject> entry : INSTANCE.categories.entrySet()) {
+                root.add(entry.getKey(), entry.getValue());
+            }
+
+            root.addProperty("lastVersion", INSTANCE.lastVersion);
+
             try (Writer writer = Files.newBufferedWriter(ARIES_FILE)) {
-                GSON.toJson(INSTANCE.categories, writer);
+                GSON.toJson(root, writer);
             }
 
         } catch (IOException e) {
@@ -66,33 +129,28 @@ public class AriesConfig {
         }
     }
 
-    private static void writeFromRuntime() {
-        INSTANCE.categories.clear();
-
-        for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-            if (option.getFeature() == null) {
-                continue;
-            }
-
-            String category = categoryOf(option);
-            JsonObject obj = INSTANCE.categories.computeIfAbsent(category, _ -> new JsonObject());
-            obj.add(option.getKey(), write(option));
-        }
-    }
-
     public static AriesConfig load() {
         try (Reader reader = Files.newBufferedReader(ARIES_FILE)) {
-            Map<String, JsonObject> data = GSON.fromJson(
-                reader, new TypeToken<Map<String, JsonObject>>(){}.getType()
-            );
+            JsonObject root = GSON.fromJson(reader, JsonObject.class);
 
             AriesConfig config = new AriesConfig();
 
-            if (data != null) {
-                config.categories.putAll(data);
+            if (root != null) {
+                JsonElement version = root.remove("lastVersion");
+
+                if (version != null && version.isJsonPrimitive()) {
+                    config.lastVersion = version.getAsString();
+                }
+
+                for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
+                    if (entry.getValue().isJsonObject()) {
+                        config.categories.put(entry.getKey(), entry.getValue().getAsJsonObject());
+                    }
+                }
             }
 
             applyOptionToConfig(config);
+            applyHudPositions(config);
 
             return config;
         } catch (NoSuchFileException e) {
@@ -102,15 +160,33 @@ public class AriesConfig {
 
             AriesConfig fallback = new AriesConfig();
             fillMissingDefaults(fallback);
+
             applyOptionToConfig(fallback);
+            applyHudPositions(fallback);
             return fallback;
         }
 
     }
 
+    private static void writeFromRuntime() {
+        INSTANCE.categories.clear();
+
+        for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
+            if (option.getFeature() == null || option instanceof ButtonConfig) {
+                continue;
+            }
+
+            String category = categoryOf(option);
+            JsonObject obj = INSTANCE.categories.computeIfAbsent(category, _ -> new JsonObject());
+            obj.add(option.getKey(), write(option));
+        }
+
+        writeHudPositions();
+    }
+
     static void applyOptionToConfig(AriesConfig config) {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-            if (option.getFeature() == null) {
+            if (option.getFeature() == null || option instanceof ButtonConfig) {
                 continue;
             }
 
@@ -151,14 +227,43 @@ public class AriesConfig {
                 } catch (Exception e) {
                     LOGGER.warn("Invalid color in config for {}: {}", option.getKey(), element);
                 }
+            } else if (option instanceof ListConfig<?> list) {
+                try {
+                    list.deserialize(element.getAsString());
+                } catch (Exception e) {
+                    LOGGER.warn("Invalid list value in config for {}: {}", option.getKey(), element);
+                }
             }
+        }
+    }
+
+    private static void applyHudPositions(AriesConfig config) {
+        JsonObject hud = config.categories.get(HUD_CATEGORY);
+
+        if (hud == null) {
+            return;
+        }
+
+        for (HudRenderable renderable : AriesHudManager.getHudElements()) {
+            JsonElement element = hud.get(renderable.getHudId());
+
+            if (element == null || !element.isJsonObject()) {
+                continue;
+            }
+
+            JsonObject positionObject = element.getAsJsonObject();
+
+            int x = positionObject.has("x") ? positionObject.get("x").getAsInt() : 0;
+            int y = positionObject.has("y") ? positionObject.get("y").getAsInt() : 0;
+
+            renderable.getHudPosition().setPosition(x, y);
         }
     }
 
     private static void fillMissingDefaults(AriesConfig config) {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
 
-            if (option.getFeature() == null) {
+            if (option.getFeature() == null || option instanceof ButtonConfig) {
                 continue;
             }
 
@@ -178,6 +283,7 @@ public class AriesConfig {
         INSTANCE = config;
 
         applyOptionToConfig(config);
+        applyHudPositions(config);
 
         Aries.log("Created default aries config");
         return config;
@@ -204,7 +310,28 @@ public class AriesConfig {
             return new JsonPrimitive(String.format("0x%08X", c.get()));
         }
 
+        if (option instanceof ListConfig<?> l) {
+            return new JsonPrimitive(l.getValueName());
+        }
+
         throw new IllegalStateException("Unsupported config type: " + option.getClass());
+    }
+
+    private static void writeHudPositions() {
+        JsonObject hud = new JsonObject();
+
+        for (HudRenderable renderable : AriesHudManager.getHudElements()) {
+            HudPosition position = renderable.getHudPosition();
+
+            JsonObject positionObject = new JsonObject();
+
+            positionObject.addProperty("x", position.getX());
+            positionObject.addProperty("y", position.getY());
+
+            hud.add(renderable.getHudId(), positionObject);
+        }
+
+        INSTANCE.categories.put(HUD_CATEGORY, hud);
     }
 
     private static JsonElement defaultJson(AriesConfigType<?> option) {
@@ -228,6 +355,16 @@ public class AriesConfig {
             return new JsonPrimitive(String.format("0x%08X", c.getDefaultValue()));
         }
 
+        if (option instanceof ListConfig<?> l) {
+            Object value = l.getDefaultValue();
+
+            if (value instanceof Enum<?> enumValue) {
+                return new JsonPrimitive(enumValue.name());
+            }
+
+            throw new IllegalStateException("Unsupported ListConfig value: " + value.getClass());
+        }
+
         throw new IllegalStateException("Unsupported type: " + option.getClass());
     }
 
@@ -237,18 +374,15 @@ public class AriesConfig {
 
     public static void resetToDefaults() {
         for (AriesConfigType<?> option : AriesFeatures.getAllConfigs()) {
-
-            if (option instanceof BooleanConfig b) {
-                b.set(b.getDefaultValue());
-            } else if (option instanceof IntConfig i) {
-                i.set(i.getDefaultValue());
-            } else if (option instanceof FloatConfig f) {
-                f.set(f.getDefaultValue());
-            } else if (option instanceof KeybindConfig k) {
-                k.set(k.getDefaultValue());
-            } else if (option instanceof ColorConfig c) {
-                c.set(c.getDefaultValue());
+            if (option instanceof ButtonConfig) {
+                continue;
             }
+
+            option.reset();
+        }
+
+        for (HudRenderable renderable : AriesHudManager.getHudElements()) {
+            renderable.getHudPosition().setPosition(0, 0);
         }
 
         save();
@@ -258,16 +392,6 @@ public class AriesConfig {
         try {
             return InputConstants.getKey(key).getValue();
         } catch (Exception e) {
-            try {
-                if (key.startsWith("key.keyboard.")) {
-                    String stripped = key.substring("key.keyboard.".length());
-
-                    int glfw = GLFW.glfwGetKeyScancode(stripped.toUpperCase(Locale.ROOT).charAt(0));
-
-                    return InputConstants.Type.KEYSYM.getOrCreate(glfw).getValue();
-                }
-            } catch (Exception ignored) {}
-
             Aries.log("Failed to parse keybind: " + key, e);
             return InputConstants.UNKNOWN.getValue();
         }

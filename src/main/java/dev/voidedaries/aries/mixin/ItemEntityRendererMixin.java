@@ -5,7 +5,6 @@ import dev.voidedaries.aries.client.accessor.ItemEntityRenderStateAccessor;
 import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.skyblock.item.ItemRarity;
-import dev.voidedaries.aries.skyblock.item.ItemRarityScales;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
@@ -64,7 +63,7 @@ public class ItemEntityRendererMixin {
         }
 
         ItemRarity rarity = ((ItemEntityRenderStateAccessor) state).aries$getRarity();
-        float scale = ItemRarityScales.get(rarity);
+        float scale = ItemRarity.getScale(rarity);
 
         poseStack.scale(scale, scale, scale);
     }

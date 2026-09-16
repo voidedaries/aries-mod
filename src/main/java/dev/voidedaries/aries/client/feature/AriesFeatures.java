@@ -26,14 +26,23 @@ public class AriesFeatures {
     // command
     public static final SkipCommandConfirmFeature SKIP_COMMAND_CONFIRM = register(new SkipCommandConfirmFeature());
 
+    // crimson isle
+    public static final AshfangDeathModeFeature ASHFANG_DEATH_MODE = register(new AshfangDeathModeFeature());
+    public static final AshfangMobsColorFeature ASHFANG_MOBS_COLOR = register(new AshfangMobsColorFeature());
+
     // dev
     public static final HypixelEnvironmentOverrideFeature HYPIXEL_ENVIRONMENT_OVERRIDE =
         register(new HypixelEnvironmentOverrideFeature());
+
+    public static final MinecraftWarningLogSuppressionFeature MINECRAFT_WARNING_LOG_SUPPRESSION =
+        register(new MinecraftWarningLogSuppressionFeature());
 
     public static final YggdrasilLogSuppressionFeature YGGDRASIL_LOG_SUPPRESSION =
         register(new YggdrasilLogSuppressionFeature());
 
     // setting
+    public static final GUILocationButtonFeature GUI_LOCATION_BUTTON = register(new GUILocationButtonFeature());
+    public static final GUILocationKeyFeature GUI_LOCATION_KEY = register(new GUILocationKeyFeature());
     public static final AriesPauseMenuButtonFeature PAUSE_MENU_BUTTON = register(new AriesPauseMenuButtonFeature());
 
     // visuals
@@ -56,6 +65,9 @@ public class AriesFeatures {
         register(new RemoveSecondLayerArmorFeature());
 
     public static final ThirdPersonNameTagFeature THIRD_PERSON_NAME_TAG = register(new ThirdPersonNameTagFeature());
+
+    // misc
+    public static final FPSDisplayFeature FPS_DISPLAY = register(new FPSDisplayFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);

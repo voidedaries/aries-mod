@@ -10,10 +10,6 @@ public class ColorConfig extends AriesConfigType<Integer> {
         return String.format("0x%08X", color);
     }
 
-    public void reset() {
-        set(getDefaultValue());
-    }
-
     @Override
     protected Integer validate(Integer value) {
         return value == null ? defaultValue : value;

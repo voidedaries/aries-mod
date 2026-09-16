@@ -1,7 +1,6 @@
-package dev.voidedaries.aries.client.render.feature;
+package dev.voidedaries.aries.client.feature.types.interaction;
 
 import dev.voidedaries.aries.client.feature.types.ColorConfig;
-import dev.voidedaries.aries.client.feature.types.interaction.ColorPickerState;
 
 public final class OpenColorPicker {
     private final ColorConfig config;

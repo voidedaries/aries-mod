@@ -1,11 +1,7 @@
 package dev.voidedaries.aries.client.feature.features;
 
-import dev.voidedaries.aries.client.feature.types.IntConfig;
-import dev.voidedaries.aries.client.feature.types.AriesCategory;
+import dev.voidedaries.aries.client.feature.types.*;
 import dev.voidedaries.aries.client.feature.AriesFeature;
-import dev.voidedaries.aries.client.feature.types.BooleanConfig;
-import dev.voidedaries.aries.client.feature.types.AriesConfigType;
-import dev.voidedaries.aries.client.feature.types.ColorConfig;
 import net.minecraft.network.chat.Component;
 
 public class EtherwarpOutlineFeature extends AriesFeature {
@@ -13,7 +9,18 @@ public class EtherwarpOutlineFeature extends AriesFeature {
         new BooleanConfig("etherwarp_outline.enabled", true)
     );
 
-    public final IntConfig width = new IntConfig("etherwarp_outline.width", 2, 1, 5);
+    public enum EtherwarpMode {
+        FILL,
+        OUTLINE
+    }
+
+    public static final ListConfig<EtherwarpMode> mode =
+        new ListConfig<>(
+            "etherwarp_outline.mode", EtherwarpMode.OUTLINE,
+            EtherwarpMode.FILL, EtherwarpMode.OUTLINE
+        );
+
+    public final IntConfig width = new IntConfig("etherwarp_outline.width", 3, 1, 5);
 
     public final ColorConfig valid = new ColorConfig("etherwarp_outline.valid_color", 0xFF00FF00);
 
@@ -25,6 +32,12 @@ public class EtherwarpOutlineFeature extends AriesFeature {
             Component.translatable("gui.category.visuals.etherwarp_outline.description"),
             AriesCategory.VISUALS
         );
+
+        addEntry(
+            Component.translatable("gui.category.visuals.etherwarp_outline.mode.name"),
+            Component.translatable("gui.category.visuals.etherwarp_outline.mode.description"),
+            mode
+        ).visibleWhen(enabled::get);
 
         add("width", width);
         add("valid_color", valid);

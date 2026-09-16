@@ -38,11 +38,9 @@ public final class FeatureEntry {
      * Controls when this entry appears in the menu.
      *
      * @param condition visibility condition
-     * @return this entry for chaining
      */
-    public FeatureEntry visibleWhen(Supplier<Boolean> condition) {
+    public void visibleWhen(Supplier<Boolean> condition) {
         this.visibleCondition = condition;
-        return this;
     }
 
     /**

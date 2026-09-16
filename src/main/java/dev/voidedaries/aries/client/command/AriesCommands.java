@@ -5,7 +5,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.AriesConfig;
+import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.gui.AriesScreen;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
@@ -22,11 +24,21 @@ import java.util.List;
 public class AriesCommands {
     static int SINGLE_FAIL = 1;
 
+    public static void init() {
+        ClientCommandRegistrationCallback.EVENT.register((
+            (dispatcher, _)
+                -> register(dispatcher)));
+    }
+
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         LiteralArgumentBuilder<FabricClientCommandSource> root =
             ClientCommands.literal("aries").executes(
                 _ -> openAriesMenu()
             );
+
+        root.then(ClientCommands.literal("locations")
+            .executes(_ -> openGuiLocations())
+        );
 
         root.then(ClientCommands.literal("config")
             .then(ClientCommands.literal("save")
@@ -58,15 +70,25 @@ public class AriesCommands {
 
     private static int openAriesMenu() {
         //? if >=26.2 {
-        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.setScreen(new AriesScreen()));
-         //?}
-        //? if <26.2 {
-        /*Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new AriesScreen()));
+        /*Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.setScreen(new AriesScreen()));
         *///?}
+        //? if <26.2 {
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new AriesScreen()));
+         //?}
 
         if (Minecraft.getInstance().player == null) {
             return SINGLE_FAIL;
         }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int openGuiLocations() {
+        if (Minecraft.getInstance().player == null) {
+            return SINGLE_FAIL;
+        }
+
+        AriesFeatures.GUI_LOCATION_BUTTON.openGUILocationEditor();
 
         return Command.SINGLE_SUCCESS;
     }

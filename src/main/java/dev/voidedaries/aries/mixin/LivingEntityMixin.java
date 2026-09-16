@@ -1,7 +1,6 @@
 package dev.voidedaries.aries.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -45,12 +44,6 @@ public class LivingEntityMixin {
         if (!AriesFeatures.HELD_ITEM_CUSTOMISATION.isEnabled()) {
             return original;
         }
-
-        Aries.log(
-            "swingTicks={}, attackAnim={}",
-            aries$swingTicks,
-            aries$getSwingProgress(partialTick)
-        );
 
         return aries$getSwingProgress(partialTick);
     }

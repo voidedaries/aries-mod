@@ -29,7 +29,7 @@ public abstract class AriesConfigType<T> {
      * Creates a new configuration value.
      *
      * @param key unique identifier used when saving/loading
-     * @param defaultValue initial value and reset value
+     * @param defaultValue initial value and value restored by {@link #reset()}
      */
     public AriesConfigType(String key, T defaultValue) {
         this.key = key;
@@ -50,11 +50,9 @@ public abstract class AriesConfigType<T> {
      * Controls when this config is shown in the menu.
      *
      * @param condition visibility condition
-     * @return this config instance for chaining
      */
-    public AriesConfigType<?> visibleWhen(Supplier<Boolean> condition) {
+    public void visibleWhen(Supplier<Boolean> condition) {
         this.visibleCondition = condition;
-        return this;
     }
 
     /**
@@ -95,6 +93,13 @@ public abstract class AriesConfigType<T> {
      */
     public void setValue(T newValue) {
         this.value = validate(newValue);
+    }
+
+    /**
+     * Resets this config to its default value and saves the configuration.
+     */
+    public void reset() {
+        set(getDefaultValue());
     }
 
     /**

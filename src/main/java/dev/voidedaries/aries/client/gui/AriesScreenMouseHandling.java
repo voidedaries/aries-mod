@@ -3,13 +3,17 @@ package dev.voidedaries.aries.client.gui;
 import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.types.ColorConfig;
+import dev.voidedaries.aries.client.feature.types.ListConfig;
 import dev.voidedaries.aries.client.feature.types.interaction.*;
 import dev.voidedaries.aries.client.render.feature.ConfigInteraction;
 import dev.voidedaries.aries.client.render.feature.ConfigTypeRenderer;
-import dev.voidedaries.aries.client.render.feature.OpenColorPicker;
+import dev.voidedaries.aries.client.feature.types.interaction.OpenColorPicker;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 public class AriesScreenMouseHandling {
     private final AriesScreen screen;
@@ -41,6 +45,7 @@ public class AriesScreenMouseHandling {
 
         if (social != null) {
             Util.getPlatform().openUri(social.url());
+            return true;
         }
 
         // cancel text editing when clicking elsewhere
@@ -187,11 +192,18 @@ public class AriesScreenMouseHandling {
         int index = 0;
 
         for (AriesCategory category : AriesCategory.values()) {
+            if (category == AriesCategory.CHANGELOG) {
+                continue;
+            }
 
             int entryY = startY + index * (screen.getFont().lineHeight + AriesScreen.PADDING);
 
             if (ScreenHelper.isHovered(
-                mouseX, mouseY, x, entryY, screen.getCategoryWidth(), screen.getFont().lineHeight)
+                mouseX, mouseY,
+                x,
+                entryY,
+                screen.getCategoryWidth(),
+                screen.getFont().lineHeight)
             ) {
                 if (screen.getSelectedCategory() != category) {
                     screen.setSelectedCategory(category);
@@ -205,6 +217,14 @@ public class AriesScreenMouseHandling {
             }
 
             index++;
+        }
+
+        if (screen.getActiveListPicker() != null) {
+            if (handleListPickerClick(mouseX, mouseY)) {
+                return true;
+            }
+
+            return true;
         }
 
         if (screen.getActiveColorPicker() != null) {
@@ -232,7 +252,7 @@ public class AriesScreenMouseHandling {
             }
         }
 
-        if (screen.getActiveColorPicker() == null) {
+        if (screen.getActiveColorPicker() == null && screen.getActiveListPicker() == null) {
             for (ConfigInteraction interaction : screen.getConfigTypeInteractions()) {
 
                 if (!ScreenHelper.isHovered(
@@ -408,7 +428,7 @@ public class AriesScreenMouseHandling {
 
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
 
-        if (screen.getActiveColorPicker() != null) {
+        if (screen.getActiveColorPicker() != null || screen.getActiveListPicker() != null) {
             return true;
         }
 
@@ -456,6 +476,53 @@ public class AriesScreenMouseHandling {
 
         screen.setScrollOffset(scrollOffset);
         AriesScreenCache.savedScrollPosition = scrollOffset;
+
+        return true;
+    }
+
+    private boolean handleListPickerClick(int mouseX, int mouseY) {
+        OpenListPicker picker = screen.getActiveListPicker();
+
+        if (picker == null) {
+            return false;
+        }
+
+        ListConfig<?> config = picker.getConfig();
+        List<?> values = config.getValues();
+
+        int optionHeight = (int) (AriesScreen.PADDING * 1.5);
+
+        int width = Math.max(
+            picker.getWidth(),
+            values.stream()
+                .map(value -> screen.getFont().width(Component.literal(String.valueOf(value))))
+                .max(Integer::compareTo)
+                .orElse(0) + AriesScreen.PADDING
+        );
+
+        int height = values.size() * optionHeight;
+
+        int x = picker.getX() + picker.getWidth() / 2 - width / 2;
+
+        int y = picker.getY() + picker.getHeight();
+
+        if (y + height > screen.getScreenHeight() - AriesScreen.PADDING) {
+            y = picker.getY() - height;
+        }
+
+        if (!ScreenHelper.isHovered(mouseX, mouseY, x, y, width, height)) {
+            screen.closeListPicker();
+            return true;
+        }
+
+        int index = (mouseY - y) / optionHeight;
+
+        if (index >= 0 && index < values.size()) {
+            config.setIndex(index);
+
+            screen.closeListPicker();
+            AriesConfig.save();
+        }
 
         return true;
     }

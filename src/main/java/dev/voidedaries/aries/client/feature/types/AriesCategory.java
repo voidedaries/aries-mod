@@ -12,13 +12,17 @@ import net.minecraft.network.chat.Component;
  */
 public enum AriesCategory {
 
+    CHANGELOG("changelog"),
+
     ABOUT("about"),
     SETTINGS("settings"),
     ACHIEVEMENTS("achievements"),
     CHAT("chat"),
     COMMANDS("commands"),
+    CRIMSON_ISLE("crimson_isle"),
     DUNGEONS("dungeons"),
     VISUALS("visuals"),
+    MISC("misc"),
     DEV("dev");
 
     private final String id;

@@ -1,7 +1,7 @@
 package dev.voidedaries.aries.client.gui;
 
 import dev.voidedaries.aries.client.feature.types.interaction.ColorPickerInteraction;
-import dev.voidedaries.aries.client.render.feature.OpenColorPicker;
+import dev.voidedaries.aries.client.feature.types.interaction.OpenColorPicker;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.MutableComponent;
@@ -128,6 +128,13 @@ public class ScreenHelper {
                 }
             }
         }
+    }
+
+    public static boolean isHovered(
+        double mouseX, double mouseY,
+        int x, int y,
+        int width, int height) {
+        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
     public static boolean isHovered(

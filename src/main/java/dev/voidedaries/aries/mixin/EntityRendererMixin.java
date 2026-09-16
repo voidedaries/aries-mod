@@ -1,16 +1,19 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import dev.voidedaries.aries.client.render.EntityOutlineRenderer;
 import dev.voidedaries.aries.skyblock.item.SkyblockLevelGradient;
 import dev.voidedaries.aries.skyblock.item.SkyblockLevelTier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityRenderer.class)
@@ -65,6 +68,16 @@ public abstract class EntityRendererMixin<T extends Entity> {
         levelComponent.append(Component.literal("] "));
 
         cir.setReturnValue(levelComponent.append(original));
+    }
+
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void aries$applyOutline(Entity entity, EntityRenderState state, float partialTicks, CallbackInfo ci) {
+        int outlineColor = EntityOutlineRenderer.getOutlineColor(entity);
+
+        if (outlineColor != 0) {
+            state.outlineColor = outlineColor;
+        }
+
     }
 
 }

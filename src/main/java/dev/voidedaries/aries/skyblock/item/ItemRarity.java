@@ -1,5 +1,7 @@
 package dev.voidedaries.aries.skyblock.item;
 
+import dev.voidedaries.aries.client.feature.AriesFeatures;
+
 import java.util.Locale;
 
 public enum ItemRarity {
@@ -26,5 +28,9 @@ public enum ItemRarity {
         }
 
         return UNKNOWN;
+    }
+
+    public static float getScale(ItemRarity rarity) {
+        return AriesFeatures.ITEM_RARITY_SCALING.getScale(rarity);
     }
 }

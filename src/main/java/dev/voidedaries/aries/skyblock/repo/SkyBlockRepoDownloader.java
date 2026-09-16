@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipFile;
 
 public class SkyBlockRepoDownloader {
     private static final Path REPO_DIRECTORY = FabricLoader.getInstance().getConfigDir()
@@ -63,17 +64,21 @@ public class SkyBlockRepoDownloader {
             Aries.log("Local NEU repo commit: {}", localCommit);
 
             if (latestCommit.equals(localCommit)) {
-                Aries.log("NEU repository is up to date");
-                NeuItemJsonParser.readNeuSkyblockItemZip();
-                return;
+                if (isValidZip()) {
+                    Aries.log("NEU repository is up to date");
+                    NeuItemJsonParser.readNeuSkyblockItemZip();
+                    return;
+                }
+
+                Aries.warn("NEU repository ZIP is invalid, redownloading");
+                Files.deleteIfExists(NEU_REPO_ZIP);
             }
 
             Aries.log("NEU repository update required");
 
             downloadRepo(latestCommit);
-            saveLocalCommit(latestCommit);
-
             NeuItemJsonParser.readNeuSkyblockItemZip();
+            saveLocalCommit(latestCommit);
         } catch (Exception ex) {
             Aries.warn("Failed to check NEU repository: {}", ex);
         } finally {
@@ -106,6 +111,19 @@ public class SkyBlockRepoDownloader {
         }
 
         Aries.log("NEU repository download complete in {} seconds", String.format("%.2f", elapsedSeconds));
+    }
+
+    private static boolean isValidZip() {
+        if (!Files.exists(NEU_REPO_ZIP)) {
+            return false;
+        }
+
+        try (ZipFile ignored = new ZipFile(NEU_REPO_ZIP.toFile())) {
+            return true;
+        } catch (IOException e) {
+            Aries.warn("NEU repository ZIP is corrupted, redownloading");
+            return false;
+        }
     }
 
     @Nullable

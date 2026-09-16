@@ -3,10 +3,7 @@ package dev.voidedaries.aries.client.render.feature;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.types.*;
-import dev.voidedaries.aries.client.feature.types.interaction.ColorEditState;
-import dev.voidedaries.aries.client.feature.types.interaction.ColorPickerState;
-import dev.voidedaries.aries.client.feature.types.interaction.SliderEditState;
-import dev.voidedaries.aries.client.feature.types.interaction.SliderValue;
+import dev.voidedaries.aries.client.feature.types.interaction.*;
 import dev.voidedaries.aries.client.gui.AriesScreen;
 import dev.voidedaries.aries.client.gui.ScreenHelper;
 import net.minecraft.client.gui.Font;
@@ -20,8 +17,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ConfigTypeRenderer {
-    private static final int PADDING = 10;
-
     private static final int TOGGLE_WIDTH = 25;
     public static final int TOGGLE_HEIGHT = TOGGLE_WIDTH / 2;
     private static final int TOGGLE_PADDING = 1;
@@ -37,6 +32,13 @@ public class ConfigTypeRenderer {
     private static final int SLIDER_KNOB_HEIGHT = 12;
     private static final int SLIDER_KNOB_PADDING = 2;
 
+    private static final int LIST_WIDTH = 30;
+    public static final int LIST_HEIGHT = LIST_WIDTH / 2;
+
+    private static final int BUTTON_WIDTH = 30;
+    public static final int BUTTON_HEIGHT = BUTTON_WIDTH / 2;
+    public static final int CONTROL_PADDING = AriesScreen.PADDING / 4;
+
 
     public static int getConfigHeight(AriesConfigType<?> config) {
         return switch (config.getType()) {
@@ -44,8 +46,165 @@ public class ConfigTypeRenderer {
             case SLIDER -> SLIDER_HEIGHT;
             case COLOR -> COLOR_PICKER_HEIGHT;
             case KEYBIND -> KEYBIND_HEIGHT;
+            case LIST -> LIST_HEIGHT;
+            case BUTTON -> BUTTON_HEIGHT;
 
             default -> 0;
+        };
+    }
+
+    public static int getConfigWidth(Font font, AriesConfigType<?> config) {
+        return switch (config.getType()) {
+            case TOGGLE -> TOGGLE_WIDTH;
+
+            case SLIDER -> getSliderWidth();
+
+            case COLOR -> getColorPickerWidth(font, (ColorConfig) config);
+
+            case KEYBIND -> getKeybindWidth(font, (KeybindConfig) config);
+
+            case LIST -> getListWidth(font, (ListConfig<?>) config);
+
+            case BUTTON -> getButtonWidth(font, (ButtonConfig) config);
+
+            default -> 0;
+        };
+    }
+
+    private static int getSliderWidth() {
+        return SLIDER_WIDTH + CONTROL_PADDING;
+    }
+
+    private static int getButtonWidth(Font font, ButtonConfig button) {
+        int textWidth = font.width(button.getLabel());
+
+        return Math.max(BUTTON_WIDTH, textWidth + AriesScreen.PADDING) + CONTROL_PADDING;
+    }
+
+    private static int getListWidth(Font font, ListConfig<?> list) {
+        Object value = list.get();
+
+        Component valueComponent =
+            Component.literal(String.valueOf(value));
+
+        int textWidth = font.width(valueComponent);
+
+        int width = Math.max(
+            LIST_WIDTH,
+            textWidth + AriesScreen.PADDING
+        );
+
+        return width + CONTROL_PADDING;
+    }
+
+    private static int getKeybindWidth(Font font, KeybindConfig keybind) {
+        int normalWidth = font.width(
+            keybind.getCurrentKey().getValue() ==
+                InputConstants.UNKNOWN.getValue()
+                ? Component.translatable("key.aries.not_bound")
+                : Component.literal(keybind.getCurrentKey().getDisplayName().getString())
+        );
+
+        int listeningWidth = font.width(Component.translatable("key.aries.listening"));
+        int textWidth = Math.max(normalWidth, listeningWidth);
+        int width = Math.max(KEYBIND_WIDTH, textWidth + AriesScreen.PADDING);
+
+        return width + CONTROL_PADDING;
+    }
+
+    private static int getColorPickerWidth(Font font, ColorConfig color) {
+        int value = color.get();
+
+        String hex = ColorConfig.formatColor(value);
+
+        if (hex.startsWith("0x")) {
+            hex = hex.substring(2);
+        }
+
+        float scale = 0.85f;
+
+        int padding = AriesScreen.PADDING / 2;
+
+        int textWidth = font.width(hex);
+        int scaledTextWidth = (int) (textWidth * scale);
+
+        int boxWidth = scaledTextWidth + (padding * 2) + CONTROL_PADDING;
+
+        int gap = AriesScreen.PADDING / 2;
+
+        return boxWidth + gap + COLOR_PICKER_WIDTH + CONTROL_PADDING;
+    }
+
+    public static List<ConfigInteraction> draw(
+        GuiGraphicsExtractor graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int entryY,
+        int mouseX, int mouseY,
+
+        EditState editingState,
+        OpenColorPicker activeColorPicker,
+        KeybindConfig listeningKeybind,
+
+        Consumer<ColorEditState> onColorEdit,
+        Consumer<OpenColorPicker> onColorPicker,
+        Consumer<OpenListPicker> onListPicker,
+        Consumer<KeybindConfig> onKeybind
+    ) {
+        return switch (config.getType()) {
+            case TEXT -> List.of();
+
+            case TOGGLE -> List.of(drawToggle(graphics, font, config, controlRightX, entryY));
+
+            case BUTTON -> List.of(
+                drawButton(
+                    graphics,
+                    font,
+                    config,
+                    controlRightX,
+                    entryY,
+                    mouseX,
+                    mouseY
+                )
+            );
+
+            case SLIDER -> List.of(
+                drawSlider(graphics,
+                    font,
+                    config,
+                    controlRightX,
+                    entryY,
+                    editingState instanceof SliderEditState sliderEdit ? sliderEdit : null
+                )
+            );
+
+            case COLOR -> drawColorPicker(
+                graphics,
+                font,
+                config,
+                controlRightX,
+                entryY,
+                mouseX, mouseY,
+                editingState instanceof ColorEditState colorEdit ? colorEdit : null,
+                activeColorPicker != null && activeColorPicker.getConfig() == config ? activeColorPicker.getState() : null,
+                onColorEdit,
+                onColorPicker
+            );
+
+            case LIST -> List.of(drawList(graphics, font, config, controlRightX, entryY, mouseX, mouseY, onListPicker));
+
+            case KEYBIND -> List.of(
+                drawKeybind(
+                    graphics,
+                    font,
+                    config,
+                    controlRightX,
+                    entryY,
+                     listeningKeybind == config,
+                    onKeybind
+                )
+            );
         };
     }
 
@@ -85,6 +244,91 @@ public class ConfigTypeRenderer {
             .replaceAll("\\.$", "");
     }
 
+    public static ConfigInteraction drawButton(
+        GuiGraphicsExtractor graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int entryY,
+        int mouseX,
+        int mouseY
+    ) {
+        ButtonConfig button = (ButtonConfig) config;
+
+        Component text = button.getLabel();
+
+        int padding = AriesScreen.PADDING;
+        int textWidth = font.width(text);
+
+        int width = Math.max(BUTTON_WIDTH, textWidth + padding);
+        int height = BUTTON_HEIGHT;
+
+        int textY = entryY + (height - font.lineHeight) / 2;
+        textY++;
+        int boxX = controlRightX - width;
+
+        boolean hovered = ScreenHelper.isHovered(mouseX, mouseY, boxX, entryY, width, height);
+
+        graphics.fill(boxX - 1, entryY - 1, boxX + width + 1, entryY + height + 1, 0xFF434E5B);
+
+        graphics.fill(boxX, entryY, boxX + width, entryY + height, hovered ? 0xFF222933 : 0xFF151A21);
+
+        graphics.text(
+            font,
+            text,
+            boxX + (width - font.width(text)) / 2,
+            textY,
+            0xFFADB5C9
+        );
+
+        return new ConfigInteraction(config, boxX, entryY, width, height, _ -> button.press());
+    }
+
+    public static ConfigInteraction drawList(
+        GuiGraphicsExtractor graphics,
+        Font font,
+        AriesConfigType<?> config,
+        int controlRightX,
+        int entryY,
+        int mouseX,
+        int mouseY,
+        Consumer<OpenListPicker> onOpen
+    ) {
+        ListConfig<?> list = (ListConfig<?>) config;
+
+        int width = LIST_WIDTH;
+        int height = LIST_HEIGHT;
+
+        Object value = list.get();
+
+        Component valueComponent = Component.literal(String.valueOf(value));
+
+        int textWidth = font.width(valueComponent);
+        int boxWidth = Math.max(width, textWidth + AriesScreen.PADDING);
+        int boxX = controlRightX - boxWidth;
+
+        boolean hovered = ScreenHelper.isHovered(mouseX, mouseY, boxX, entryY, boxWidth, height);
+
+        // border
+        graphics.fill(boxX - 1, entryY - 1, boxX + boxWidth + 1, entryY + height + 1, 0xFF434E5B);
+
+        // background
+        graphics.fill(boxX, entryY, boxX + boxWidth, entryY + height, hovered ? 0xFF222933 : 0xFF151A21);
+
+        // text
+        graphics.text(
+            font,
+            valueComponent,
+            boxX + (boxWidth - textWidth) / 2,
+            entryY + (height - font.lineHeight) / 2,
+            0xFFADB5C9
+        );
+
+        return new ConfigInteraction(config, boxX, entryY, boxWidth, height, _ -> onOpen.accept(
+            new OpenListPicker(list, boxX, entryY, boxWidth, height)
+        ));
+    }
+
     public static ConfigInteraction drawToggle(
         GuiGraphicsExtractor graphics,
         Font ignoredfont,
@@ -92,8 +336,8 @@ public class ConfigTypeRenderer {
         int controlRightX,
         int entryY
     ) {
-        int toggleHeight = TOGGLE_HEIGHT;
         int toggleWidth = TOGGLE_WIDTH;
+        int toggleHeight = TOGGLE_HEIGHT;
         int toggleX = controlRightX - TOGGLE_WIDTH;
 
         boolean value = (Boolean) config.get();
@@ -255,7 +499,7 @@ public class ConfigTypeRenderer {
 
         float scale = 0.85f;
 
-        int padding = 4;
+        int padding = AriesScreen.PADDING / 2;
 
         int textWidth = font.width(hex);
         int textHeight = font.lineHeight;
@@ -263,10 +507,10 @@ public class ConfigTypeRenderer {
         int scaledTextWidth = (int) (textWidth * scale);
         int scaledTextHeight = (int) (textHeight * scale);
 
-        int boxWidth = scaledTextWidth + (padding * 2) + 2;
+        int boxWidth = scaledTextWidth + (padding * 2) + CONTROL_PADDING;
         int boxHeight = scaledTextHeight + (padding * 2);
 
-        int boxX = x - boxWidth - (PADDING / 2);
+        int boxX = x - boxWidth - (AriesScreen.PADDING / 2);
 
         int pickerCenterY = entryY + (colorPickerHeight / 2);
         int boxY = pickerCenterY - (boxHeight / 2);
@@ -400,7 +644,7 @@ public class ConfigTypeRenderer {
 
         int textWidth = font.width(text);
 
-        int keybindWidth = Math.max(KEYBIND_WIDTH, textWidth + PADDING * 2);
+        int keybindWidth = Math.max(KEYBIND_WIDTH, textWidth + AriesScreen.PADDING);
 
         int keybindX = controlRightX - keybindWidth;
 
