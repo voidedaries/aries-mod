@@ -24,9 +24,9 @@ public class KeybindManager {
 
     private static void onClientTick(Minecraft minecraft) {
         //? if 26.2
-        //Screen screen = minecraft.gui.screen();
+        Screen screen = minecraft.gui.screen();
         //? if 26.1.2
-        Screen screen = minecraft.screen;
+        //Screen screen = minecraft.screen;
 
         if (screen != null) {
             return;

@@ -25,11 +25,11 @@ public class GUILocationButtonFeature extends AriesFeature {
         Minecraft minecraft = Minecraft.getInstance();
 
         //? if 26.2 {
-        /*minecraft.execute(() -> minecraft.gui.setScreen(new GUILocationsScreen(minecraft.gui.screen())));
-        *///?}
-        //? if 26.1.2 {
-        minecraft.execute(() -> minecraft.setScreen(new GUILocationsScreen(minecraft.screen)));
+        minecraft.execute(() -> minecraft.gui.setScreen(new GUILocationsScreen(minecraft.gui.screen())));
         //?}
+        //? if 26.1.2 {
+        /*minecraft.execute(() -> minecraft.setScreen(new GUILocationsScreen(minecraft.screen)));
+        *///?}
     }
 
 }

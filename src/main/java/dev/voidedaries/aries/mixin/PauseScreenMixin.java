@@ -5,9 +5,11 @@ import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.gui.AriesScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
+//? if 26.1.2
+//import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.layouts.GridLayout;
+//? if 26.1.2
+//import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,8 +26,8 @@ public class PauseScreenMixin {
     @Unique
     private static final int SPRITE_SIZE = 16;
 
-    //? if >= 26.2 {
-    /*@Inject(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 0))
+    //? if 26.2 {
+    @Inject(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 0))
     private void ariesPauseMenuButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow) {
         if (!AriesFeatures.PAUSE_MENU_BUTTON.isEnabled()) {
             return;
@@ -40,10 +42,10 @@ public class PauseScreenMixin {
 
         iconButtonRow.addChild(ariesButton);
     }
-    *///?}
+    //?}
 
-        //? if <26.2 {
-    @Inject(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 0))
+        //? if 26.1.2 {
+    /*@Inject(method = "createPauseMenu", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 0))
     private void ariesPauseMenuButton(CallbackInfo ci, @Local(name = "helper") GridLayout.RowHelper helper) {
         if (!AriesFeatures.PAUSE_MENU_BUTTON.isEnabled()) {
             return;
@@ -54,6 +56,6 @@ public class PauseScreenMixin {
                 .width(PauseScreen.BUTTON_WIDTH_FULL).build(),2
         );
     }
-    //?}
+    *///?}
 
 }

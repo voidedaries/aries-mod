@@ -1,12 +1,11 @@
-# Aries - v1.4.4
+# Aries - v1.4.6
 
-### Features
+### Bug Fixes
 
-- Added a trajectory indicator for Blazing Souls and an outline for Ashfang when targeted.
+- Fixed the changelog reopening every time the Aries menu was opened.
+- Fixed search not switching to the appropriate category when matching features in another category.
 
 ### Improvements
 
-- Amended Ashfang Death Mode default to off.
-- Updated Ashfang death detection to also include Ashfang Followers.
-- Amended Hypixel Environment Override default to off.
-- Added a dynamic line renderer for rendering in world lines.
+- Moved changelog handling into its own class.
+- Added cursor movement and text selection to the search bar.

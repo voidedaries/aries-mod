@@ -3,7 +3,7 @@ package dev.voidedaries.aries.client.render;
 import dev.voidedaries.aries.client.render.entity.BlazingSoulRenderer;
 import dev.voidedaries.aries.skyblock.entity.entities.BlazingSoul;
 //? if 26.2
-//import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -21,9 +21,9 @@ public class EntityRendererManager {
 
     public static void init() {
         //? if 26.2
-        //Event<LevelExtractionEvents.EndExtraction> endExtraction = LevelExtractionEvents.END_EXTRACTION;
+        Event<LevelExtractionEvents.EndExtraction> endExtraction = LevelExtractionEvents.END_EXTRACTION;
         //? if 26.1.2
-        Event<LevelRenderEvents.EndExtraction> endExtraction = LevelRenderEvents.END_EXTRACTION;
+        //Event<LevelRenderEvents.EndExtraction> endExtraction = LevelRenderEvents.END_EXTRACTION;
 
         endExtraction.register(context -> {
             ClientLevel level = context.level();

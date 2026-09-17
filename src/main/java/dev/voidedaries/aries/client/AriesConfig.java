@@ -43,8 +43,13 @@ public class AriesConfig {
 
     private static boolean newVersion;
 
-    public static boolean isNewVersion() {
-        return newVersion;
+    public static boolean consumeNewVersion() {
+        if (!newVersion) {
+            return false;
+        }
+
+        newVersion = false;
+        return true;
     }
 
     private static String getAriesVersion(String fullVersion) {

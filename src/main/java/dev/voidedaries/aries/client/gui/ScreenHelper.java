@@ -4,7 +4,11 @@ import dev.voidedaries.aries.client.feature.types.interaction.ColorPickerInterac
 import dev.voidedaries.aries.client.feature.types.interaction.OpenColorPicker;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.List;
 
 public class ScreenHelper {
     public enum TriangleDirection {
@@ -45,14 +49,22 @@ public class ScreenHelper {
         return ScreenHelper.isHovered(mouseX, mouseY, x, y, width, height);
     }
 
-    public static int getButtonY(OpenColorPicker picker) {
-        int padding = AriesScreen.PADDING / 2;
+    public static List<FormattedCharSequence> splitDescription(Font font, Component description, int availableWidth) {
+        return font.split(description, availableWidth);
+    }
 
+    public static List<FormattedCharSequence> splitDescriptionWithScale(
+        Font font, Component description, int availableWidth, float scale
+    ) {
+        return splitDescription(font, description, (int) (availableWidth / scale));
+    }
+
+    public static int getButtonY(OpenColorPicker picker, int padding) {
         int hsvBoxY = ColorPickerInteraction.getColorPickerHSVY(picker);
         int hsvBoxHeight = ColorPickerInteraction.getColorPickerHSVHeight();
 
-        int hueBarY = (int) (hsvBoxY + hsvBoxHeight + (AriesScreen.PADDING / 1.5));
-        int alphaBarY = hueBarY + (AriesScreen.PADDING * 2);
+        int hueBarY = (int) (hsvBoxY + hsvBoxHeight + (padding / 1.5));
+        int alphaBarY = hueBarY + (padding * 2);
 
         return alphaBarY + (padding * 3);
     }
@@ -133,14 +145,16 @@ public class ScreenHelper {
     public static boolean isHovered(
         double mouseX, double mouseY,
         int x, int y,
-        int width, int height) {
+        int width, int height
+    ) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
     public static boolean isHovered(
         int mouseX, int mouseY,
         int x, int y,
-        int width, int height) {
+        int width, int height
+    ) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 

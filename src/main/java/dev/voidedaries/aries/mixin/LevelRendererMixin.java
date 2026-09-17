@@ -1,7 +1,8 @@
 package dev.voidedaries.aries.mixin;
 
 import dev.voidedaries.aries.client.render.item.EtherwarpRenderer;
-import net.minecraft.client.Camera;
+//? if 26.1.2
+//import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
@@ -18,17 +19,17 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 public class LevelRendererMixin {
 
     @Inject(
-        //? if >=26.2
-        //method = "submitBlockOutline",
-        //? if <26.2
-        method = "extractBlockOutline",
+        //? if 26.2
+        method = "submitBlockOutline",
+        //? if 26.1.2
+        //method = "extractBlockOutline",
         at = @At("HEAD"),
         cancellable = true)
     private void aries$hideVanillaOutline(
-        //? if >= 26.2
-        //PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LevelRenderState levelRenderState, CallbackInfo ci
-        //? if <26.2
-        Camera camera, LevelRenderState levelRenderState, CallbackInfo ci
+        //? if 26.2
+        PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LevelRenderState levelRenderState, CallbackInfo ci
+        //? if 26.1.2
+        //Camera camera, LevelRenderState levelRenderState, CallbackInfo ci
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

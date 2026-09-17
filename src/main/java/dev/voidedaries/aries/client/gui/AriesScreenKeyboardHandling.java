@@ -34,19 +34,56 @@ public class AriesScreenKeyboardHandling {
     public boolean keyPressed(KeyEvent event) {
 
         // keyboard handling
-
         if (screen.getSearchBar().isFocused()) {
+            SearchBar searchBar = screen.getSearchBar();
+
+            boolean shift = (event.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0;
+            boolean control = (event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
+
             switch (event.key()) {
                 case GLFW.GLFW_KEY_BACKSPACE -> {
-                    screen.getSearchBar().backspace();
+                    searchBar.backspace();
+                    screen.updateSearchCategory();
                     return true;
+                }
+
+                case GLFW.GLFW_KEY_DELETE -> {
+                    searchBar.delete();
+                    screen.updateSearchCategory();
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_LEFT -> {
+                    if (control) {
+                        searchBar.moveCursorByWord(-1, shift);
+                    } else {
+                        searchBar.moveCursor(-1, shift);
+                    }
+
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_RIGHT -> {
+                    if (control) {
+                        searchBar.moveCursorByWord(1, shift);
+                    } else {
+                        searchBar.moveCursor(1, shift);
+                    }
+
+                    return true;
+                }
+
+                case GLFW.GLFW_KEY_A -> {
+                    if (control) {
+                        searchBar.selectAll();
+                        return true;
+                    }
                 }
 
                 case GLFW.GLFW_KEY_ESCAPE, GLFW.GLFW_KEY_ENTER -> {
-                    screen.getSearchBar().setFocused(false);
+                    searchBar.setFocused(false);
                     return true;
                 }
-
             }
         }
 

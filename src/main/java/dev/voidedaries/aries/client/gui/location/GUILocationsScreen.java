@@ -226,8 +226,8 @@ public class GUILocationsScreen extends Screen {
         AriesConfig.save();
 
         //? if 26.2
-        //minecraft.gui.setScreen(parent);
+        minecraft.gui.setScreen(parent);
         //? if 26.1.2
-        minecraft.setScreen(parent);
+        //minecraft.setScreen(parent);
     }
 }
