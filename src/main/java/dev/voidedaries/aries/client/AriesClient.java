@@ -8,6 +8,7 @@ import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.keybind.KeybindManager;
 import dev.voidedaries.aries.client.render.BlockRenderManager;
 import dev.voidedaries.aries.client.render.EntityRendererManager;
+import dev.voidedaries.aries.client.update.AriesUpdateChecker;
 import dev.voidedaries.aries.skyblock.entity.SkyblockEntityManager;
 import dev.voidedaries.aries.skyblock.repo.SkyBlockRepoDownloader;
 import net.fabricmc.api.ClientModInitializer;
@@ -20,6 +21,8 @@ public class AriesClient implements ClientModInitializer {
 
         AriesFeatures.init();
         AriesConfig.init();
+
+        AriesUpdateChecker.init();
 
         AriesCommands.init();
         ClientCommandHooks.init();

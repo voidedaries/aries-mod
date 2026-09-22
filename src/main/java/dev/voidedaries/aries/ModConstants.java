@@ -29,15 +29,7 @@ public class ModConstants {
             .getVersion()
             .getFriendlyString();
 
-    public static final String version = FabricLoader.getInstance()
-        .getModContainer(ModConstants.MOD_ID)
-        .map(
-            mod -> mod.getMetadata().getVersion().getFriendlyString()
-        ).orElse("unknown");
-
     public static final String minecraftVersion = FabricLoader.getInstance().getModContainer("minecraft")
         .map(container -> container.getMetadata().getVersion().getFriendlyString())
         .orElse("Unknown");
-
-    public static final String displayVersion = VERSION;
 }

@@ -66,7 +66,7 @@ public class AriesConfig {
         Aries.log("Loading Aries config...");
         INSTANCE = load();
 
-        String currentVersion = Objects.requireNonNull(ModConstants.version);
+        String currentVersion = Objects.requireNonNull(ModConstants.VERSION);
 
         newVersion = false;
 

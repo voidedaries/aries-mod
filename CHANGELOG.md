@@ -1,11 +1,5 @@
-# Aries - v1.4.6
-
-### Bug Fixes
-
-- Fixed the changelog reopening every time the Aries menu was opened.
-- Fixed search not switching to the appropriate category when matching features in another category.
+# Aries - v1.4.7
 
 ### Improvements
 
-- Moved changelog handling into its own class.
-- Added cursor movement and text selection to the search bar.
+- Added an update checker with a direct link to the latest Aries version on Modrinth.

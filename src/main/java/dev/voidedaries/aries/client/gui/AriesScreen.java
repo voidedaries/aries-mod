@@ -159,7 +159,7 @@ public class AriesScreen extends Screen {
                 .append(Component.translatable("aries.mod_name")
                 .append(Component.literal(" • ").withColor(0xFFADB5C9)
                     .withStyle(s -> s.withUnderlined(false)))
-                .append(Component.literal(ModConstants.displayVersion)));
+                .append(Component.literal(ModConstants.VERSION)));
 
         graphics.text(
             this.font,
@@ -535,7 +535,7 @@ public class AriesScreen extends Screen {
             0xFF2D3642
         );
 
-        if (ModConstants.version == null) {
+        if (ModConstants.VERSION == null) {
             return;
         }
 
@@ -544,7 +544,7 @@ public class AriesScreen extends Screen {
         }
 
         List<Component> info = List.of(
-            Component.translatable("aries.about.version", ModConstants.version),
+            Component.translatable("aries.about.version", ModConstants.VERSION),
             Component.translatable("aries.about.minecraft", ModConstants.minecraftVersion),
             Component.translatable("aries.about.loader"),
             Component.translatable("aries.about.author", "VoidedAries")
