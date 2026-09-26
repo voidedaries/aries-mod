@@ -26,13 +26,11 @@ public class HumanoidArmorLayerMixin<S extends HumanoidRenderState> {
         S state,
         CallbackInfo ci
     ) {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        if (!AriesFeatures.HIDE_ARMOR.isEnabled()) {
+        if (Minecraft.getInstance().player == null) {
             return;
         }
 
-        if (minecraft.player == null) {
+        if (!AriesFeatures.HIDE_ARMOR.isEnabled()) {
             return;
         }
 

@@ -8,12 +8,12 @@ public interface HudRenderable {
 
     boolean isHudEnabled();
 
+    void setHudEnabled(boolean enabled);
+
     HudPosition getHudPosition();
 
-    default float getHudScale() {
-        return 1.0f;
-    }
-
     HudBounds renderHud(GuiGraphicsExtractor graphicsExtractor, int x, int y);
+
+    HudBounds getHudBounds();
 
 }

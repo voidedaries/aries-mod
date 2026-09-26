@@ -41,7 +41,7 @@ public class AriesScreenMouseHandling {
             return false;
         }
 
-        SocialButton social = screen.getHoveredSocial(mouseX, mouseY);
+        AriesScreen.SocialButton social = screen.getHoveredSocial(mouseX, mouseY);
 
         if (social != null) {
             Util.getPlatform().openUri(social.url());

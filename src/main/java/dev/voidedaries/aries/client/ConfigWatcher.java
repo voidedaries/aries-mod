@@ -17,6 +17,10 @@ public class ConfigWatcher implements Runnable {
         ignore = value;
     }
 
+    public static void init() {
+        (new Thread(new ConfigWatcher(), "Aries-ConfigWatcher")).start();
+    }
+
     @Override
     public void run() {
         try (WatchService watchService = FileSystems.getDefault().newWatchService()) {

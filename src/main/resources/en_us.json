@@ -35,6 +35,21 @@
   "gui.menu.color_picker.paste": "Paste",
   "gui.menu.color_picker.reset": "Reset",
 
+  "gui.menu.hud.scroll_keyboard_tip": "Tip: Ctrl + Scroll Wheel scales the selected HUD",
+  "gui.menu.hud.scroll_mouse_tip": "Tip: Drag a corner handle to resize the selected HUD",
+
+  "gui.menu.hud.arrow_key_tip": "Tip: Use the arrow keys for precise 1px movement",
+  "gui.menu.hud.arrow_key_shift_tip": "Tip: Hold Shift + Arrow Keys to move 10px at a time",
+
+  "gui.menu.hud.drag_tip": "Tip: Drag a HUD to move it",
+  "gui.menu.hud.disable_snap_tip": "Tip: Hold Shift while dragging to disable snapping",
+
+  "gui.menu.hud.context.configure_feature": "Configure Feature",
+  "gui.menu.hud.context.disable": "Disable HUD",
+  "gui.menu.hud.context.enable": "Enable HUD",
+  "gui.menu.hud.context.reset_position": "Reset Position",
+  "gui.menu.hud.context.reset_scale": "Reset Scale",
+
   "key.category.aries.main_category": "Aries Keybinds",
   "key.aries.listening": "...",
   "key.aries.not_bound": "Not Bound",

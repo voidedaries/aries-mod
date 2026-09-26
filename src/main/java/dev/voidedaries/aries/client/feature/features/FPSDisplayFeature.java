@@ -11,10 +11,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class FPSDisplayFeature extends AriesFeature implements HudRenderable {
-    public final BooleanConfig enabled = addConfig(
-        new BooleanConfig("fps_display.enabled", false)
-    );
-
+    public final BooleanConfig enabled = addConfig(new BooleanConfig("fps_display.enabled", false));
     private final HudPosition hudPosition = new HudPosition();
 
     public FPSDisplayFeature() {
@@ -36,6 +33,11 @@ public class FPSDisplayFeature extends AriesFeature implements HudRenderable {
     }
 
     @Override
+    public void setHudEnabled(boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    @Override
     public HudPosition getHudPosition() {
         return hudPosition;
     }
@@ -48,6 +50,17 @@ public class FPSDisplayFeature extends AriesFeature implements HudRenderable {
 
         graphics.text(minecraft.font, text, x, y, 0xFFFFFFFF);
 
-        return new HudBounds(x, y, minecraft.font.width(text), minecraft.font.lineHeight);
+        HudBounds bounds = getHudBounds();
+
+        return new HudBounds(x, y, bounds.width(), bounds.height());
+    }
+
+    @Override
+    public HudBounds getHudBounds() {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        String text = minecraft.getFps() + " FPS";
+
+        return new HudBounds(0, 0, minecraft.font.width(text), minecraft.font.lineHeight);
     }
 }

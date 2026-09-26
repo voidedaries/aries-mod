@@ -17,26 +17,29 @@ public class AriesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        SkyBlockRepoDownloader.updateAsync();
-
         AriesFeatures.init();
+
+        // config
         AriesConfig.init();
+        AriesConfig.saveOnShutdown();
+        ConfigWatcher.init();
 
-        AriesUpdateChecker.init();
-
-        AriesCommands.init();
-        ClientCommandHooks.init();
+        // client systems
         AriesHudManager.init();
-
         KeybindManager.init();
-
         HypixelState.register();
 
+        // services
+        AriesUpdateChecker.init();
+        SkyBlockRepoDownloader.updateAsync();
+
+        // commands
+        AriesCommands.init();
+        ClientCommandHooks.init();
+
+        // rendering
         BlockRenderManager.init();
         EntityRendererManager.init();
         SkyblockEntityManager.init();
-
-        (new Thread(new ConfigWatcher(), "Aries-ConfigWatcher")).start();
-
     }
 }

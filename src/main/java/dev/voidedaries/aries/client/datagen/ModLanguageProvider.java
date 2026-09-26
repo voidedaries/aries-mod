@@ -264,6 +264,34 @@ public class ModLanguageProvider extends FabricLanguageProvider {
 
         addTranslation(
             translations, AriesCategory.VISUALS,
+            "hide_armor.helmet",
+            "Customize Helmet Visibility",
+            "customize your helmet visibility from your inventory."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS,
+            "hide_armor.chestplate",
+            "Customize Chestplate Visibility",
+            "customize your chestplate visibility from your inventory."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS,
+            "hide_armor.leggings",
+            "Customize Leggings Visibility",
+            "customize your leggings visibility from your inventory."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS,
+            "hide_armor.boots",
+            "Customize Boots Visibility",
+            "customize your boots visibility from your inventory."
+        );
+
+        addTranslation(
+            translations, AriesCategory.VISUALS,
             "hide_armor",
             "Armor Customisation",
             "customize your appearance by toggling equipped armor pieces on or off from your inventory."

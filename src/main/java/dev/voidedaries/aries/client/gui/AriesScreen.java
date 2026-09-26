@@ -26,6 +26,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -34,7 +35,11 @@ import java.util.Locale;
 
 public class AriesScreen extends Screen {
     private AriesCategory selectedCategory = AriesCategory.ABOUT; // first category on first opening
+    private final Screen parent;
 
+    @Nullable private final AriesFeature targetFeature;
+
+    public record SocialButton(Identifier icon, String url, String name) {}
     public final List<SocialButton> socials = List.of(
         new SocialButton(Aries.id("socials/modrinth_logo.png"), ModConstants.MODRINTH_URL, "Modrinth"),
         new SocialButton(Aries.id("socials/github_logo.png"), ModConstants.GITHUB_URL, "Github"),
@@ -80,7 +85,18 @@ public class AriesScreen extends Screen {
     private final List<ConfigInteraction> configTypeInteractions = new ArrayList<>();
 
     public AriesScreen() {
+        this(null, null);
+    }
+
+    public AriesScreen(@Nullable AriesFeature targetFeature) {
+        this(targetFeature, null);
+    }
+
+    public AriesScreen(@Nullable AriesFeature targetFeature, @Nullable Screen parent) {
         super(Component.literal(ModConstants.MOD_ID));
+
+        this.targetFeature = targetFeature;
+        this.parent = parent;
     }
 
     @Override
@@ -93,8 +109,13 @@ public class AriesScreen extends Screen {
 
         selectedCategory = AriesScreenCache.category;
         scrollOffset = AriesScreenCache.savedScrollPosition;
-
         searchBar.setText(AriesScreenCache.savedSearchText);
+
+        if (targetFeature != null) {
+            selectedCategory = targetFeature.getCategory();
+            searchBar.setText(targetFeature.getName().getString());
+            scrollOffset = 0;
+        }
 
         AriesScreenChangelog.load();
 
@@ -1480,9 +1501,12 @@ public class AriesScreen extends Screen {
     // menu saving
     @Override
     public void removed() {
-        AriesScreenCache.savedScrollPosition = scrollOffset;
-        AriesScreenCache.category = selectedCategory == AriesCategory.CHANGELOG ? AriesCategory.ABOUT : selectedCategory;
-        AriesScreenCache.savedSearchText = searchBar.getText();
+        if (targetFeature == null) {
+            AriesScreenCache.savedScrollPosition = scrollOffset;
+            AriesScreenCache.category =
+                selectedCategory == AriesCategory.CHANGELOG ? AriesCategory.ABOUT : selectedCategory;
+            AriesScreenCache.savedSearchText = searchBar.getText();
+        }
 
         super.removed();
     }
@@ -1540,5 +1564,18 @@ public class AriesScreen extends Screen {
         }
 
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
+    public void onClose() {
+        if (parent != null) {
+            //? if 26.2
+            minecraft.gui.setScreen(parent);
+            //? if 26.1.2
+            //minecraft.setScreen(parent);
+            return;
+        }
+
+        super.onClose();
     }
 }

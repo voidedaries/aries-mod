@@ -4,6 +4,7 @@ public class HudPosition {
 
     private int x;
     private int y;
+    private float scale = 1.0f;
 
     public HudPosition() {
         this(0, 0);
@@ -22,8 +23,16 @@ public class HudPosition {
         return y;
     }
 
+    public float getScale() {
+        return scale;
+    }
+
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 }

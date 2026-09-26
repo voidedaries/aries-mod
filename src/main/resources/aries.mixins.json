@@ -11,6 +11,7 @@
   "client": [
     "AbstractContainerScreenAccessorMixin",
     "AbstractContainerScreenMixin",
+    "AbstractRecipeBookScreenMixin",
     "AvatarRendererMixin",
     "ChatComponentMixin",
     "ClientPacketListenerMixin",

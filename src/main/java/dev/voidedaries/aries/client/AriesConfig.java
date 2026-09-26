@@ -10,6 +10,7 @@ import dev.voidedaries.aries.client.feature.types.*;
 import dev.voidedaries.aries.client.gui.location.AriesHudManager;
 import dev.voidedaries.aries.client.gui.location.HudPosition;
 import dev.voidedaries.aries.client.gui.location.HudRenderable;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
@@ -86,6 +87,10 @@ public class AriesConfig {
         INSTANCE.lastVersion = currentVersion;
 
         save();
+    }
+
+    public static void saveOnShutdown() {
+        ClientLifecycleEvents.CLIENT_STOPPING.register(_ -> AriesConfig.save());
     }
 
     public static void save() {
@@ -249,8 +254,10 @@ public class AriesConfig {
 
             int x = positionObject.has("x") ? positionObject.get("x").getAsInt() : 0;
             int y = positionObject.has("y") ? positionObject.get("y").getAsInt() : 0;
+            float scale = positionObject.has("scale") ? positionObject.get("scale").getAsFloat() : 1.0f;
 
             renderable.getHudPosition().setPosition(x, y);
+            renderable.getHudPosition().setScale(scale);
         }
     }
 
@@ -321,6 +328,7 @@ public class AriesConfig {
 
             positionObject.addProperty("x", position.getX());
             positionObject.addProperty("y", position.getY());
+            positionObject.addProperty("scale", position.getScale());
 
             hud.add(renderable.getHudId(), positionObject);
         }
@@ -376,7 +384,10 @@ public class AriesConfig {
         }
 
         for (HudRenderable renderable : AriesHudManager.getHudElements()) {
-            renderable.getHudPosition().setPosition(0, 0);
+            HudPosition position = renderable.getHudPosition();
+
+            position.setPosition(0, 0);
+            position.setScale(1.0f);
         }
 
         save();

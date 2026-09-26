@@ -14,6 +14,22 @@ public class GuiBounds {
         this.bottomRightY = bottomRightY;
     }
 
+    public double getTopLeftX() {
+        return topLeftX;
+    }
+
+    public double getTopLeftY() {
+        return topLeftY;
+    }
+
+    public double getBottomRightX() {
+        return bottomRightX;
+    }
+
+    public double getBottomRightY() {
+        return bottomRightY;
+    }
+
     public boolean contains(double x, double y) {
         return x >= topLeftX && x <= bottomRightX && y >= topLeftY && y <= bottomRightY;
     }
@@ -25,49 +41,5 @@ public class GuiBounds {
             bottomRightX * width,
             bottomRightY * height
         );
-    }
-
-    public double getNearestSnapX(double x, double snapDistance) {
-        double[] snapX = {
-            topLeftX,
-            (topLeftX + bottomRightX) / 2.0,
-            bottomRightX
-        };
-
-        double nearestX = x;
-        double closestDistance = snapDistance;
-
-        for (double snap : snapX) {
-            double distance = Math.abs(x - snap);
-
-            if (distance <= closestDistance) {
-                closestDistance = distance;
-                nearestX = snap;
-            }
-        }
-
-        return nearestX;
-    }
-
-    public double getNearestSnapY(double y, double snapDistance) {
-        double[] snapY = {
-            topLeftY,
-            (topLeftY + bottomRightY) / 2.0,
-            bottomRightY
-        };
-
-        double nearestY = y;
-        double closestDistance = snapDistance;
-
-        for (double snap : snapY) {
-            double distance = Math.abs(y - snap);
-
-            if (distance <= closestDistance) {
-                closestDistance = distance;
-                nearestY = snap;
-            }
-        }
-
-        return nearestY;
     }
 }
