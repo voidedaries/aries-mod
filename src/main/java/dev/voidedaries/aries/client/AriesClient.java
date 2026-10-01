@@ -8,7 +8,9 @@ import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.keybind.KeybindManager;
 import dev.voidedaries.aries.client.render.BlockRenderManager;
 import dev.voidedaries.aries.client.render.EntityRendererManager;
+import dev.voidedaries.aries.client.render.gif.GifManager;
 import dev.voidedaries.aries.client.update.AriesUpdateChecker;
+import dev.voidedaries.aries.skyblock.entity.CritterSafariChatHandler;
 import dev.voidedaries.aries.skyblock.entity.SkyblockEntityManager;
 import dev.voidedaries.aries.skyblock.repo.SkyBlockRepoDownloader;
 import net.fabricmc.api.ClientModInitializer;
@@ -27,6 +29,7 @@ public class AriesClient implements ClientModInitializer {
         // client systems
         AriesHudManager.init();
         KeybindManager.init();
+        GifManager.init();
         HypixelState.register();
 
         // services
@@ -41,5 +44,6 @@ public class AriesClient implements ClientModInitializer {
         BlockRenderManager.init();
         EntityRendererManager.init();
         SkyblockEntityManager.init();
+        CritterSafariChatHandler.init();
     }
 }

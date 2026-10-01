@@ -189,34 +189,44 @@ public class AriesScreenMouseHandling {
         // categories
         int startY = (int) (y + AriesScreen.PADDING + screen.getFont().lineHeight + AriesScreen.PADDING * 1.5);
 
-        int index = 0;
+        int categoryBottom = y + screen.getMenuHeight() - AriesScreen.PADDING;
 
-        for (AriesCategory category : AriesCategory.values()) {
-            if (category == AriesCategory.CHANGELOG) {
-                continue;
-            }
+        boolean categoryBounds = ScreenHelper.isHovered(
+            mouseX, mouseY,
+            x,
+            startY,
+            screen.getCategoryWidth(),
+            categoryBottom - startY
+        );
 
-            int entryY = startY + index * (screen.getFont().lineHeight + AriesScreen.PADDING);
+        if (categoryBounds) {
+            List<AriesCategory> categories = screen.getSelectableCategories();
 
-            if (ScreenHelper.isHovered(
-                mouseX, mouseY,
-                x,
-                entryY,
-                screen.getCategoryWidth(),
-                screen.getFont().lineHeight)
-            ) {
-                if (screen.getSelectedCategory() != category) {
-                    screen.setSelectedCategory(category);
-                    AriesScreenCache.category = category;
+            for (int index = 0; index < categories.size(); index++) {
+                AriesCategory category = categories.get(index);
 
-                    screen.setScrollOffset(0);
-                    AriesScreenCache.savedScrollPosition = 0;
+                int entryY =
+                    (int) (startY + index
+                        * (screen.getFont().lineHeight + AriesScreen.CATEGORY_SPACING)
+                        - screen.getCategoryScrollOffset());
+
+                if (ScreenHelper.isHovered(
+                    mouseX, mouseY,
+                    x, entryY,
+                    screen.getCategoryWidth(),
+                    screen.getFont().lineHeight
+                )) {
+                    if (screen.getSelectedCategory() != category) {
+                        screen.setSelectedCategory(category);
+                        AriesScreenCache.category = category;
+
+                        screen.setScrollOffset(0);
+                        AriesScreenCache.savedScrollPosition = 0;
+                    }
+
+                    return true;
                 }
-
-                return true;
             }
-
-            index++;
         }
 
         if (screen.getActiveListPicker() != null) {
@@ -435,6 +445,22 @@ public class AriesScreenMouseHandling {
         int x = ScreenHelper.centreX(screen.getScreenWidth(), screen.getMenuWidth());
         int y = ScreenHelper.centreY(screen.getScreenHeight(), screen.getMenuHeight());
 
+        int categoryTop = (int) (y + AriesScreen.PADDING + screen.getFont().lineHeight + AriesScreen.PADDING * 1.5);
+        int categoryBottom = y + screen.getMenuHeight() - AriesScreen.PADDING;
+
+        boolean categoryBounds = ScreenHelper.isHovered(
+            (int) mouseX, (int) mouseY,
+            x,
+            categoryTop,
+            screen.getCategoryWidth(),
+            categoryBottom - categoryTop
+        );
+
+        if (categoryBounds) {
+            screen.scrollCategories((int) (-scrollY * AriesScreen.CATEGORY_SCROLL_SPEED));
+            return true;
+        }
+
         int visibleHeight =
             AriesScreenLayout.getContentVisibleHeight(
                 screen.getScreenHeight(),
@@ -466,7 +492,7 @@ public class AriesScreenMouseHandling {
 
         int scrollOffset = screen.getScrollOffset();
 
-        scrollOffset -= (int) (scrollY * 15);
+        scrollOffset -= (int) (scrollY * AriesScreen.CATEGORY_SCROLL_SPEED);
 
         scrollOffset = AriesScreenLayout.clampScroll(
             scrollOffset,

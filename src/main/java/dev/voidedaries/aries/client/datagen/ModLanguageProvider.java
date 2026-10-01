@@ -179,6 +179,41 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         );
 
         addTranslation(
+            translations, AriesCategory.CRITTER_SAFARI,
+            "unique_critter",
+            "Unique Critters",
+            "shows which unique critters you have caught during the current Critter Safari run."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRITTER_SAFARI,
+            "unique_critter.show_current_biome_only",
+            "Current Biome Only",
+            "only shows critters from the biome you are currently in."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRITTER_SAFARI,
+            "unique_critter.unique_critter_columns",
+            "Critters Per Row",
+            "sets how many critters are displayed on each row."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRITTER_SAFARI,
+            "unique_critter.caught_color",
+            "Caught Color",
+            "sets the color used for critters you have caught."
+        );
+
+        addTranslation(
+            translations, AriesCategory.CRITTER_SAFARI,
+            "unique_critter.not_caught_color",
+            "Not Caught Color",
+            "sets the color used for critters you have not caught."
+        );
+
+        addTranslation(
             translations, AriesCategory.SETTINGS,
             "pause_menu_button",
             "Pause Menu Button",

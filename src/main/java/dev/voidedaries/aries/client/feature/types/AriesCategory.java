@@ -20,6 +20,7 @@ public enum AriesCategory {
     CHAT("chat"),
     COMMANDS("commands"),
     CRIMSON_ISLE("crimson_isle"),
+    CRITTER_SAFARI("critter_safari"),
     DUNGEONS("dungeons"),
     VISUALS("visuals"),
     MISC("misc"),

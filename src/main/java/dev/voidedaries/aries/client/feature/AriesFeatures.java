@@ -32,6 +32,9 @@ public class AriesFeatures {
     public static final BlazingSoulTrajectoryFeature BLAZING_SOUL_TRAJECTORY =
         register(new BlazingSoulTrajectoryFeature());
 
+    // critter safari
+    public static final UniqueCritterFeature UNIQUE_CRITTER = register(new UniqueCritterFeature());
+
     // dev
     public static final HypixelEnvironmentOverrideFeature HYPIXEL_ENVIRONMENT_OVERRIDE =
         register(new HypixelEnvironmentOverrideFeature());

@@ -6,7 +6,6 @@ import dev.voidedaries.aries.ModConstants;
 import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import dev.voidedaries.aries.client.feature.entry.FeatureEntry;
 import dev.voidedaries.aries.client.feature.types.AriesCategory;
 import dev.voidedaries.aries.client.feature.types.AriesConfigType;
 import dev.voidedaries.aries.client.feature.types.KeybindConfig;
@@ -30,13 +29,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class AriesScreen extends Screen {
     private AriesCategory selectedCategory = AriesCategory.ABOUT; // first category on first opening
-    private final Screen parent;
 
+    private final Screen parent;
     @Nullable private final AriesFeature targetFeature;
 
     public record SocialButton(Identifier icon, String url, String name) {}
@@ -47,6 +47,7 @@ public class AriesScreen extends Screen {
     );
 
     private final SearchBar searchBar = new SearchBar();
+    private final AriesFeatureRenderer featureRenderer;
 
     // mouse & keyboard handlers
     private AriesScreenKeyboardHandling keyboardHandling;
@@ -67,10 +68,13 @@ public class AriesScreen extends Screen {
     static final int MENU_HEIGHT = 220;
     public static final int PADDING = 10;
 
-    private static final float DESCRIPTION_SCALE = 0.8f;
+    static final double CATEGORY_SPACING = PADDING / 1.3;
+    static final int CATEGORY_SCROLL_SPEED = 15;
 
-    private static final int FEATURE_SPACING = PADDING / 2;
-    private static final int ENTRY_SPACING = PADDING / 2;
+    public static final float DESCRIPTION_SCALE = 0.8f;
+
+    public static final int FEATURE_SPACING = PADDING / 2;
+    public static final int ENTRY_SPACING = PADDING / 2;
 
     // content
     private int contentHeight;
@@ -78,6 +82,7 @@ public class AriesScreen extends Screen {
     // scrollbar
     static final int SCROLLBAR_WIDTH = PADDING / 2;
     private int scrollOffset = 0;
+    private int categoryScrollOffset = 0;
 
     public static int COLOR_PICKER_BOX_WIDTH = 120;
     public static int COLOR_PICKER_BOX_HEIGHT = 110;
@@ -97,6 +102,8 @@ public class AriesScreen extends Screen {
 
         this.targetFeature = targetFeature;
         this.parent = parent;
+
+        this.featureRenderer = new AriesFeatureRenderer(this);
     }
 
     @Override
@@ -145,16 +152,17 @@ public class AriesScreen extends Screen {
         drawCategories(graphics, mouseX, mouseY, delta);
         drawMenu(graphics, mouseX, mouseY, delta);
 
-        int menuX = ScreenHelper.centreX(this.width, getMenuWidth());
-        int menuY = ScreenHelper.centreY(this.height, getMenuHeight());
+        drawSearchBar(graphics, x, y);
 
-        drawSearchBar(graphics, menuX, menuY);
-
-        // update cursor
         updateCursor(graphics, mouseX, mouseY);
     }
 
-    private void drawMenu(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float ignoredDelta) {
+    private void drawMenu(
+        GuiGraphicsExtractor graphics,
+        int mouseX,
+        int mouseY,
+        float delta
+    ) {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
@@ -166,36 +174,7 @@ public class AriesScreen extends Screen {
             currentCategory = selectedCategory != null ? selectedCategory : AriesCategory.ABOUT;
         }
 
-        // starting position for the main content area
-        int contentX = x + getCategoryWidth() + PADDING * 2;
-
-        int configRenderX = x + getMenuWidth() - PADDING * 2;
-
-        // starting position below the menu header/title
-        int contentY = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
-        int entryContentY = contentY;
-
-        MutableComponent modName =
-            Component.literal("")
-                .append(Component.translatable("aries.mod_name")
-                .append(Component.literal(" • ").withColor(0xFFADB5C9)
-                    .withStyle(s -> s.withUnderlined(false)))
-                .append(Component.literal(ModConstants.VERSION)));
-
-        graphics.text(
-            this.font,
-            modName,
-            x + getCategoryWidth() + 2 * PADDING,
-            y + PADDING,
-            0xFF0058E1
-        );
-
-        graphics.horizontalLine(
-            x + getCategoryWidth() + PADDING,
-            x + getMenuWidth() - PADDING,
-            y + PADDING + this.font.lineHeight + PADDING / 2,
-            0xFF2D3642
-        );
+        drawMenuHeader(graphics, x, y);
 
         if (currentCategory == AriesCategory.ABOUT) {
             drawAboutCategory(graphics, x, y, mouseX, mouseY);
@@ -203,251 +182,11 @@ public class AriesScreen extends Screen {
         }
 
         if (currentCategory == AriesCategory.CHANGELOG) {
-            int contentTop = contentY - PADDING;
-            int contentBottom = y + getMenuHeight();
-            int visibleHeight = contentBottom - contentTop;
-
-            contentHeight =
-                AriesScreenChangelog.draw(
-                    graphics,
-                    font,
-                    x, y,
-                    getCategoryWidth(),
-                    getMenuWidth(), getMenuHeight(),
-                    scrollOffset
-                );
-
-            scrollOffset = AriesScreenLayout.clampScroll(scrollOffset, contentHeight, visibleHeight);
-
-            boolean needsScrollbar = contentHeight > visibleHeight;
-
-            if (needsScrollbar) {
-                drawScrollbar(
-                    graphics,
-                    x + getMenuWidth() - SCROLLBAR_WIDTH - PADDING,
-                    contentTop + PADDING,
-                    (contentBottom - contentTop) - PADDING * 2,
-                    visibleHeight
-                );
-            }
-
+            drawChangelogCategory(graphics, x, y);
             return;
         }
 
-        if (currentCategory == AriesCategory.DEV) {
-            Component warning = Component.translatable("gui.menu.category.dev.warning");
-
-            float warningScale = 0.85f;
-
-            List<FormattedCharSequence> warningLines =
-                this.font.split(warning, (getMenuWidth() - getCategoryWidth()));
-
-            int warningHeight = 0;
-
-            for (FormattedCharSequence warningLine : warningLines) {
-                graphics.pose().pushMatrix();
-
-                graphics.pose().translate(contentX, entryContentY + warningHeight);
-                graphics.pose().scale(warningScale, warningScale);
-
-                graphics.text(this.font, warningLine, 0, 0, 0xFFFF5555);
-
-                graphics.pose().popMatrix();
-
-                warningHeight += (int) (this.font.lineHeight * warningScale);
-            }
-
-            entryContentY += warningHeight + PADDING;
-        }
-
-        // scissor bounds
-        int contentLeft = x + getCategoryWidth() + PADDING;
-        int contentTop = contentY - PADDING;
-        int contentRight = x + getMenuWidth() - PADDING;
-        int contentBottom = y + getMenuHeight();
-
-        int visibleHeight = contentBottom - contentTop;
-
-        //bounds for rendering features and configs
-        graphics.enableScissor(
-            contentLeft,
-            contentTop,
-            contentRight,
-            contentBottom
-        );
-
-        // drawing features
-        for (AriesFeature feature : AriesFeatures.getFeatures()) {
-            if (feature.getCategory() != currentCategory || !feature.isVisible()) {
-                continue;
-            }
-
-            if (searchBar.hasQuery() && !SearchHelper.matches(feature, searchBar.getText())) {
-                continue;
-            }
-
-            // translating content position into render position
-            int renderY = entryContentY - scrollOffset;
-
-            int featureConfigWidth = getConfigWidth(feature.getConfigs());
-
-            int featureDescriptionRight = configRenderX - featureConfigWidth - PADDING;
-            int featureDescriptionWidth = featureDescriptionRight - contentX;
-
-            List<FormattedCharSequence> featureTitle =
-                this.font.split(feature.getName(), featureDescriptionWidth);
-
-            for (int line = 0; line < featureTitle.size(); line++) {
-                graphics.text(
-                    this.font,
-                    featureTitle.get(line),
-                    contentX,
-                    renderY + line * this.font.lineHeight,
-                    0xFFFFFFFF
-                );
-            }
-
-            int featureTitleHeight = featureTitle.size() * this.font.lineHeight;
-
-            List<FormattedCharSequence> featureDescription = ScreenHelper.splitDescriptionWithScale(
-                font, feature.getDescription(), featureDescriptionWidth, DESCRIPTION_SCALE
-            );
-
-            int featureDescriptionHeight =
-                drawDescription(graphics, featureDescription, contentX, renderY + featureTitleHeight + PADDING / 2);
-
-            int featureTextHeight = featureTitleHeight + featureDescriptionHeight;
-
-            int featureConfigHeight = getConfigHeight(feature.getConfigs());
-
-            int featureConfigY;
-
-            if (featureConfigHeight <= featureTextHeight) {
-                featureConfigY = renderY + (featureTextHeight - featureConfigHeight) / 2;
-            } else {
-                featureConfigY = renderY;
-            }
-
-            // feature config interactions
-            for (AriesConfigType<?> config : feature.getConfigs()) {
-                if (!config.isVisible()) {
-                    continue;
-                }
-
-                List<ConfigInteraction> interactions =
-                    drawConfigs(graphics, config,  configRenderX, featureConfigY, mouseX, mouseY);
-
-                if (interactions != null) {
-                    configTypeInteractions.addAll(interactions);
-
-                    if (!interactions.isEmpty()) {
-                        int maxHeight = interactions.stream().mapToInt(ConfigInteraction::height).max().orElse(0);
-                        featureConfigY += maxHeight + PADDING * 2;
-                    }
-                }
-            }
-
-            // tracks the next available vertical position in the content layout
-            int nextContentY = entryContentY;
-            nextContentY += Math.max(featureTextHeight, featureConfigHeight) + FEATURE_SPACING * 4;
-
-            // drawing entries for feature specific sub-configs
-            for (FeatureEntry entry : feature.getEntries()) {
-                if (!entry.isVisible()) {
-                    continue;
-                }
-
-                int entryDrawY = nextContentY - scrollOffset;
-
-                int entryConfigWidth = getConfigWidth(entry.configs());
-
-                int entryDescriptionRight = configRenderX - entryConfigWidth - PADDING;
-                int entryDescriptionWidth = entryDescriptionRight - contentX;
-
-                List<FormattedCharSequence> entryTitle = this.font.split(entry.name(), entryDescriptionWidth);
-
-                for (int line = 0; line < entryTitle.size(); line++) {
-                    graphics.text(
-                        this.font,
-                        entryTitle.get(line),
-                        contentX,
-                        entryDrawY + line * this.font.lineHeight,
-                        0xFFFFFFFF
-                    );
-                }
-
-                int entryTitleHeight = entryTitle.size() * this.font.lineHeight;
-
-                List<FormattedCharSequence> entryDescription = ScreenHelper.splitDescriptionWithScale(
-                    font, entry.description(), entryDescriptionWidth, DESCRIPTION_SCALE
-                );
-
-                int descriptionHeight = drawDescription(
-                    graphics,
-                    entryDescription,
-                    contentX,
-                    entryDrawY + entryTitleHeight + PADDING / 2
-                );
-
-                int textHeight = entryTitleHeight + descriptionHeight;
-
-                int configHeight = getConfigHeight(entry.configs());
-
-                // calculate config render position based on available text height
-                int configRenderY;
-
-                if (configHeight <= textHeight) {
-                    configRenderY = entryDrawY + (textHeight - configHeight) / 2;
-                } else {
-                    configRenderY = entryDrawY;
-                }
-
-                // entry config rendering
-                for (AriesConfigType<?> config : entry.configs()) {
-                    if (!config.isVisible()) {
-                        continue;
-                    }
-
-                    List<ConfigInteraction> interactions =
-                        drawConfigs(graphics, config,  configRenderX, configRenderY, mouseX, mouseY);
-
-                    if (interactions != null) {
-                        configTypeInteractions.addAll(interactions);
-
-                        if (!interactions.isEmpty()) {
-                            int maxHeight =
-                                interactions.stream().mapToInt(ConfigInteraction::height).max().orElse(0);
-                            configRenderY += maxHeight + PADDING * 2;
-                        }
-                    }
-                }
-
-                // move the layout cursor down by the entry's height
-                nextContentY += Math.max(textHeight, configHeight) + ENTRY_SPACING * 4;
-            }
-
-            // position entries below the feature
-            entryContentY = nextContentY + FEATURE_SPACING;
-        }
-
-        // calculate total scrollable content height
-        contentHeight = entryContentY - contentY;
-        scrollOffset = AriesScreenLayout.clampScroll(scrollOffset, contentHeight, visibleHeight);
-
-        graphics.disableScissor();
-
-        boolean needsScrollbar = contentHeight > visibleHeight;
-
-        // scrollbar handling
-        if (needsScrollbar) {
-            drawScrollbar(
-                graphics,
-                contentRight - SCROLLBAR_WIDTH,
-                contentTop + PADDING,
-                (contentBottom - contentTop) - (PADDING * 2),
-                visibleHeight
-            );
-        }
+        featureRenderer.drawMenu(graphics, mouseX, mouseY, delta);
 
         // color picker handling
         if (activeColorPicker != null) {
@@ -460,10 +199,66 @@ public class AriesScreen extends Screen {
         }
     }
 
+    private void drawMenuHeader(GuiGraphicsExtractor graphics, int x, int y) {
+        MutableComponent modName =
+            Component.literal("")
+                .append(Component.translatable("aries.mod_name")
+                    .append(Component.literal(" • ").withColor(0xFFADB5C9)
+                        .withStyle(s -> s.withUnderlined(false)))
+                    .append(Component.literal(ModConstants.VERSION)));
+
+        graphics.text(
+            font,
+            modName,
+            x + getCategoryWidth() + 2 * PADDING,
+            y + PADDING,
+            0xFF0058E1
+        );
+
+        graphics.horizontalLine(
+            x + getCategoryWidth() + PADDING,
+            x + getMenuWidth() - PADDING,
+            y + PADDING + font.lineHeight + PADDING / 2,
+            0xFF2D3642
+        );
+    }
+
+    private void drawChangelogCategory(@NonNull GuiGraphicsExtractor graphics, int x, int y) {
+        int contentY = (int) (y + PADDING + font.lineHeight + PADDING * 1.5);
+
+        int contentTop = contentY - PADDING;
+        int contentBottom = y + getMenuHeight();
+        int visibleHeight = contentBottom - contentTop;
+
+        contentHeight =
+            AriesScreenChangelog.draw(
+                graphics,
+                font,
+                x, y,
+                getCategoryWidth(),
+                getMenuWidth(), getMenuHeight(),
+                scrollOffset
+            );
+
+        scrollOffset = AriesScreenLayout.clampScroll(scrollOffset, contentHeight, visibleHeight);
+
+        boolean needsScrollbar = contentHeight > visibleHeight;
+
+        if (needsScrollbar) {
+            drawScrollbar(
+                graphics,
+                x + getMenuWidth() - AriesScreen.SCROLLBAR_WIDTH - PADDING,
+                contentTop + PADDING,
+                (contentBottom - contentTop) - PADDING * 2,
+                visibleHeight
+            );
+        }
+    }
+
     private void drawAboutCategory(GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY) {
         int contentAreaWidth = getMenuWidth() - getCategoryWidth();
 
-        int contentY = y + PADDING + this.font.lineHeight + PADDING / 2;
+        int contentY = y + PADDING + font.lineHeight + PADDING / 2;
 
         int logoWidth = 48;
         int logoHeight = (int)(logoWidth * (592f / 720f));
@@ -491,9 +286,9 @@ public class AriesScreen extends Screen {
         Component title = Component.translatable("aries.mod_name");
 
         graphics.text(
-            this.font,
+            font,
             title,
-            centerX - this.font.width(title) / 2,
+            centerX - font.width(title) / 2,
             contentY + logoHeight + PADDING / 2,
             0xFF0058E1
         );
@@ -509,9 +304,9 @@ public class AriesScreen extends Screen {
         graphics.pose().scale(scale, scale);
 
         graphics.text(
-            this.font,
+            font,
             overview,
-            -this.font.width(overview) / 2,
+            -font.width(overview) / 2,
             0,
             0xFFFFFFFF
         );
@@ -519,7 +314,7 @@ public class AriesScreen extends Screen {
         graphics.pose().popMatrix();
 
         // desc
-        List<FormattedCharSequence> description = this.font.split(
+        List<FormattedCharSequence> description = font.split(
             Component.translatable("aries.description"),
             260
         );
@@ -535,19 +330,19 @@ public class AriesScreen extends Screen {
 
         for (FormattedCharSequence line : description) {
             graphics.text(
-                this.font,
+                font,
                 line,
-                -this.font.width(line) / 2,
+                -font.width(line) / 2,
                 scaledY,
                 0xFFADB5C9
             );
 
-            scaledY += this.font.lineHeight;
+            scaledY += font.lineHeight;
         }
 
         graphics.pose().popMatrix();
 
-        int infoY = descriptionY + (description.size() * this.font.lineHeight) + PADDING / 2;
+        int infoY = descriptionY + (description.size() * font.lineHeight) + PADDING / 2;
 
         graphics.horizontalLine(
             (x + getCategoryWidth() + PADDING),
@@ -578,14 +373,14 @@ public class AriesScreen extends Screen {
 
         for (Component line : info) {
             graphics.text(
-                this.font,
+                getFont(),
                 line,
-                -this.font.width(line) / 2,
+                -getFont().width(line) / 2,
                 scaledY,
                 0xFFADB5C9
             );
 
-            scaledY += this.font.lineHeight + 4;
+            scaledY += getFont().lineHeight + 4;
         }
 
         graphics.pose().popMatrix();
@@ -596,12 +391,12 @@ public class AriesScreen extends Screen {
 
         int totalWidth = 0;
 
-        for (SocialButton social : socials) {
+        for (AriesScreen.SocialButton social : socials) {
             Component name = Component.literal(social.name());
 
             totalWidth += socialSize
                 + iconTextSpacing
-                + this.font.width(name);
+                + font.width(name);
 
             totalWidth += spacing;
         }
@@ -627,37 +422,15 @@ public class AriesScreen extends Screen {
             Component name = plainName.withStyle(style -> style.withUnderlined(hovered));
 
             graphics.text(
-                this.font,
+                font,
                 name,
                 socialX,
-                socialY + (socialSize - this.font.lineHeight) / 2 + socialTextOffset,
+                socialY + (socialSize - font.lineHeight) / 2 + socialTextOffset,
                 0xFFFFFFFF
             );
 
-            socialX += this.font.width(plainName) + spacing;
+            socialX += font.width(plainName) + spacing;
         }
-    }
-
-    private void drawSocialIcon(
-        GuiGraphicsExtractor graphics,
-        Identifier texture,
-        int x,
-        int y
-    ) {
-        graphics.blit(
-            RenderPipelines.GUI_TEXTURED,
-            texture,
-            x,
-            y,
-            0,
-            0,
-            16,
-            16,
-            512,
-            512,
-            512,
-            512
-        );
     }
 
     private void drawSearchBar(
@@ -744,20 +517,20 @@ public class AriesScreen extends Screen {
         graphics.disableScissor();
     }
 
-    //method for drawing descriptions needed for features & entries (separate method for scaling purposes)
-    private int drawDescription(GuiGraphicsExtractor graphics, List<FormattedCharSequence> lines, int x, int y) {
-        float scale = DESCRIPTION_SCALE;
-
-        // description text
-        for (int line = 0; line < lines.size(); line++) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(x, y + line * this.font.lineHeight);
-            graphics.pose().scale(scale, scale);
-            graphics.text(this.font, lines.get(line), 0, 0, 0xFFADB5C9);
-            graphics.pose().popMatrix();
-        }
-
-        return (int) (lines.size() * this.font.lineHeight * scale);
+    private void drawSocialIcon(
+        GuiGraphicsExtractor graphics,
+        Identifier texture,
+        int x, int y
+    ) {
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            texture,
+            x, y,
+            0, 0,
+            16, 16,
+            512, 512,
+            512, 512
+        );
     }
 
     private void drawExpandedListPicker(GuiGraphicsExtractor graphics, OpenListPicker picker, int mouseX, int mouseY) {
@@ -971,48 +744,7 @@ public class AriesScreen extends Screen {
         ScreenHelper.drawButton(graphics, this.font, resetX, buttonY, buttonWidth, buttonHeight, Component.translatable("gui.menu.color_picker.reset"), resetHovered);
     }
 
-    private void drawScrollbar(GuiGraphicsExtractor graphics, int x, int y, int height, int visibleHeight) {
-        // track
-        graphics.fill(x, y, x + SCROLLBAR_WIDTH, y + height, 0xFF151A21);
-
-        int thumbHeight = AriesScreenLayout.calculateThumbHeight(height, contentHeight, visibleHeight);
-
-        int thumbY =
-            AriesScreenLayout.calculateThumbY(y, height, thumbHeight, scrollOffset, contentHeight, visibleHeight);
-
-        // thumb
-        graphics.fill(x, thumbY, x + SCROLLBAR_WIDTH, thumbY + thumbHeight, 0xFF0058E1);
-    }
-
-    //draws configs
-    private List<ConfigInteraction> drawConfigs(
-        GuiGraphicsExtractor graphics,
-        AriesConfigType<?> config,
-        int controlRightX,
-        int configY,
-        int mouseX,
-        int mouseY
-    ) {
-        return ConfigTypeRenderer.draw(
-            graphics,
-            this.font,
-            config,
-            controlRightX,
-            configY,
-            mouseX, mouseY,
-
-            editingState,
-            activeColorPicker,
-            listeningKeybind,
-
-            state -> editingState = state,
-            picker -> activeColorPicker = picker,
-            picker -> activeListPicker = picker,
-            keybind -> listeningKeybind = keybind
-        );
-    }
-
-    private int getConfigHeight(List<AriesConfigType<?>> configs) {
+    public int getConfigHeight(List<AriesConfigType<?>> configs) {
         int height = 0;
 
         for (AriesConfigType<?> config : configs) {
@@ -1030,7 +762,7 @@ public class AriesScreen extends Screen {
         return height;
     }
 
-    private int getConfigWidth(List<AriesConfigType<?>> configs) {
+    public int getConfigWidth(List<AriesConfigType<?>> configs) {
         int width = 0;
 
         for (AriesConfigType<?> config : configs) {
@@ -1042,6 +774,11 @@ public class AriesScreen extends Screen {
         }
 
         return width;
+    }
+
+    public List<AriesCategory> getSelectableCategories() {
+        return Arrays.stream(AriesCategory.values())
+            .filter(category -> category != AriesCategory.CHANGELOG).toList();
     }
 
     private void drawCategories(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float ignoredDelta) {
@@ -1067,16 +804,33 @@ public class AriesScreen extends Screen {
 
         AriesCategory current = selectedCategory != null ? selectedCategory : AriesCategory.ABOUT;
 
-        int index = 0;
+        int categoryContentBottom = y + getMenuHeight() - PADDING;
 
-        for (AriesCategory category : AriesCategory.values()) {
-            if (category == AriesCategory.CHANGELOG) {
-                continue;
-            }
+        graphics.enableScissor(x, startCategoryHeight, x + getCategoryWidth(), categoryContentBottom);
 
-            int entryY = startCategoryHeight + index * (this.font.lineHeight + PADDING);
+        List<AriesCategory> categories = getSelectableCategories();
+
+        for (int index = 0; index < categories.size(); index++) {
+            AriesCategory category = categories.get(index);
+
+            int entryY =
+                (int) (startCategoryHeight + index * (this.font.lineHeight + CATEGORY_SPACING) - categoryScrollOffset);
+
             boolean categoryHovered =
-                ScreenHelper.isHovered(mouseX, mouseY, x, entryY, getCategoryWidth(), this.font.lineHeight);
+                ScreenHelper.isHovered(
+                    mouseX, mouseY,
+                    x,
+                    startCategoryHeight,
+                    getCategoryWidth(),
+                    categoryContentBottom - startCategoryHeight
+                )
+                    && ScreenHelper.isHovered(
+                    mouseX, mouseY,
+                    x,
+                    entryY,
+                    getCategoryWidth(),
+                    this.font.lineHeight
+                );
 
             if (categoryHovered) {
                 graphics.requestCursor(CursorTypes.POINTING_HAND);
@@ -1091,9 +845,9 @@ public class AriesScreen extends Screen {
                 entryY,
                 color
             );
-
-            index++;
         }
+
+        graphics.disableScissor();
     }
 
     //menu hovering options
@@ -1262,7 +1016,7 @@ public class AriesScreen extends Screen {
         }
     }
 
-    private AriesCategory getSearchCategory() {
+    public AriesCategory getSearchCategory() {
         if (!searchBar.hasQuery()) {
             return selectedCategory;
         }
@@ -1324,14 +1078,9 @@ public class AriesScreen extends Screen {
         }
 
         // Alpha bar
-        //noinspection RedundantIfStatement
-        if (ScreenHelper.isHovered(
-            mouseX, mouseY, x, ColorPickerInteraction.getColorPickerAlphaY(activeColorPicker), width, barHeight)
-        ) {
-            return true;
-        }
-
-        return false;
+        return ScreenHelper.isHovered(
+            mouseX, mouseY, x, ColorPickerInteraction.getColorPickerAlphaY(activeColorPicker), width, barHeight
+        );
     }
 
     private boolean isOverConfigInteraction(int mouseX, int mouseY) {
@@ -1346,6 +1095,19 @@ public class AriesScreen extends Screen {
         }
 
         return false;
+    }
+
+    public void drawScrollbar(GuiGraphicsExtractor graphics, int x, int y, int height, int visibleHeight) {
+        // track
+        graphics.fill(x, y, x + SCROLLBAR_WIDTH, y + height, 0xFF151A21);
+
+        int thumbHeight = AriesScreenLayout.calculateThumbHeight(height, contentHeight, visibleHeight);
+
+        int thumbY =
+            AriesScreenLayout.calculateThumbY(y, height, thumbHeight, scrollOffset, contentHeight, visibleHeight);
+
+        // thumb
+        graphics.fill(x, thumbY, x + SCROLLBAR_WIDTH, thumbY + thumbHeight, 0xFF0058E1);
     }
 
     private boolean isOverScrollbar(int mouseX, int mouseY) {
@@ -1430,8 +1192,49 @@ public class AriesScreen extends Screen {
         return scrollOffset;
     }
 
+    public int getCategoryScrollOffset() {
+        return categoryScrollOffset;
+    }
+
+    public int getCategoryContentHeight() {
+        List<AriesCategory> categories = getSelectableCategories();
+
+        if (categories.isEmpty()) {
+            return 0;
+        }
+
+        return (int) ((categories.size() - 1) * (font.lineHeight + CATEGORY_SPACING) + font.lineHeight);
+    }
+
+    public int getCategoryVisibleHeight() {
+        int y = ScreenHelper.centreY(this.height, getMenuHeight());
+
+        int startCategoryHeight = (int) (y + PADDING + font.lineHeight + PADDING * 1.5);
+        int categoryContentBottom = y + getMenuHeight() - PADDING;
+
+        return categoryContentBottom - startCategoryHeight;
+    }
+
+    private void clampCategoryScroll() {
+        int contentHeight = getCategoryContentHeight();
+        int visibleHeight = getCategoryVisibleHeight();
+
+        int maxScroll = Math.max(0, contentHeight - visibleHeight);
+
+        categoryScrollOffset = Mth.clamp(categoryScrollOffset, 0, maxScroll);
+    }
+
+    public void scrollCategories(int amount) {
+        categoryScrollOffset += amount;
+        clampCategoryScroll();
+    }
+
     public int getContentHeight() {
         return contentHeight;
+    }
+
+    public void setContentHeight(int contentHeight) {
+        this.contentHeight = contentHeight;
     }
 
     public void setSelectedCategory(AriesCategory selectedCategory) {
@@ -1479,6 +1282,10 @@ public class AriesScreen extends Screen {
         return activeColorPicker;
     }
 
+    public void setActiveColorPicker(OpenColorPicker activeColorPicker) {
+        this.activeColorPicker = activeColorPicker;
+    }
+
     public void closeColorPicker() {
         activeColorPicker = null;
     }
@@ -1486,6 +1293,10 @@ public class AriesScreen extends Screen {
     // list picker
     public OpenListPicker getActiveListPicker() {
         return activeListPicker;
+    }
+
+    public void setActiveListPicker(OpenListPicker activeListPicker) {
+        this.activeListPicker = activeListPicker;
     }
 
     public void closeListPicker() {

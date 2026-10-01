@@ -7,7 +7,7 @@ import java.util.Locale;
 
 public class SearchHelper {
 
-    private void ScreenHelper() {}
+    private SearchHelper() {}
 
     public static boolean matches(AriesFeature feature, String query) {
         if (query.isBlank()) {
