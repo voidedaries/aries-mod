@@ -71,8 +71,10 @@ public enum Critter {
     }
 
     public static Critter fromName(String name) {
+        String normalisedName = name.replaceAll("§.", "").trim();
+
         for (Critter critter : values()) {
-            if (critter.name.equals(name)) {
+            if (critter.name.equalsIgnoreCase(normalisedName)) {
                 return critter;
             }
         }

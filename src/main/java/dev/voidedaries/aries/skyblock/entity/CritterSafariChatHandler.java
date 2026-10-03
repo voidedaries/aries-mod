@@ -37,8 +37,10 @@ public class CritterSafariChatHandler {
 
             if (text.contains("CAPTURE!")) {
                 String critterName = text
-                    .replaceAll(".*You caught a ", "")
                     .replaceAll("§.", "")
+                    .replaceAll(".*You caught (?:a|an) ", "")
+                    .replaceAll(".*You found the ", "")
+                    .replaceAll(",.*", "")
                     .replaceAll(" and gained.*", "");
 
                 Critter critter = Critter.fromName(critterName);
