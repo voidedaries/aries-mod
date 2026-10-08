@@ -16,10 +16,7 @@ public class AbstractRecipeBookScreenMixin {
 
     @Unique
     private boolean isInside(double mouseX, double mouseY, int x, int y) {
-        return mouseX >= x
-            && mouseX <= x + 8
-            && mouseY >= y
-            && mouseY <= y + 8;
+        return mouseX >= x && mouseX <= x + 8 && mouseY >= y && mouseY <= y + 8;
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

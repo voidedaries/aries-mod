@@ -13,11 +13,13 @@
     "AbstractContainerScreenMixin",
     "AbstractRecipeBookScreenMixin",
     "AvatarRendererMixin",
+    "AvatarRenderStateMixin",
     "ChatComponentMixin",
     "ClientPacketListenerMixin",
     "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
     "EquipmentLayerRendererMixin",
+    "GuiGraphicsExtractorMixin",
     "HumanoidArmorLayerMixin",
     "InventoryScreenMixin",
     "ItemEntityRendererMixin",
@@ -30,7 +32,8 @@
     "MouseHandlerMixin",
     "OptionsMixin",
     "PauseScreenMixin",
-    "ScreenEffectRendererMixin"
+    "ScreenEffectRendererMixin",
+    "ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

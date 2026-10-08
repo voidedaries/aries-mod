@@ -1,8 +1,8 @@
 package dev.voidedaries.aries.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.voidedaries.aries.client.accessor.AvatarRenderStateAccessor;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -26,11 +26,15 @@ public class HumanoidArmorLayerMixin<S extends HumanoidRenderState> {
         S state,
         CallbackInfo ci
     ) {
-        if (Minecraft.getInstance().player == null) {
+        if (!AriesFeatures.HIDE_ARMOR.isEnabled()) {
             return;
         }
 
-        if (!AriesFeatures.HIDE_ARMOR.isEnabled()) {
+        if (!(state instanceof AvatarRenderStateAccessor accessor)) {
+            return;
+        }
+
+        if (!accessor.aries$isLocalPlayer()) {
             return;
         }
 

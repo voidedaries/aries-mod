@@ -1,5 +1,6 @@
 package dev.voidedaries.aries.skyblock.item;
 
+import dev.voidedaries.aries.Aries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
@@ -35,9 +36,10 @@ public class SkyblockItemLookup {
 
         SkyblockItem skyblockItem = SKYBLOCK_ITEM_BY_INTERNAL_NAME.get(internalName);
 
-        // if item not found in zip file may produce exception
+        // item may not exist in the loaded Skyblock item data
         if (skyblockItem == null) {
-            throw new IllegalStateException("SkyblockItem not found for " + internalName);
+            Aries.log("SkyblockItem not found for " + internalName);
+            return null;
         }
 
         return skyblockItem;
@@ -47,11 +49,12 @@ public class SkyblockItemLookup {
         try {
             // wait for initialization of SkyblockItems to be initialized before looking up
             if (!LATCH.await(10, TimeUnit.SECONDS)) {
-                throw new IllegalStateException("Timed out waiting for SkyblockItem");
+                Aries.log("Timed out waiting for SkyblockItem initialization");
             }
 
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
+            Aries.log("Interrupted while waiting for SkyblockItem initialization");
         }
     }
 
@@ -60,7 +63,8 @@ public class SkyblockItemLookup {
     }
 
     public Component getDisplayName() {
-        return getSkyblockItem().displayName();
+        SkyblockItem item = getSkyblockItem();
+        return item != null ? item.displayName() : Component.empty();
     }
 
     public String getCleanDisplayName() {
@@ -68,11 +72,13 @@ public class SkyblockItemLookup {
     }
 
     public CompoundTag getCustomData() {
-        return getSkyblockItem().customData();
+        SkyblockItem item = getSkyblockItem();
+        return item != null ? item.customData() : new CompoundTag();
     }
 
     public List<Component> getLore() {
-        return getSkyblockItem().lore();
+        SkyblockItem item = getSkyblockItem();
+        return item != null ? item.lore() : List.of();
     }
 
 }

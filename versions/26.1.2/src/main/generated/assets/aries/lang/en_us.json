@@ -51,6 +51,8 @@
   "gui.category.dev.yggdrasil_log_suppression.name": "Suppress Yggdrasil Errors",
   "gui.category.misc.fps_display.description": "displays your current frames per second as a customisable HUD element.",
   "gui.category.misc.fps_display.name": "FPS Display",
+  "gui.category.misc.tooltip_scroll.description": "allows long item tooltips to be scrolled using the mouse wheel, making large tooltip information easier to read.",
+  "gui.category.misc.tooltip_scroll.name": "Tooltip Scroll",
   "gui.category.settings.gui_location.button": "GUI Editor",
   "gui.category.settings.gui_location_button.description": "open the GUI Editor to change overlay positions and attributes.",
   "gui.category.settings.gui_location_button.name": "GUI Editor",

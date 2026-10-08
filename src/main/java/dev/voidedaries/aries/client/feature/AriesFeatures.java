@@ -73,6 +73,7 @@ public class AriesFeatures {
 
     // misc
     public static final FPSDisplayFeature FPS_DISPLAY = register(new FPSDisplayFeature());
+    public static final TooltipScrollFeature TOOLTIP_SCROLL = register(new TooltipScrollFeature());
 
     private static <T extends AriesFeature> T register(T feature) {
         FEATURES.add(feature);

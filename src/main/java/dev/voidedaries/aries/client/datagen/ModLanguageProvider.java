@@ -346,6 +346,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "displays your current frames per second as a customisable HUD element."
         );
 
+        addTranslation(
+            translations, AriesCategory.MISC,
+            "tooltip_scroll",
+            "Tooltip Scroll",
+            "allows long item tooltips to be scrolled using the mouse wheel, making large tooltip information easier to read."
+        );
+
         addHeldItemCustomisationTranslations(translations);
 
         addItemRarityScalingTranslations(translations);

@@ -1,7 +1,10 @@
-# Aries - v1.4.11
+# Aries - v1.4.12
+
+### Features
+- Added Tooltip Scroll, enabling vertical and horizontal tooltip scrolling and adjustable tooltip scaling using the mouse wheel.
+
 
 ### Bug Fix
-
-- Fixed Critter Safari tracking not correctly handling multiple chat message formats
-- Improved Critter Safari critter detection by reliably parsing the critter name from Shard messages
-- Fixed Critter Safari session tracking not always starting and ending correctly
+- Prevented crashes when looking up SkyBlock item data for items that could not be found or identified.
+- Fixed custom skulls not being hidden when the helmet slot was disabled.
+- Fixed armor visibility settings incorrectly hiding armor belonging to other players.
