@@ -20,12 +20,15 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipFile;
 
 public class SkyBlockRepoDownloader {
     private static final Path REPO_DIRECTORY = FabricLoader.getInstance().getConfigDir()
         .resolve(ModConstants.MOD_ID.toLowerCase(Locale.ROOT))
         .resolve("neu-skyblock-repo");
+
+    private static final AtomicBoolean RELOAD_RUNNING = new AtomicBoolean(false);
 
     // for sha key
     private static final Path COMMIT_FILE = REPO_DIRECTORY.resolve("version");
@@ -41,8 +44,30 @@ public class SkyBlockRepoDownloader {
     });
 
     // Runs the repository asynchronously on a dedicated executor so repository/network operations never block the client thread.
-    public static void updateAsync() {
-        EXECUTOR.submit(SkyBlockRepoDownloader::update);
+    public static boolean updateAsync() {
+        if (!RELOAD_RUNNING.compareAndSet(false, true)) {
+            Aries.log("NEU repository reload is already running");
+            return false;
+        }
+
+        SkyblockItemLookup.beginInit();
+
+        try {
+            EXECUTOR.submit(() -> {
+                try {
+                    update();
+                } finally {
+                    SkyblockItemLookup.finishInit();
+                    RELOAD_RUNNING.set(false);
+                }
+            });
+
+            return true;
+        } catch (RuntimeException ex) {
+            SkyblockItemLookup.finishInit();
+            RELOAD_RUNNING.set(false);
+            throw ex;
+        }
     }
 
     private static void update() {
@@ -55,6 +80,10 @@ public class SkyBlockRepoDownloader {
 
             HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
+            if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException("GitHub API returned HTTP " + response.statusCode());
+            }
+
             JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
             String latestCommit = json.get("sha").getAsString();
@@ -63,26 +92,27 @@ public class SkyBlockRepoDownloader {
             Aries.log("Latest NEU repo commit: {}", latestCommit);
             Aries.log("Local NEU repo commit: {}", localCommit);
 
-            if (latestCommit.equals(localCommit)) {
-                if (isValidZip()) {
+            if (latestCommit.equals(localCommit) && isValidZip()) {
+                if (NeuItemJsonParser.readNeuSkyblockItemZip()) {
                     Aries.log("NEU repository is up to date");
-                    NeuItemJsonParser.readNeuSkyblockItemZip();
                     return;
                 }
 
-                Aries.warn("NEU repository ZIP is invalid, redownloading");
-                Files.deleteIfExists(NEU_REPO_ZIP);
+                Aries.warn("Failed to parse NEU repository ZIP, redownloading");
             }
 
             Aries.log("NEU repository update required");
 
+            Files.deleteIfExists(NEU_REPO_ZIP);
             downloadRepo(latestCommit);
-            NeuItemJsonParser.readNeuSkyblockItemZip();
+
+            if (!NeuItemJsonParser.readNeuSkyblockItemZip()) {
+                throw new IOException("Failed to parse download NEU repository ZIP");
+            }
+
             saveLocalCommit(latestCommit);
         } catch (Exception ex) {
             Aries.warn("Failed to check NEU repository: {}", ex);
-        } finally {
-            SkyblockItemLookup.finishInit();
         }
     }
 

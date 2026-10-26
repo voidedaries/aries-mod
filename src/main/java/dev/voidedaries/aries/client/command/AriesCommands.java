@@ -7,6 +7,8 @@ import dev.voidedaries.aries.Aries;
 import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.gui.AriesScreen;
+import dev.voidedaries.aries.client.message.AriesMessage;
+import dev.voidedaries.aries.skyblock.repo.SkyBlockRepoDownloader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -22,7 +24,7 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 
 public class AriesCommands {
-    static int SINGLE_FAIL = 1;
+    static int SINGLE_FAIL = 0;
 
     public static void init() {
         ClientCommandRegistrationCallback.EVENT.register((
@@ -45,7 +47,7 @@ public class AriesCommands {
                 .executes(_ -> {
                     AriesConfig.save();
                     Aries.log("Saved Aries config");
-                    return SINGLE_FAIL;
+                    return Command.SINGLE_SUCCESS;
                 })
             ));
 
@@ -63,6 +65,24 @@ public class AriesCommands {
                 .then(ClientCommands.literal("data")
                 .executes(_ -> debugItemData()))
             ));
+
+        root.then(ClientCommands.literal("skyblockitems")
+            .then(ClientCommands.literal("reload")
+                .executes(_ -> {
+                    if (SkyBlockRepoDownloader.updateAsync()) {
+                        AriesMessage.sendPlayerInfoMessage(
+                            Component.literal("Reloading Skyblock items...")
+                        );
+                    } else {
+                        AriesMessage.sendPlayerWarnMessage(
+                            Component.literal("Skyblock item repository reload is already running!")
+                        );
+                    }
+
+                    return Command.SINGLE_SUCCESS;
+                })
+            )
+        );
 
 
         dispatcher.register(root);

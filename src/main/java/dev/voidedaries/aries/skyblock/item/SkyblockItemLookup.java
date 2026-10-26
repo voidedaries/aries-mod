@@ -6,12 +6,12 @@ import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.*;
 
 public class SkyblockItemLookup {
-    private static final HashMap<String, SkyblockItem> SKYBLOCK_ITEM_BY_INTERNAL_NAME = new HashMap<>();
-    private static final CountDownLatch LATCH = new CountDownLatch(1);
+    private static volatile Map<String, SkyblockItem> SKYBLOCK_ITEM_BY_INTERNAL_NAME = Map.of();
+    private static volatile CompletableFuture<Void> initialization = new CompletableFuture<>();
     private final String internalName;
 
     public static final SkyblockItemLookup ASPECT_OF_THE_END = new SkyblockItemLookup("ASPECT_OF_THE_END");
@@ -21,14 +21,32 @@ public class SkyblockItemLookup {
         this.internalName = internalName;
     }
 
+    public static void beginInit() {
+        initialization = new CompletableFuture<>();
+    }
+
     public static void init(HashMap<String, SkyblockItem> skyblockItemByInternalName) {
-        SKYBLOCK_ITEM_BY_INTERNAL_NAME.clear();
-        SKYBLOCK_ITEM_BY_INTERNAL_NAME.putAll(skyblockItemByInternalName);
+        SKYBLOCK_ITEM_BY_INTERNAL_NAME = Map.copyOf(skyblockItemByInternalName);
     }
 
     public static void finishInit() {
         // notifying latch that it has finished initializing
-        LATCH.countDown();
+        initialization.complete(null);
+    }
+
+    private static void ensureInitialization() {
+        CompletableFuture<Void> current = initialization;
+
+        try {
+            current.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            Aries.log("Timed out waiting for SkyblockItem initialization");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Aries.log("Interrupted while waiting for SkyblockItem initialization");
+        } catch (ExecutionException e) {
+            Aries.log("SkyblockItem initialization failed: " + e.getCause());
+        }
     }
 
     public SkyblockItem getSkyblockItem() {
@@ -43,19 +61,6 @@ public class SkyblockItemLookup {
         }
 
         return skyblockItem;
-    }
-
-    private static void ensureInitialization() {
-        try {
-            // wait for initialization of SkyblockItems to be initialized before looking up
-            if (!LATCH.await(10, TimeUnit.SECONDS)) {
-                Aries.log("Timed out waiting for SkyblockItem initialization");
-            }
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            Aries.log("Interrupted while waiting for SkyblockItem initialization");
-        }
     }
 
     public String getInternalName() {

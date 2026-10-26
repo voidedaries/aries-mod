@@ -47,8 +47,8 @@ public abstract class GuiGraphicsExtractorMixin {
         @Nullable Identifier style,
         CallbackInfo ci
     ) {
-        int scrollX = TooltipScrollState.getScrollX();
-        int scrollY = TooltipScrollState.getScrollY();
+        float scrollX = TooltipScrollState.getScrollX();
+        float scrollY = TooltipScrollState.getScrollY();
         float scale = TooltipScrollState.getScale();
 
         this.pose.translate(xo, yo);

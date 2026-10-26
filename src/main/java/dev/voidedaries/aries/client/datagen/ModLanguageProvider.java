@@ -353,6 +353,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "allows long item tooltips to be scrolled using the mouse wheel, making large tooltip information easier to read."
         );
 
+        addTranslation(
+            translations, AriesCategory.MISC,
+            "tooltip_scroll.smooth_scroll",
+            "Smooth Scrolling",
+            "smoothly animates tooltip movement when scrolling."
+        );
+
         addHeldItemCustomisationTranslations(translations);
 
         addItemRarityScalingTranslations(translations);

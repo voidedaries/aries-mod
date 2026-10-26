@@ -7,21 +7,52 @@ import java.util.List;
 public final class TooltipScrollState {
 
     private static float scale = 1.0f;
-    private static int scrollX;
-    private static int scrollY;
+
     private static List<ClientTooltipComponent> currentTooltip;
+    private static boolean tooltipSeenThisFrame;
+
+    private static float displayedScrollX;
+    private static float displayedScrollY;
+
+    private static int targetScrollX;
+    private static int targetScrollY;
+
+    private static final float SMOOTHING = 0.22f;
 
     private TooltipScrollState() {}
 
     public static void reset() {
-        scale = 1.0f;
-        scrollX = 0;
-        scrollY = 0;
+        resetPosition();
         currentTooltip = null;
+        tooltipSeenThisFrame = false;
+    }
+
+    private static void resetPosition() {
+        scale = 1.0f;
+
+        targetScrollX = 0;
+        targetScrollY = 0;
+
+        displayedScrollX = 0.0f;
+        displayedScrollY = 0.0f;
+    }
+
+    public static void beginFrame() {
+        tooltipSeenThisFrame = false;
+    }
+
+    public static void endFrame() {
+        if (!tooltipSeenThisFrame && currentTooltip != null) {
+            reset();
+        }
     }
 
     public static void setTooltip(List<ClientTooltipComponent> tooltip) {
-        currentTooltip = tooltip;
+        tooltipSeenThisFrame = true;
+
+        if (currentTooltip == null) {
+            currentTooltip = List.copyOf(tooltip);
+        }
     }
 
     public static boolean hasTooltip() {
@@ -36,27 +67,28 @@ public final class TooltipScrollState {
         scale = Math.clamp(scale + amount, 0.1f, Float.POSITIVE_INFINITY);
     }
 
-    public static int getScrollX() {
-        return scrollX;
+    public static float getScrollX() {
+        return displayedScrollX;
     }
 
-    public static int getScrollY() {
-        return scrollY;
-    }
-
-    public static void scrollHorizontal(int amount) {
-        if (!hasTooltip()) {
-            return;
-        }
-
-        scrollX += amount;
+    public static float getScrollY() {
+        return displayedScrollY;
     }
 
     public static void scrollVertical(int amount) {
-        if (!hasTooltip()) {
-            return;
+        if (hasTooltip()) {
+            targetScrollY += amount;
         }
+    }
 
-        scrollY += amount;
+    public static void scrollHorizontal(int amount) {
+        if (hasTooltip()) {
+            targetScrollX += amount;
+        }
+    }
+
+    public static void tickAnimation() {
+        displayedScrollX += (targetScrollX - displayedScrollX) * SMOOTHING;
+        displayedScrollY += (targetScrollY - displayedScrollY) * SMOOTHING;
     }
 }

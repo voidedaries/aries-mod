@@ -1,10 +1,8 @@
-# Aries - v1.4.12
+# Aries - v1.4.13
 
 ### Features
-- Added Tooltip Scroll, enabling vertical and horizontal tooltip scrolling and adjustable tooltip scaling using the mouse wheel.
-
+- Added smooth scrolling for tooltips.
+- Added a command to redownload the repository and refresh the local copy.
 
 ### Bug Fix
-- Prevented crashes when looking up SkyBlock item data for items that could not be found or identified.
-- Fixed custom skulls not being hidden when the helmet slot was disabled.
-- Fixed armor visibility settings incorrectly hiding armor belonging to other players.
+- Improved tooltip scrolling responsiveness and animation.
