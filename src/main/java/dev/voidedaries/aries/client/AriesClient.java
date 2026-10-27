@@ -9,11 +9,14 @@ import dev.voidedaries.aries.client.keybind.KeybindManager;
 import dev.voidedaries.aries.client.render.BlockRenderManager;
 import dev.voidedaries.aries.client.render.EntityRendererManager;
 import dev.voidedaries.aries.client.render.gif.GifManager;
+import dev.voidedaries.aries.client.resourcepack.PersistentHypixelPack;
+import dev.voidedaries.aries.client.resourcepack.ServerResourcePackCache;
 import dev.voidedaries.aries.client.update.AriesUpdateChecker;
 import dev.voidedaries.aries.skyblock.entity.CritterSafariChatHandler;
 import dev.voidedaries.aries.skyblock.entity.SkyblockEntityManager;
 import dev.voidedaries.aries.skyblock.repo.SkyBlockRepoDownloader;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class AriesClient implements ClientModInitializer {
 
@@ -34,6 +37,8 @@ public class AriesClient implements ClientModInitializer {
 
         // services
         AriesUpdateChecker.init();
+        ServerResourcePackCache.init(FabricLoader.getInstance().getGameDir());
+        PersistentHypixelPack.init(FabricLoader.getInstance().getGameDir());
         SkyBlockRepoDownloader.updateAsync();
 
         // commands

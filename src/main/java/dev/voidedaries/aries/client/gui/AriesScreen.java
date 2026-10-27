@@ -68,7 +68,7 @@ public class AriesScreen extends Screen {
     static final int MENU_HEIGHT = 220;
     public static final int PADDING = 10;
 
-    static final double CATEGORY_SPACING = PADDING / 1.3;
+    static final double CATEGORY_SPACING = PADDING / 1.5;
     static final int CATEGORY_SCROLL_SPEED = 15;
 
     public static final float DESCRIPTION_SCALE = 0.8f;
@@ -94,14 +94,14 @@ public class AriesScreen extends Screen {
     }
 
     public AriesScreen(@Nullable AriesFeature targetFeature) {
-        this(targetFeature, null);
+        this(null, targetFeature);
     }
 
-    public AriesScreen(@Nullable AriesFeature targetFeature, @Nullable Screen parent) {
+    public AriesScreen(@Nullable Screen parent, @Nullable AriesFeature targetFeature) {
         super(Component.literal(ModConstants.MOD_ID));
 
-        this.targetFeature = targetFeature;
         this.parent = parent;
+        this.targetFeature = targetFeature;
 
         this.featureRenderer = new AriesFeatureRenderer(this);
     }
@@ -147,7 +147,7 @@ public class AriesScreen extends Screen {
 
         // drawing menu & categories
         graphics.fill(x, y, x + getMenuWidth(), y + getMenuHeight(), 0xFF222933);
-        graphics.fill(x, y, x + getCategoryWidth(), y + getMenuHeight(), 0xFF151A21);
+        //graphics.fill(x, y, x + getCategoryWidth(), y + getMenuHeight(), 0xFF151A21);
 
         drawCategories(graphics, mouseX, mouseY, delta);
         drawMenu(graphics, mouseX, mouseY, delta);
@@ -200,6 +200,17 @@ public class AriesScreen extends Screen {
     }
 
     private void drawMenuHeader(GuiGraphicsExtractor graphics, int x, int y) {
+        int iconSize = 20;
+        int iconX = x + PADDING;
+        int iconY = (int) (y + PADDING + (font.lineHeight - iconSize) / 1.7);
+
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            Aries.id("logo_icon"),
+            iconX, iconY,
+            iconSize, iconSize
+        );
+
         MutableComponent modName =
             Component.literal("")
                 .append(Component.translatable("aries.mod_name")
@@ -210,13 +221,13 @@ public class AriesScreen extends Screen {
         graphics.text(
             font,
             modName,
-            x + getCategoryWidth() + 2 * PADDING,
+            iconX + iconSize + PADDING / 2,
             y + PADDING,
             0xFF0058E1
         );
 
         graphics.horizontalLine(
-            x + getCategoryWidth() + PADDING,
+            x + PADDING,
             x + getMenuWidth() - PADDING,
             y + PADDING + font.lineHeight + PADDING / 2,
             0xFF2D3642
@@ -360,10 +371,10 @@ public class AriesScreen extends Screen {
         }
 
         List<Component> info = List.of(
-            Component.translatable("aries.about.version", ModConstants.VERSION),
-            Component.translatable("aries.about.minecraft", ModConstants.minecraftVersion),
-            Component.translatable("aries.about.loader"),
-            Component.translatable("aries.about.author", "VoidedAries")
+            Component.translatable("aries.about.version", Component.literal(ModConstants.VERSION).withColor(0xFFFFFFFF)),
+            Component.translatable("aries.about.minecraft", Component.literal(ModConstants.minecraftVersion).withColor(0xFFFFFFFF)),
+            Component.translatable("aries.about.loader", Component.literal("Fabric").withColor(0xFFFFFFFF)),
+            Component.translatable("aries.about.author", Component.literal("VoidedAries").withColor(0xFFFFFFFF))
         );
 
         graphics.pose().pushMatrix();
@@ -785,36 +796,29 @@ public class AriesScreen extends Screen {
         int x = ScreenHelper.centreX(this.width, getMenuWidth());
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
 
-        int startCategoryHeight = (int) (y + PADDING + this.font.lineHeight + PADDING * 1.5);
+        int headingY = y + PADDING * 3;
+        int startCategoryHeight = getCategoryStartY();
 
         graphics.centeredText(
             this.font,
             Component.translatable("gui.menu.categories"),
-            x + (getCategoryWidth() / 2),
-            y + PADDING,
-            0xFF0058E1
-        );
-
-        graphics.horizontalLine(
-            x + PADDING,
-            x + getCategoryWidth() - PADDING,
-            y + PADDING + this.font.lineHeight + PADDING / 2,
-            0xFF2D3642
+            (int) (x + (getCategoryWidth() / 2.6)),
+            headingY,
+            0xFFADB5C9
         );
 
         AriesCategory current = selectedCategory != null ? selectedCategory : AriesCategory.ABOUT;
 
-        int categoryContentBottom = y + getMenuHeight() - PADDING;
+        int categoryContentBottom = y + getMenuHeight();
 
-        graphics.enableScissor(x, startCategoryHeight, x + getCategoryWidth(), categoryContentBottom);
+        graphics.enableScissor(x, startCategoryHeight - PADDING, x + getCategoryWidth(), categoryContentBottom);
 
         List<AriesCategory> categories = getSelectableCategories();
 
         for (int index = 0; index < categories.size(); index++) {
             AriesCategory category = categories.get(index);
 
-            int entryY =
-                (int) (startCategoryHeight + index * (this.font.lineHeight + CATEGORY_SPACING) - categoryScrollOffset);
+            int entryY = getCategoryEntryY(index);
 
             boolean categoryHovered =
                 ScreenHelper.isHovered(
@@ -838,16 +842,48 @@ public class AriesScreen extends Screen {
 
             int color = (category == current) ? 0xFFFFFFFF : (categoryHovered ? 0xFFFFFFFF : 0xFFADB5C9);
 
-            graphics.centeredText(
+            if (category == current) {
+
+                //background
+                graphics.fill(
+                    (int) (x + PADDING / 0.75) - PADDING / 10,
+                    entryY - PADDING / 5 - PADDING / 10,
+                    x + getCategoryWidth(),
+                    entryY + this.font.lineHeight + PADDING / 10,
+                    0xFF1E2F49
+                );
+
+                //pill
+                graphics.fill(
+                    (int) (x + PADDING / 0.75),
+                    entryY - PADDING / 5,
+                    (int) (x + PADDING / 0.75) + 2,
+                    entryY + this.font.lineHeight,
+                    0xFF0058E1
+                );
+            }
+
+            graphics.text(
                 this.font,
                 category.getName(),
-                x + (getCategoryWidth() / 2),
+                (int) (x + PADDING * 1.75),
                 entryY,
                 color
             );
         }
 
         graphics.disableScissor();
+    }
+
+    public int getCategoryStartY() {
+        int y = ScreenHelper.centreY(this.height, getMenuHeight());
+        int headingY = y + PADDING * 3;
+
+        return (int) (headingY + getFont().lineHeight + PADDING * 0.75);
+    }
+
+    public int getCategoryEntryY(int index) {
+        return getCategoryStartY() + (int) (index * (getFont().lineHeight + CATEGORY_SPACING)) - categoryScrollOffset;
     }
 
     //menu hovering options

@@ -187,7 +187,7 @@ public class AriesScreenMouseHandling {
         }
 
         // categories
-        int startY = (int) (y + AriesScreen.PADDING + screen.getFont().lineHeight + AriesScreen.PADDING * 1.5);
+        int startY = screen.getCategoryStartY();
 
         int categoryBottom = y + screen.getMenuHeight() - AriesScreen.PADDING;
 
@@ -205,10 +205,7 @@ public class AriesScreenMouseHandling {
             for (int index = 0; index < categories.size(); index++) {
                 AriesCategory category = categories.get(index);
 
-                int entryY =
-                    (int) (startY + index
-                        * (screen.getFont().lineHeight + AriesScreen.CATEGORY_SPACING)
-                        - screen.getCategoryScrollOffset());
+                int entryY = screen.getCategoryEntryY(index);
 
                 if (ScreenHelper.isHovered(
                     mouseX, mouseY,

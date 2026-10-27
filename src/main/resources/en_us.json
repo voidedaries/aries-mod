@@ -7,7 +7,7 @@
 
   "aries.about.version": "Version: %s",
   "aries.about.minecraft": "Minecraft: %s",
-  "aries.about.loader": "Loader: Fabric",
+  "aries.about.loader": "Loader: %s",
   "aries.about.author": "Created by %s",
 
   "gui.locations_screen": "Aries GUI Locations",
@@ -51,7 +51,7 @@
   "gui.menu.hud.context.reset_position": "Reset Position",
   "gui.menu.hud.context.reset_scale": "Reset Scale",
 
-  "key.category.aries.main_category": "Aries Keybinds",
+  "key.category.aries.main_category": "Aries - Keybinds",
   "key.aries.listening": "...",
   "key.aries.not_bound": "Not Bound",
   "key.aries.peek_chat.keybind": "Peek Chat",

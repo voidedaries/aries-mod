@@ -73,6 +73,8 @@ public class AriesFeatures {
 
     // misc
     public static final FPSDisplayFeature FPS_DISPLAY = register(new FPSDisplayFeature());
+    public static final PersistentServerResourcePackFeature PERSISTENT_SERVER_RESOURCE_PACK =
+        register(new PersistentServerResourcePackFeature());
     public static final TooltipScrollFeature TOOLTIP_SCROLL = register(new TooltipScrollFeature());
 
     private static <T extends AriesFeature> T register(T feature) {

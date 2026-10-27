@@ -138,9 +138,23 @@ public class AriesFeatureRenderer {
                 }
             }
 
-            // tracks the next available vertical position in the content layout
-            int nextContentY = entryContentY;
-            nextContentY += Math.max(featureTextHeight, featureConfigHeight) + AriesScreen.FEATURE_SPACING * 4;
+            // feature content and spacing
+            int featureContentHeight = Math.max(featureTextHeight, featureConfigHeight);
+            int featureSpacing = AriesScreen.FEATURE_SPACING * 4;
+
+            int featureContentBottom = entryContentY + featureContentHeight;
+            int nextContentY = featureContentBottom + featureSpacing;
+
+            // divider centred in the actual gap
+            int dividerY = featureContentBottom + featureSpacing / 2 - scrollOffset;
+            int dividerOffset = AriesScreen.PADDING / 5;
+
+            graphics.horizontalLine(
+                contentX,
+                contentRight - AriesScreen.PADDING,
+                dividerY + dividerOffset,
+                0xFF262D38
+            );
 
             // drawing entries for feature specific sub-configs
             for (FeatureEntry entry : feature.getEntries()) {
@@ -213,8 +227,21 @@ public class AriesFeatureRenderer {
                     }
                 }
 
-                // move the layout cursor down by the entry's height
-                nextContentY += Math.max(textHeight, configHeight) + AriesScreen.ENTRY_SPACING * 4;
+                // entry content and spacing
+                int entryContentHeight = Math.max(textHeight, configHeight);
+                int entrySpacing = AriesScreen.ENTRY_SPACING * 4;
+
+                nextContentY += entryContentHeight;
+
+                // divider centred in the entry spacing, offset down by 1 pixel
+                graphics.horizontalLine(
+                    contentX,
+                    contentRight - AriesScreen.PADDING,
+                    nextContentY + entrySpacing / 2 - scrollOffset + 1,
+                    0xFF262D38
+                );
+
+                nextContentY += entrySpacing;
             }
 
             // position entries below the feature

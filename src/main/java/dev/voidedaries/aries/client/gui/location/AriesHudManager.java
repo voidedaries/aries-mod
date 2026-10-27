@@ -1,7 +1,6 @@
 package dev.voidedaries.aries.client.gui.location;
 
 import dev.voidedaries.aries.Aries;
-import dev.voidedaries.aries.client.AriesConfig;
 import dev.voidedaries.aries.client.feature.AriesFeature;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -19,6 +18,40 @@ public class AriesHudManager {
     private static int lastScreenHeight = -1;
 
     private static final Map<HudRenderable, HudBounds> lastHudBounds = new HashMap<>();
+
+    private record Resolution(int width, int height) {}
+    private record HudPositionSnapshot(int x, int y) {}
+
+    private static final Map<Resolution, Map<HudRenderable, HudPositionSnapshot>> positionSnapshots = new HashMap<>();
+
+    private static void savePositionSnapshot(Resolution resolution) {
+        Map<HudRenderable, HudPositionSnapshot> snapshot = new HashMap<>();
+
+        for (HudRenderable hud : getHudElements()) {
+            HudPosition position = hud.getHudPosition();
+            snapshot.put(hud, new HudPositionSnapshot(position.getX(), position.getY()));
+        }
+
+        positionSnapshots.put(resolution, snapshot);
+    }
+
+    private static boolean restorePositionSnapshot(Resolution resolution) {
+        Map<HudRenderable, HudPositionSnapshot> snapshot =
+            positionSnapshots.get(resolution);
+
+        if (snapshot == null) {
+            return false;
+        }
+
+        for (Map.Entry<HudRenderable, HudPositionSnapshot> entry : snapshot.entrySet()) {
+            HudPosition position = entry.getKey().getHudPosition();
+            HudPositionSnapshot saved = entry.getValue();
+
+            position.setPosition(saved.x(), saved.y());
+        }
+
+        return true;
+    }
 
     public static void init() {
         HudElementRegistry.addLast(
@@ -59,6 +92,9 @@ public class AriesHudManager {
         if (lastScreenWidth == -1 || lastScreenHeight == -1) {
             lastScreenWidth = screenWidth;
             lastScreenHeight = screenHeight;
+
+            savePositionSnapshot(new Resolution(screenWidth, screenHeight));
+
             return;
         }
 
@@ -66,12 +102,19 @@ public class AriesHudManager {
             return;
         }
 
-        relocateHudElements(lastScreenWidth, lastScreenHeight, screenWidth, screenHeight);
+        Resolution oldResolution = new Resolution(lastScreenWidth, lastScreenHeight);
+        Resolution newResolution = new Resolution(screenWidth, screenHeight);
+
+        savePositionSnapshot(oldResolution);
+
+        if (!restorePositionSnapshot(newResolution)) {
+            relocateHudElements(lastScreenWidth, lastScreenHeight, screenWidth, screenHeight);
+
+            savePositionSnapshot(newResolution);
+        }
 
         lastScreenWidth = screenWidth;
         lastScreenHeight = screenHeight;
-
-        AriesConfig.save();
     }
 
     private static void relocateHudElements(

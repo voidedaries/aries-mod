@@ -67,6 +67,11 @@ repositories {
     maven {
         url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
     }
+
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
 }
 
 dependencies {
@@ -77,6 +82,9 @@ dependencies {
     implementation "net.hypixel:mod-api:${project.hypixel_mod_api_version}"
 
     implementation "me.djtheredstoner:DevAuth-fabric:${project.dev_auth_version}"
+
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    runtimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 

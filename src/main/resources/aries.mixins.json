@@ -16,6 +16,8 @@
     "AvatarRenderStateMixin",
     "ChatComponentMixin",
     "ClientPacketListenerMixin",
+    "ConnectScreenMixin",
+    "DownloadedPackSourceMixin",
     "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
     "EquipmentLayerRendererMixin",
@@ -29,11 +31,15 @@
     "KeyMappingMixin",
     "LevelRendererMixin",
     "LivingEntityRendererMixin",
+    "MinecraftMixin",
     "MouseHandlerMixin",
     "OptionsMixin",
     "PauseScreenMixin",
     "ScreenEffectRendererMixin",
-    "ScreenMixin"
+    "ScreenMixin",
+    "ServerPackDataAccessor",
+    "ServerPackManagerAccessor",
+    "ServerPackManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

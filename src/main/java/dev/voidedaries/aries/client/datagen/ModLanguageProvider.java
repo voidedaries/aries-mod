@@ -348,6 +348,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
 
         addTranslation(
             translations, AriesCategory.MISC,
+            "persistent_resource_pack",
+            "Persistent Server Resource Packs",
+            "caches and reuses Hypixels server resource pack to avoid repeat loads."
+        );
+
+        addTranslation(
+            translations, AriesCategory.MISC,
             "tooltip_scroll",
             "Tooltip Scroll",
             "allows long item tooltips to be scrolled using the mouse wheel, making large tooltip information easier to read."

@@ -531,7 +531,7 @@ public class GUILocationsScreen extends Screen {
         resizeHandle = null;
         resizeStartBounds = null;
 
-        Minecraft.getInstance().setScreenAndShow(new AriesScreen(feature, this));
+        Minecraft.getInstance().setScreenAndShow(new AriesScreen(this, feature));
     }
 
     private void toggleHud(HudRenderable hud) {

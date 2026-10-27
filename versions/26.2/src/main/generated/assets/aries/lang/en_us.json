@@ -1,6 +1,6 @@
 {
   "aries.about.author": "Created by %s",
-  "aries.about.loader": "Loader: Fabric",
+  "aries.about.loader": "Loader: %s",
   "aries.about.minecraft": "Minecraft: %s",
   "aries.about.version": "Version: %s",
   "aries.description": "A lightweight client-side mod designed to improve visibility and reduce repetitive tasks while keeping the vanilla experience.",
@@ -51,8 +51,12 @@
   "gui.category.dev.yggdrasil_log_suppression.name": "Suppress Yggdrasil Errors",
   "gui.category.misc.fps_display.description": "displays your current frames per second as a customisable HUD element.",
   "gui.category.misc.fps_display.name": "FPS Display",
+  "gui.category.misc.persistent_resource_pack.description": "caches and reuses Hypixels server resource pack to avoid repeat loads.",
+  "gui.category.misc.persistent_resource_pack.name": "Persistent Server Resource Packs",
   "gui.category.misc.tooltip_scroll.description": "allows long item tooltips to be scrolled using the mouse wheel, making large tooltip information easier to read.",
   "gui.category.misc.tooltip_scroll.name": "Tooltip Scroll",
+  "gui.category.misc.tooltip_scroll.smooth_scroll.description": "smoothly animates tooltip movement when scrolling.",
+  "gui.category.misc.tooltip_scroll.smooth_scroll.name": "Smooth Scrolling",
   "gui.category.settings.gui_location.button": "GUI Editor",
   "gui.category.settings.gui_location_button.description": "open the GUI Editor to change overlay positions and attributes.",
   "gui.category.settings.gui_location_button.name": "GUI Editor",
@@ -172,5 +176,5 @@
   "key.aries.listening": "...",
   "key.aries.not_bound": "Not Bound",
   "key.aries.peek_chat.keybind": "Peek Chat",
-  "key.category.aries.main_category": "Aries Keybinds"
+  "key.category.aries.main_category": "Aries - Keybinds"
 }
