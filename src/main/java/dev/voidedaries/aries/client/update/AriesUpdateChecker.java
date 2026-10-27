@@ -96,7 +96,7 @@ public class AriesUpdateChecker {
             .map(version ->
                 new ModrinthVersion(version.get("version_number").getAsString(), version.get("id").getAsString())
             )
-            .max(Comparator.comparing(version -> parseVersion(version.version())))
+            .max(Comparator.comparing(version -> parseVersion(getAriesVersion(version.version()))))
             .orElse(null);
     }
 
@@ -109,7 +109,20 @@ public class AriesUpdateChecker {
     }
 
     private static boolean isNewerVersion(String latestVersion) {
-        return parseVersion(latestVersion).compareTo(parseVersion(ModConstants.VERSION)) > 0;
+        String latestAriesVersion = getAriesVersion(latestVersion);
+        String currentAriesVersion = getAriesVersion(ModConstants.VERSION);
+
+        return parseVersion(latestAriesVersion).compareTo(parseVersion(currentAriesVersion)) > 0;
+    }
+
+    private static String getAriesVersion(String fullVersion) {
+        int plusIndex = fullVersion.indexOf("+");
+
+        if (plusIndex == -1 || plusIndex == fullVersion.length() - 1) {
+            return fullVersion;
+        }
+
+        return fullVersion.substring(plusIndex + 1);
     }
 
     private static void showUpdateMessage(ModrinthVersion latestVersion) {
