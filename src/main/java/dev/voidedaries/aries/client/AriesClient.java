@@ -6,6 +6,7 @@ import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.gui.location.AriesHudManager;
 import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.keybind.KeybindManager;
+import dev.voidedaries.aries.client.message.ChatMessage;
 import dev.voidedaries.aries.client.render.BlockRenderManager;
 import dev.voidedaries.aries.client.render.EntityRendererManager;
 import dev.voidedaries.aries.client.render.gif.GifManager;
@@ -34,6 +35,7 @@ public class AriesClient implements ClientModInitializer {
         KeybindManager.init();
         GifManager.init();
         HypixelState.register();
+        ChatMessage.init();
 
         // services
         AriesUpdateChecker.init();

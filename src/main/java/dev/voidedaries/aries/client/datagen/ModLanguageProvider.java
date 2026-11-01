@@ -235,6 +235,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         );
 
         addTranslation(
+            translations, AriesCategory.TORRHUS_CANYON,
+            "honeyhive_display",
+            "Honeyhive Display",
+            "displays a timer when honeyhives need harvesting."
+        );
+
+        addTranslation(
             translations, AriesCategory.VISUALS,
             "etherwarp_outline",
             "Etherwarp Outline",
@@ -344,6 +351,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
             "fps_display",
             "FPS Display",
             "displays your current frames per second as a customisable HUD element."
+        );
+
+        addTranslation(
+            translations, AriesCategory.MISC,
+            "hypixel_pause_menu_button",
+            "Hypixel Pause Menu Button",
+            "adds Hypixel Server Links button to the pause menu, making it easier to discover the links and resources available on the network."
         );
 
         addTranslation(

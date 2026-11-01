@@ -45,10 +45,13 @@ public class AriesFeatures {
     public static final YggdrasilLogSuppressionFeature YGGDRASIL_LOG_SUPPRESSION =
         register(new YggdrasilLogSuppressionFeature());
 
-    // setting
+    // settings
     public static final GUILocationButtonFeature GUI_LOCATION_BUTTON = register(new GUILocationButtonFeature());
     public static final GUILocationKeyFeature GUI_LOCATION_KEY = register(new GUILocationKeyFeature());
-    public static final AriesPauseMenuButtonFeature PAUSE_MENU_BUTTON = register(new AriesPauseMenuButtonFeature());
+    public static final AriesPauseMenuButtonFeature ARIES_PAUSE_MENU_BUTTON = register(new AriesPauseMenuButtonFeature());
+
+    // torrhus canyon
+    public static final HoneyhiveDisplayFeature HONEYHVE_DISPLAY = register(new HoneyhiveDisplayFeature());
 
     // visuals
     public static final EtherwarpOutlineFeature ETHERWARP_OUTLINE =
@@ -73,6 +76,8 @@ public class AriesFeatures {
 
     // misc
     public static final FPSDisplayFeature FPS_DISPLAY = register(new FPSDisplayFeature());
+    public static final HypixelPauseMenuButtonFeature HYPIXEL_PAUSE_MENU_BUTTON =
+        register(new HypixelPauseMenuButtonFeature());
     public static final PersistentServerResourcePackFeature PERSISTENT_SERVER_RESOURCE_PACK =
         register(new PersistentServerResourcePackFeature());
     public static final TooltipScrollFeature TOOLTIP_SCROLL = register(new TooltipScrollFeature());

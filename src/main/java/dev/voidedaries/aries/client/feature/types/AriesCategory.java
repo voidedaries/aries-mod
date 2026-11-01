@@ -22,6 +22,7 @@ public enum AriesCategory {
     CRIMSON_ISLE("crimson_isle"),
     CRITTER_SAFARI("critter_safari"),
     DUNGEONS("dungeons"),
+    TORRHUS_CANYON("torrhus_canyon"),
     VISUALS("visuals"),
     MISC("misc"),
     DEV("dev");
