@@ -1,5 +1,5 @@
-# Aries - v2.1.0
+# Aries - v2.1.1
 
-### Features
-- Added a Hypixel Server Links shortcut to the pause menu, making network links and resources easier to discover.
-- Added a Honeyhive reminder HUD for Torrhus Canyon, featuring a persistent countdown that continues while Minecraft is closed.
+### Bug Fix
+- Fixed item rarity detection for dropped items to prevent conflicts with other mods when rendering item tooltips.
+- Fixed the config watcher thread preventing Minecraft from shutting down cleanly.

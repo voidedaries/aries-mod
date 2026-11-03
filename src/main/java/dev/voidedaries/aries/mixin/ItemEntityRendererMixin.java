@@ -2,25 +2,21 @@ package dev.voidedaries.aries.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.voidedaries.aries.client.accessor.ItemEntityRenderStateAccessor;
-import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
+import dev.voidedaries.aries.client.hypixel.HypixelState;
 import dev.voidedaries.aries.skyblock.item.ItemRarity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemLore;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.List;
 
 @Mixin(ItemEntityRenderer.class)
 public class ItemEntityRendererMixin {
@@ -32,19 +28,16 @@ public class ItemEntityRendererMixin {
         float partialTicks,
         CallbackInfo ci
     ) {
-        ItemStack stack = entity.getItem();
-
-        List<Component> tooltip = stack.getTooltipLines(
-            Item.TooltipContext.EMPTY,
-            Minecraft.getInstance().player,
-            TooltipFlag.NORMAL
-        );
-
         ItemRarity rarity = ItemRarity.UNKNOWN;
 
-        if (!tooltip.isEmpty()) {
-            String lastTooltipLine = tooltip.getLast().toString();
-            rarity = ItemRarity.fromText(lastTooltipLine);
+        if (AriesFeatures.ITEM_RARITY_SCALING.enabled.get() && HypixelState.isPlayerInSkyblock()) {
+            ItemStack stack = entity.getItem();
+            ItemLore lore = stack.get(DataComponents.LORE);
+
+            if (lore != null && !lore.lines().isEmpty()) {
+                String lastTooltipLine = lore.lines().getLast().getString();
+                rarity = ItemRarity.fromText(lastTooltipLine);
+            }
         }
 
         ((ItemEntityRenderStateAccessor) state).aries$setRarity(rarity);
