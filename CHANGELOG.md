@@ -1,5 +1,5 @@
-# Aries - v2.1.1
+# Aries - v2.1.2
 
-### Bug Fix
-- Fixed item rarity detection for dropped items to prevent conflicts with other mods when rendering item tooltips.
-- Fixed the config watcher thread preventing Minecraft from shutting down cleanly.
+### Bug Fixes
+- Fixed passenger synchronization issues caused by suppressing unknown entity warnings.
+- Fixed category scrolling and clicking, allowing all categories to be accessed correctly.

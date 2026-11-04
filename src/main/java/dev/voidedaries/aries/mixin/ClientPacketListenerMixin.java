@@ -1,12 +1,14 @@
 package dev.voidedaries.aries.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.voidedaries.aries.client.feature.AriesFeatures;
 import dev.voidedaries.aries.client.hypixel.HypixelState;
 import net.minecraft.CrashReport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,11 +23,16 @@ public class ClientPacketListenerMixin {
     @Unique
     private static final Pattern ASHFANG_DEATH = Pattern.compile("^ ☠ You were killed by Ashfang(?: .+)?\\.$");
 
-    @Inject(method = "handleSetEntityPassengersPacket", at = @At("HEAD"), cancellable = true)
-    private void aries$suppressPassengerSpam(ClientboundSetPassengersPacket packet, CallbackInfo ci) {
-        if (AriesFeatures.MINECRAFT_WARNING_LOG_SUPPRESSION.isEnabled() && HypixelState.isPlayerInSkyblock()) {
-            ci.cancel();
+    @WrapOperation(method = "handleSetEntityPassengersPacket", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;)V"))
+    private void aries$suppressPassengerSpam(Logger instance, String s, Operation<Void> original) {
+        if (AriesFeatures.MINECRAFT_WARNING_LOG_SUPPRESSION.isEnabled()
+            && HypixelState.isPlayerInSkyblock()
+            && s.equals("Received passengers for unknown entity")
+        ) {
+            return;
         }
+
+        original.call(instance, s);
     }
 
     @Inject(method = "handleSystemChat", at = @At("HEAD"))

@@ -187,16 +187,15 @@ public class AriesScreenMouseHandling {
         }
 
         // categories
-        int startY = screen.getCategoryStartY();
-
-        int categoryBottom = y + screen.getMenuHeight() - AriesScreen.PADDING;
+        int categoryTop = screen.getCategoryStartY();
+        int categoryBottom = screen.getCategoryVisibleBottom();
 
         boolean categoryBounds = ScreenHelper.isHovered(
             mouseX, mouseY,
             x,
-            startY,
+            categoryTop,
             screen.getCategoryWidth(),
-            categoryBottom - startY
+            categoryBottom - categoryTop
         );
 
         if (categoryBounds) {
@@ -204,8 +203,13 @@ public class AriesScreenMouseHandling {
 
             for (int index = 0; index < categories.size(); index++) {
                 AriesCategory category = categories.get(index);
-
                 int entryY = screen.getCategoryEntryY(index);
+
+                boolean insideVisibleArea = entryY >= categoryTop && entryY + screen.getFont().lineHeight <= categoryBottom;
+
+                if (!insideVisibleArea) {
+                    continue;
+                }
 
                 if (ScreenHelper.isHovered(
                     mouseX, mouseY,
@@ -442,8 +446,8 @@ public class AriesScreenMouseHandling {
         int x = ScreenHelper.centreX(screen.getScreenWidth(), screen.getMenuWidth());
         int y = ScreenHelper.centreY(screen.getScreenHeight(), screen.getMenuHeight());
 
-        int categoryTop = (int) (y + AriesScreen.PADDING + screen.getFont().lineHeight + AriesScreen.PADDING * 1.5);
-        int categoryBottom = y + screen.getMenuHeight() - AriesScreen.PADDING;
+        int categoryTop = screen.getCategoryStartY();
+        int categoryBottom = screen.getCategoryVisibleBottom();
 
         boolean categoryBounds = ScreenHelper.isHovered(
             (int) mouseX, (int) mouseY,

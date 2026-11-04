@@ -809,7 +809,7 @@ public class AriesScreen extends Screen {
 
         AriesCategory current = selectedCategory != null ? selectedCategory : AriesCategory.ABOUT;
 
-        int categoryContentBottom = y + getMenuHeight();
+        int categoryContentBottom = getCategoryVisibleBottom();
 
         graphics.enableScissor(x, startCategoryHeight - PADDING, x + getCategoryWidth(), categoryContentBottom);
 
@@ -1243,12 +1243,12 @@ public class AriesScreen extends Screen {
     }
 
     public int getCategoryVisibleHeight() {
+        return getCategoryVisibleBottom() - getCategoryStartY();
+    }
+
+    public int getCategoryVisibleBottom() {
         int y = ScreenHelper.centreY(this.height, getMenuHeight());
-
-        int startCategoryHeight = (int) (y + PADDING + font.lineHeight + PADDING * 1.5);
-        int categoryContentBottom = y + getMenuHeight() - PADDING;
-
-        return categoryContentBottom - startCategoryHeight;
+        return y + getMenuHeight() - PADDING;
     }
 
     private void clampCategoryScroll() {
