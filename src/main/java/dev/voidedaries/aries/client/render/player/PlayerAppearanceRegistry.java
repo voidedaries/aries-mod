@@ -11,7 +11,9 @@ public final class PlayerAppearanceRegistry {
     // these are intentionally not synced and only affect clients running Aries.
     public static final Map<UUID, PlayerAppearance> APPEARANCES = Map.of(
         UUID.fromString("9ec585c6-9393-49bb-88e8-41129022dad8"),
-        new PlayerAppearance("VoidedAries", 1.2f, 1f, 1f, 1f)
+        new PlayerAppearance("VoidedAries", 1.2f, 1f, 1f, 1f, 1f),
+        UUID.fromString("5e62bfe5-9e6e-49fa-b7f8-70ebefdb5f94"),
+        new PlayerAppearance("Dokkan", 1f, 1f, 1f, 1f, -1f)
     );
 
     public static PlayerAppearance get(UUID uuid) {

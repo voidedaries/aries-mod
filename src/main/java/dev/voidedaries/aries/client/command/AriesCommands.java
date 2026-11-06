@@ -84,7 +84,6 @@ public class AriesCommands {
             )
         );
 
-
         dispatcher.register(root);
     }
 

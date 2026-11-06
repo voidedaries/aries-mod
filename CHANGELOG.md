@@ -1,5 +1,4 @@
-# Aries - v2.1.2
+# Aries - v2.1.3
 
-### Bug Fixes
-- Fixed passenger synchronization issues caused by suppressing unknown entity warnings.
-- Fixed category scrolling and clicking, allowing all categories to be accessed correctly.
+### Feature
+- Added a rotation to whitelisted Player Appearances

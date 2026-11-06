@@ -85,4 +85,34 @@ public class AvatarRendererMixin {
         );
     }
 
+    @Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
+    private void aries$playerRotation(
+        AvatarRenderState state,
+        PoseStack poseStack,
+        float bodyRot,
+        float entityScale,
+        CallbackInfo ci
+    ) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft.level == null) {
+            return;
+        }
+
+        Entity entity = minecraft.level.getEntity(state.id);
+
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+
+        PlayerAppearance appearance = PlayerAppearanceRegistry.get(player.getUUID());
+
+        if (appearance == null || appearance.rotation() == 1f) {
+            return;
+        }
+
+        poseStack.translate(0.0F, (state.boundingBoxHeight + 0.1F) / entityScale, 0.0F);
+        poseStack.mulPose(Axis.ZP.rotationDegrees((1.0F - appearance.rotation()) * 90.0F));
+    }
+
 }
